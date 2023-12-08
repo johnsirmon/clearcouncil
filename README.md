@@ -27,3 +27,7 @@ Refer to our 'Getting Started' guide in the documentation section for setup and 
 Open to contributions! Fork the repository and submit a pull request with your suggestions and improvements.
 
 Join us in making local government data more accessible and actionable!
+
+## JavaScript Environment Setup
+
+Before running the JavaScript scripts, make sure you have Node.js and npm installed. Visit [Node.js download page](https://nodejs.org/en/download/) and follow the instructions for your operating system.
