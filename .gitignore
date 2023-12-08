@@ -1,0 +1,10 @@
+# Ignore the main data folder
+data/*
+
+# But keep track of the examples
+!data/examples/
+
+# Ignore other common file types and folders
+*.log
+*.temp
+node_modules/
