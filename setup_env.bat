@@ -1,8 +1,8 @@
 @echo off
 echo Creating Python environment...
-conda create -n clearcounty-env python=3.11 --yes
+conda create -n clearcouncil-env python=3.11 --yes
 echo Activating environment...
-call conda activate clearcounty-env
+call conda activate clearcouncil-env
 echo Installing Python dependencies...
 pip install -r requirements.txt
 echo Setup is complete.
