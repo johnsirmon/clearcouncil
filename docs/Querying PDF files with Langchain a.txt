@@ -1,0 +1,110 @@
+Querying PDF files with Langchain and OpenAI
+Vikraman s
+Vikraman s
+
+·
+Follow
+
+3 min read
+·
+Sep 8
+2
+
+
+
+
+
+Nowadays, PDFs are the de facto standard for document exchange. Even though they efficiently encapsulate text, graphics, and other rich content, extracting and querying specific information from them can be difficult. An in-depth exploration of querying PDFs using Langchain and OpenAI is provided in this guide.
+
+Why Query PDFs?
+PDFs often contain vast amounts of data, from research papers and technical manuals to financial reports. Queries these documents efficiently can save time, reduce manual data extraction, and enable quick insights.
+
+Step 1: Setting Up the Environment
+
+Python libraries are collections of modules that provide functionality for specific tasks. By installing these libraries, you enable your Python environment to access and use these features. There are several purposes for each library in the installation list:
+
+“langchain”: A tool for creating and querying embedded text.
+“openai”: The official OpenAI API client, necessary to fetch embeddings.
+“PyPDF2”: A library to read and manipulate PDF files.
+“faiss-cpu”: Efficient similarity search and clustering of dense vectors.
+“tiktoken”: OpenAI’s Python library for counting tokens in text strings without calling APIs.
+# Install necessary libraries
+!pip install langchain
+!pip install openai
+!pip install PyPDF2
+!pip install faiss-cpu
+!pip install tiktoken
+Step 2: Importing dependencies
+
+By importing, you can make use of a library in your script. After importing it, you can use its modules, functions, and classes. You are importing the required functionalities to read PDFs, split text, embed text, and perform similarity searches on embeddings through this process.
+
+# Importing required functionalities
+from PyPDF2 import PdfReader
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import FAISS
+from typing_extensions import Concatenate
+Step 3: Setting up API Key
+
+Users are authenticated and their usage is tracked using API keys (Application Programming Interface). Users cannot access OpenAI’s services without authentication, ensuring that the platform is not misused. Setting an environment variable ensures that every API call you make during your session is authenticated.
+
+# Set up the OpenAI API key
+import os
+os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"
+Note: Replace "YOUR_API_KEY" with your actual OpenAI API key.
+
+Step 4: Extract Text from PDF
+
+PDFs are not just plain text files. They are compound documents with styles, fonts, images, and more. PdfReader from PyPDF2 abstracts this complexity, allowing developers to focus on extracting textual content without getting bogged down by the underlying intricacies of the PDF format.
+
+# Extract text from a given PDF file
+def extract_pdf_text(file_path):
+    pdf_file = PdfFileReader(file_path)
+    text_data = ''
+    for pg in pdf_file.pages:
+        text_data += pg.extractText()
+    return text_data
+
+pdf_text = extract_pdf_text('path_to_your_pdf.pdf')
+Step 5: Split Text and Embed
+
+Embedding models, especially those from OpenAI, have a limit to the number of tokens (words, characters, punctuation) they can process in one go. If a document surpasses this limit, it might get truncated, leading to loss of information. Splitting ensures each chunk is within the model’s acceptable token limit.
+
+from langchain_api.text_processing import TextChunker
+
+text_chunker = TextChunker(
+    separator="\n",
+    max_chunk_size=800,
+    overlap_length=200
+)
+text_sections = text_chunker.chunk_text(pdf_text)
+Embeddings: Text embeddings convert raw text into vectors in multi-dimensional space. In this space, semantically similar texts are closer together, allowing efficient similarity comparisons. OpenAI’s models are especially proficient in generating rich embeddings that capture the nuances of the text.
+
+from langchain_api.embeddings.openai_tools import OpenAIEmbeds
+from langchain_api.vector_search import FAISSVectorStore
+
+embed_tool = OpenAIEmbeds()
+vector_store = FAISSVectorStore.from_texts(text_sections, embed_tool)
+Step 6: Set Up the Question-Answer Chain
+
+A QA chain is essentially a pre-trained model fine-tuned for question-answering tasks. When fed with a piece of text and a question related to that text, it extracts and returns the most relevant answer. By setting up such a chain, you’re equipping your system with the capability to understand and extract specific information from chunks of embedded text.
+
+from langchain_api.chains.qa_toolchain import setup_qa_chain
+from langchain_api.models import OpenAIModel
+
+qa_chain = setup_qa_chain(OpenAIModel(), chain_variant="basic")
+Step 7: Query Your Text!
+
+After embedding your text and setting up a QA chain, you’re now ready to query your PDF. The process involves two main steps:
+
+Similarity Search: This step identifies which chunks of text are most relevant to your query.
+Question Answering: The relevant chunks are then passed to the QA chain to extract precise answers.
+def query_text(question):
+    relevant_docs = vector_store.find_similar_texts(question)
+    return qa_chain.execute(input_docs=relevant_docs, query_text=question)
+
+response = query_text("Your question here")
+print(response)
+Conclusion:
+
+Being able to efficiently query PDFs (or any large documents) is a game-changer. It eliminates hours of manual searching, reduces human error, and facilitates quicker insights. This guide serves as a starting point, but the applications are limitless. With further refinements and customizations, one can adapt this approach to various industries and use-cases, from legal document analysis to scientific research paper summarization.
