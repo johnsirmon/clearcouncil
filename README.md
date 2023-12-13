@@ -6,6 +6,7 @@ Welcome to **ClearCouncil** – a robust and innovative repository dedicated to 
 
 ## Key Features
 
+- **RAG pipeline using langchain for embedded model creation
 - **Data Collection Scripts**: Utilizing Python, JavaScript, and wget for efficient automated retrieval of documents from county council websites.
 - **Data Parsing and Organization**: Tools for parsing and organizing the collected PDF files.
 - **Embedding in Large Language Models (LLMs)**: Capability to integrate the data into an embedded LLM.
