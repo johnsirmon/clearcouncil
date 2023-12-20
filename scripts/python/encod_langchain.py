@@ -7,7 +7,8 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from datetime import datetime
-
+from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Load environment variables
 load_dotenv()
@@ -54,16 +55,18 @@ num_files_to_process = 10  # Set this to the number of files you want to process
 processed_files = 0
 
 # Using ThreadPoolExecutor for parallel processing
-with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust number of workers as needed
+with ThreadPoolExecutor(max_workers=10) as executor:
+    # Prepare a list to hold the future tasks
+    futures = []
     for filename in os.listdir(pdf_dir):
-        if filename.endswith('.pdf') and processed_files < num_files_to_process:
+        if filename.endswith('.pdf') and len(futures) < num_files_to_process:
             file_path = os.path.join(pdf_dir, filename)
-            executor.submit(process_pdf, file_path)
-            processed_files += 1
+            futures.append(executor.submit(process_pdf, file_path))
 
-        # Break the loop if the desired number of files have been processed
-        if processed_files >= num_files_to_process:
-            break
+    # Process the futures and update the progress bar
+    for _ in tqdm(as_completed(futures), total=len(futures), desc="Processing PDFs"):
+        pass
+
 
 # Save the FAISS index to disk
 # Format the current date in YYYYMMDD format
