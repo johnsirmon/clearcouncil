@@ -10,9 +10,9 @@ from datetime import datetime
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Load environment variables
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+# Provide the relative path to the .env file
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+load_dotenv(dotenv_path=dotenv_path)
 
 pdf_dir = 'data/PDFs'
 embeddings = OpenAIEmbeddings()
