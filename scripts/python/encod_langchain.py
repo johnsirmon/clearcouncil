@@ -1,51 +1,59 @@
 from dotenv import load_dotenv
 import os
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Set up the OpenAI API key and save it to the environment
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-
+import re
+from concurrent.futures import ThreadPoolExecutor
 from PyPDF2 import PdfFileReader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 
-# Directory containing PDFs
-pdf_dir = 'path/to/pdf_folder'
+# Load environment variables
+load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-# Initialize embedding and vector storage
+pdf_dir = 'path/to/pdf_folder'
 embeddings = OpenAIEmbeddings()
 faiss_store = FAISS()
+splitter = CharacterTextSplitter(max_length=1024)
 
-# Iterate over PDF files in the directory
-for filename in os.listdir(pdf_dir):
-    if filename.endswith('.pdf'):
-        file_path = os.path.join(pdf_dir, filename)
-
-        # Open the PDF file
+def process_pdf(file_path):
+    try:
         with open(file_path, 'rb') as f:
             pdf_reader = PdfFileReader(f)
-            text = ''
-
-            # Extract text from each page
-            for page_num in range(pdf_reader.numPages):
-                text += pdf_reader.getPage(page_num).extractText()
-
-        # Split text into chunks for efficient encoding
-        splitter = CharacterTextSplitter(max_length=1024)  # Adjust max_length as needed
+            text = ''.join([pdf_reader.getPage(page_num).extractText() for page_num in range(pdf_reader.numPages)])
         chunks = splitter.split(text)
-
-        # Encode each text chunk and store the resulting vector
         for chunk in chunks:
             vector = embeddings.encode(chunk)
-            #  adding unique identifiers or metadata for each vector 
-            #  is recommended to keep track of the original text
-            faiss_store.add(vector)
+            # Extract metadata from filename
+            metadata = extract_metadata(file_path)
+            # Store vector with metadata
+            faiss_store.add(vector, metadata)
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
 
-# Save the vector store to disk
-faiss_store.save('path/to/vector_store.faiss')
+def extract_metadata(file_path):
+    # Extracting information from the file format
+    # Example: C:\Source\clearcouncil\data\PDFs\2020-09-21 County Council - Full Minutes-1952.pdf
+    filename = os.path.basename(file_path)
+    pattern = r'(\d{4}-\d{2}-\d{2}) (.*?) - (.*?)-(\d+)\.pdf'
+    match = re.match(pattern, filename)
+    if match:
+        return {
+            'meeting_date': match.group(1),
+            'meeting_type': match.group(2),
+            'document_type': match.group(3),
+            'document_id': match.group(4)
+        }
+    return {}
 
+# Using ThreadPoolExecutor for parallel processing
+with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust number of workers as needed
+    for filename in os.listdir(pdf_dir):
+        if filename.endswith('.pdf'):
+            file_path = os.path.join(pdf_dir, filename)
+            executor.submit(process_pdf, file_path)
+
+# Save the FAISS index to disk
+faiss_store.save('path_to_save/faiss_index.index')
 
             
