@@ -11,12 +11,19 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Provide the relative path to the .env file
-dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv()
 
 pdf_dir = 'data/PDFs'
 embeddings = OpenAIEmbeddings()
-faiss_store = FAISS()
+#initialize the FAISS vector store
+faiss_store = FAISS(
+    embedding_function=None,  # You should provide the actual embedding function here
+    index=None,  # You should provide the actual index object here
+    docstore=None,  # You should provide the actual docstore object here
+    index_to_docstore_id=None  # You should provide the actual index_to_docstore_id function here
+)
+# create a splitter to split the text into chunks of 1024 characters (OpenAI's max input length
+# for the API
 splitter = CharacterTextSplitter(max_length=1024)
 
 def process_pdf(file_path):
@@ -29,8 +36,8 @@ def process_pdf(file_path):
             vector = embeddings.encode(chunk)
             # Extract metadata from filename
             metadata = extract_metadata(file_path)
-            # Store vector with metadata
-            faiss_store.add(vector, metadata)
+            # Store vector with metadata 
+            faiss_store.store(vector, metadata)
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
 
