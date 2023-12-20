@@ -64,6 +64,8 @@ with ThreadPoolExecutor(max_workers=10) as executor:
     for future in tqdm(as_completed(futures), total=len(futures), desc="Processing PDFs"):
         pass  # or handle results if needed
 
+
+
 current_date = datetime.now().strftime("%Y%m%d")
 index_filename = f"council_meetings_faiss_index_{current_date}.index"
 save_path = os.path.join('data', 'faiss_indexes')
@@ -72,4 +74,6 @@ full_path = os.path.join(save_path, index_filename)
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
-faiss_store.save(full_path)
+# Use the save_local method to save the FAISS index
+faiss_store.save_local(full_path)
+
