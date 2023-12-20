@@ -26,6 +26,18 @@ ClearCouncil aims to achieve the following objectives:
 
 For setup instructions and details on running the provided scripts, please refer to our comprehensive 'Getting Started' guide in the documentation section.
 
+## Roadmap / To-Do List
+
+- [x] Implement PDF text extraction.
+- [x] Implement youtube transcript generation from public meetings
+- [x] Create an embedded model for PDF data.
+- [x] Extract metadata for specific doc types
+- [ ] Implement a user-friendly web interface (streamlit maybe)
+- [ ] Test, iterate and Improve search functionality.
+- [ ] Add support for additional document formats.
+- [ ] Integrate with ClearCouncil custom GPT
+
+
 ## Contribute and Collaborate
 
 ClearCouncil is open to contributions! If you have suggestions or improvements, feel free to fork the repository and submit a pull request. Join us in making local government data more accessible and actionable for everyone!
