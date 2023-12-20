@@ -32,7 +32,7 @@ def process_pdf(file_path):
         with open(file_path, 'rb') as f:
             pdf_reader = PdfReader(f)
             text = ''.join([pdf_reader.pages[page_num].extract_text() for page_num in range(len(pdf_reader.pages))])
-        chunks = splitter.split(text)
+        chunks = splitter.split_text(text)
         for chunk in chunks:
             vector = embeddings.encode(chunk)
             metadata = extract_metadata(file_path)
