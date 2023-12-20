@@ -4,65 +4,43 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-# Set up the OpenAI API key
+# Set up the OpenAI API key and save it to the environment
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-# Importing required functionalities
-from PyPDF2 import PdfFileReader, PdfReader
+
+import os
+from PyPDF2 import PdfFileReader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
-from typing_extensions import Concatenate
 
-# Set up the OpenAI API key
+# Directory containing PDFs
+pdf_dir = 'path/to/pdf_folder'
 
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-# This section will be used to create the embeddings for the text
-# We will be using the OpenAIEmbeddings class to create the embeddings
-# The OpenAIEmbeddings class takes in the OpenAI API key as the parameter
-# The OpenAIEmbeddings class has a method called create_embeddings
-# this will loop through the pdf files in the data folder for PDFs first and then
-# create the embeddings for each of the PDFs and store them in the embeddings folder
-# The embeddings folder will be created if it doesn't exist
-# The embeddings will be stored in a file called embeddings.faiss
-# The embeddings will be stored in the FAISS format
-# The FAISS format is a binary format that is used to store the embeddings
+# Initialize embedding and vector storage
+embeddings = OpenAIEmbeddings()
+faiss_store = FAISS()
 
-# Create the embeddings
-embeddings = OpenAIEmbeddings(os.getenv("OPENAI_API_KEY"))
-embeddings.create_embeddings(
-    "data/pdf",
-    "embeddings", 
-    "embeddings.faiss" 
-)
+# Iterate over PDF files
+for filename in os.listdir(pdf_dir):
+    if filename.endswith('.pdf'):
+        file_path = os.path.join(pdf_dir, filename)
 
-# This section will be used to create the text splitter
-# We will be using the CharacterTextSplitter class to create the text splitter
-# The CharacterTextSplitter class takes in the embeddings file as the parameter
-# The CharacterTextSplitter class has a method called create_text_splitter
-# this will create the text splitter and store it in the text_splitter folder
-# The text_splitter folder will be created if it doesn't exist
-# The text splitter will be stored in a file called text_splitter.pickle
-# The text splitter will be stored in the pickle format
-# The pickle format is a binary format that is used to store the text splitter
+        # Read PDF and extract text
+        with open(file_path, 'rb') as f:
+            pdf_reader = PdfFileReader(f)
+            text = ''
+            for page_num in range(pdf_reader.numPages):
+                text += pdf_reader.getPage(page_num).extractText()
 
-# Create the text splitter
-text_splitter = CharacterTextSplitter("embeddings/embeddings.faiss")
-text_splitter.create_text_splitter("text_splitter", "text_splitter.pickle")
+        # Split text into chunks
+        splitter = CharacterTextSplitter(max_length=1024)  # Adjust max_length as needed
+        chunks = splitter.split(text)
 
-# This section will be used to create the vector store
-# We will be using the FAISS class to create the vector store
-# The FAISS class takes in the embeddings file as the parameter
-# The FAISS class has a method called create_vector_store
-# this will create the vector store and store it in the vector_store folder
-# The vector_store folder will be created if it doesn't exist
-# The vector store will be stored in a file called vector_store.faiss
-# The vector store will be stored in the FAISS format
-# The FAISS format is a binary format that is used to store the vector store
-
-# Create the vector store
-vector_store = FAISS("embeddings/embeddings.faiss")
-vector_store.create_vector_store("vector_store", "vector_store.faiss")
+        # Encode and store each chunk
+        for chunk in chunks:
+            vector = embeddings.encode(chunk)
+            faiss_store.add(vector)  # May need additional handling for IDs or metadata
 
 
 
