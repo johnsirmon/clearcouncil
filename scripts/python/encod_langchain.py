@@ -6,6 +6,8 @@ from PyPDF2 import PdfFileReader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
+from datetime import datetime
+
 
 # Load environment variables
 load_dotenv()
@@ -54,6 +56,20 @@ with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust number of workers
             executor.submit(process_pdf, file_path)
 
 # Save the FAISS index to disk
-faiss_store.save('path_to_save/faiss_index.index')
+# Format the current date in YYYYMMDD format
+current_date = datetime.now().strftime("%Y%m%d")
+
+# Construct the filename with descriptive information and the current date
+index_filename = f"council_meetings_faiss_index_{current_date}.index"
+
+# save indexes to a directory data/faiiss_indexes
+save_path = os.path.join('data', 'faiss_indexes')
+full_path = os.path.join(save_path, index_filename)
+
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
+# Save the FAISS index to disk
+faiss_store.save(full_path)
 
             
