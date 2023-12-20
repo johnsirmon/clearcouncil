@@ -48,12 +48,22 @@ def extract_metadata(file_path):
         }
     return {}
 
+num_files_to_process = 10  # Set this to the number of files you want to process for testing
+
+# Initialize counter
+processed_files = 0
+
 # Using ThreadPoolExecutor for parallel processing
 with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust number of workers as needed
     for filename in os.listdir(pdf_dir):
-        if filename.endswith('.pdf'):
+        if filename.endswith('.pdf') and processed_files < num_files_to_process:
             file_path = os.path.join(pdf_dir, filename)
             executor.submit(process_pdf, file_path)
+            processed_files += 1
+
+        # Break the loop if the desired number of files have been processed
+        if processed_files >= num_files_to_process:
+            break
 
 # Save the FAISS index to disk
 # Format the current date in YYYYMMDD format
