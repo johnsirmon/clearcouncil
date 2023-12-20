@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-pdf_dir = 'path/to/pdf_folder'
+pdf_dir = 'data/PDFs'
 embeddings = OpenAIEmbeddings()
 faiss_store = FAISS()
 splitter = CharacterTextSplitter(max_length=1024)
