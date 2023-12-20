@@ -34,7 +34,7 @@ def process_pdf(file_path):
             text = ''.join([pdf_reader.pages[page_num].extract_text() for page_num in range(len(pdf_reader.pages))])
         chunks = splitter.split_text(text)
         for chunk in chunks:
-            vector = embeddings.encode(chunk)
+            vector = embeddings.embed_documents(chunk)
             metadata = extract_metadata(file_path)
             faiss_store.store(vector, metadata)
     except Exception as e:
