@@ -2,7 +2,7 @@
 
 ## Repository Description
 
-Welcome to **ClearCouncil** – a robust and innovative repository dedicated to democratizing access to local government information. This repository assists in collecting, organizing, and integrating publicly available PDF files such as meeting minutes, agendas, actions, and other relevant documents from specific local state county councils.
+Welcome to **ClearCouncil** – a robust and innovative repository dedicated to democratizing access to local government information. This repository assists in collecting, organizing, and integrating publicly available PDF files such as meeting minutes, agendas, actions, and other relevant documents from specific local state county councils.  This gets PDF files from minutes and gets transcripts and creates an embedded model to query for objective answering of local county questions.  
 
 ## Key Features
 
