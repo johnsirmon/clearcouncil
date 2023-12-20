@@ -1,37 +1,38 @@
 # ClearCouncil
 
-## Repository Description
+## Repository Overview
 
-Welcome to **ClearCouncil** – a robust and innovative repository dedicated to democratizing access to local government information. This repository assists in collecting, organizing, and integrating publicly available PDF files such as meeting minutes, agendas, actions, and other relevant documents from specific local state county councils.  This gets PDF files from minutes and gets transcripts and creates an embedded model to query for objective answering of local county questions.  
+Welcome to **ClearCouncil**, an innovative repository dedicated to democratizing access to local government information. This repository facilitates the collection, organization, and integration of publicly available PDF documents, including meeting minutes, agendas, actions, and other relevant materials from specific local state county councils. ClearCouncil also empowers users to query and obtain objective answers to local county-related questions through an embedded model.
 
 ## Key Features
 
-- **RAG pipeline using langchain for embedded model creation
-- **Data Collection Scripts**: Utilizing Python, JavaScript, and wget for efficient automated retrieval of documents from county council websites.
-- **Data Parsing and Organization**: Tools for parsing and organizing the collected PDF files.
-- **Embedding in Large Language Models (LLMs)**: Capability to integrate the data into an embedded LLM.
-- **Community Contributions**: Encouraging community involvement in code, ideas, or data contributions.
-- **Documentation and Guides**: Comprehensive documentation and guides for effective tool usage.
+- **Retrieval Augmented Generation (RAG) Pipeline**: Utilizing langchain for the creation of embedded models.
+- **Efficient Data Collection**: Python, JavaScript, and wget scripts for automated document retrieval from county council websites.
+- **Data Parsing and Organization**: Tools to parse and organize collected PDF files.
+- **Integration with Large Language Models (LLMs)**: The ability to seamlessly integrate data into embedded LLMs.
+- **Community Involvement**: Encouraging contributions from the community, whether it's code, ideas, or data.
+- **Comprehensive Documentation**: Detailed guides and documentation for effective tool usage.
 
-## Project Goals
+## Project Objectives
 
--
-- ** ability to ask simple questions about key county projects, using publically available data on budget, county council votes, rezoning, ordinances, etc.
-- examples would include "how much is the current impact fee for York county district 2, when was it decided and how much does this affect a taxpayer living at this address.
-- review the last year of county council meetings and list all votes for district 2
-- review the SC State Ethics commision reports for my district representative and highlight any potential conflicts of interest.
-- review the latest county council transcripts from the youtube channel for my county district, and summarize what was said.  
--
-- **Enhancing Transparency**: Making local government records accessible and understandable.
-- **Support for Research and Analysis**: Enabling in-depth analyses of local governance.
-- **Innovation in Governance**: Advancing applications like AI-driven council analysis.
+ClearCouncil aims to achieve the following objectives:
+
+- **Empowering Informed Citizenship**: Enabling users to ask simple questions about key county projects, using publicly available data on budget, county council votes, rezoning, ordinances, and more.
+- **Enhancing Transparency**: Making local government records accessible and understandable to the general public.
+- **Supporting Research and Analysis**: Facilitating in-depth analyses of local governance decisions and actions.
+- **Promoting Innovation in Governance**: Advancing applications like AI-driven council analysis to improve local governance processes.
 
 ## Getting Started
 
-Refer to our 'Getting Started' guide in the documentation section for setup and script running instructions.
+For setup instructions and details on running the provided scripts, please refer to our comprehensive 'Getting Started' guide in the documentation section.
 
 ## Contribute and Collaborate
 
-Open to contributions! Fork the repository and submit a pull request with your suggestions and improvements.
+ClearCouncil is open to contributions! If you have suggestions or improvements, feel free to fork the repository and submit a pull request. Join us in making local government data more accessible and actionable for everyone!
 
-Join us in making local government data more accessible and actionable!
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+- **Python**: <i class="fab fa-python"></i>
+- **JavaScript**: <i class="fab fa-js"></i>
+- **langchain**: <i class="fab fa-langchain"></i>
+- **OpenAI**: <i class="fab fa-openai"></i>
