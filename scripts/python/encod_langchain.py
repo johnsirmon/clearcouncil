@@ -40,5 +40,12 @@ for filename in os.listdir(pdf_dir):
         # Encode each text chunk and store the resulting vector
         for chunk in chunks:
             vector = embeddings.encode(chunk)
-            # Consider adding unique identifiers or metadata for each vector
+            #  adding unique identifiers or metadata for each vector 
+            #  is recommended to keep track of the original text
             faiss_store.add(vector)
+
+# Save the vector store to disk
+faiss_store.save('path/to/vector_store.faiss')
+
+
+            
