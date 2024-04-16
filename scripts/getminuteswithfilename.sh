@@ -9,7 +9,7 @@
 baseUrl="https://yorkcountysc.iqm2.com/Citizens/FileOpen.aspx?Type=12&ID="
 
 # Create the directory if it doesn't exist
-savePath="/c/Source/clearcouncil/data/PDFs"
+savePath="/c/Source/clearcouncil/data/PDFs2"
 mkdir -p "$savePath" || { echo "Failed to create directory $savePath"; exit 1; }
 
 # Loop through the IDs from 1800 (around 2018) to 2256 (around 2023)
