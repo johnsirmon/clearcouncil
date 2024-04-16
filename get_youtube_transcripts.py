@@ -11,7 +11,7 @@ from youtube_transcript_api.formatters import SRTFormatter
 from youtube_transcript_api import YouTubeTranscriptApi
 
 # The video ID is the part of the YouTube URL after "v=" and before "&" if it's also in a playlist.
-video_id = "0zxtvHuGUg4"
+video_id = "y7wMTwJN7rA"
 
 # Get the transcript
 transcript = YouTubeTranscriptApi.get_transcript(video_id)
