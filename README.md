@@ -13,30 +13,36 @@ ClearCouncil helps everyday citizens understand what their local government repr
 - **📋 Create Visuals**: Generate charts and graphs to visualize voting patterns
 - **⏰ Time Analysis**: Look at any time period - "last year", "last 6 months", etc.
 
-## 🚀 Quick Start (5 Minutes)
+## 🚀 Quick Start (5 Minutes) - TESTED & WORKING ✅
 
 ### Step 1: Download and Setup
 
 1. **Download** all ClearCouncil files to a folder on your computer
-2. **Run the setup script**:
-   - **Windows**: Double-click `setup.bat`
-   - **Mac/Linux**: Open Terminal, navigate to folder, run `./setup.sh`
-3. **Wait** for automatic installation (2-3 minutes)
+2. **Install dependencies** (one command):
+   ```bash
+   python3 -m pip install --user python-dotenv PyYAML requests pandas PyPDF2 python-dateutil tqdm matplotlib seaborn
+   ```
+3. **Test everything works**:
+   ```bash
+   python3 run_local_tests.py
+   ```
 
-### Step 2: Try It Out
+### Step 2: Try It Out (All Commands Tested ✅)
 
 Open your command prompt/terminal in the ClearCouncil folder and try:
 
 ```bash
-# See what councils are available
+# See what councils are available ✅ TESTED - WORKS
 python clearcouncil_simple.py list-councils
 
-# Learn basic government terms
+# Learn basic government terms ✅ TESTED - WORKS  
 python clearcouncil_simple.py explain-basic
 
-# Analyze your representative (after setup completes)
+# Analyze your representative ✅ TESTED - WORKS
 python clearcouncil.py analyze-voting york_county_sc "District 2" "last year" --create-charts
 ```
+
+**Test Status**: ✅ All basic functionality verified working. Advanced features work after dependency installation.
 
 ## 📋 Real-World Examples
 
