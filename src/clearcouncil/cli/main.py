@@ -1,6 +1,7 @@
 """Main CLI interface for ClearCouncil."""
 
 import argparse
+import asyncio
 import logging
 import os
 import sys
@@ -18,6 +19,7 @@ from ..processors.pdf_processor import PDFProcessor
 from ..processors.transcript_processor import TranscriptProcessor
 from ..downloaders.pdf_downloader import PDFDownloader
 from ..parsers.voting_parser import VotingParser
+from .voting_commands import add_voting_analysis_commands
 
 
 def setup_logging(level: str = "INFO"):
@@ -234,6 +236,9 @@ def create_parser() -> argparse.ArgumentParser:
     search_parser.add_argument("query", help="Search query")
     search_parser.add_argument("--limit", type=int, default=5, help="Number of results to return")
     
+    # Add voting analysis commands
+    add_voting_analysis_commands(subparsers)
+    
     return parser
 
 
@@ -262,6 +267,13 @@ def main():
             parse_voting_command(args)
         elif args.command == "search":
             search_command(args)
+        elif args.command in ["analyze-voting", "analyze-district", "update-documents", "explain-terms"]:
+            # Handle async voting analysis commands
+            if hasattr(args, 'func'):
+                if asyncio.iscoroutinefunction(args.func):
+                    asyncio.run(args.func(args))
+                else:
+                    args.func(args)
         else:
             parser.print_help()
             

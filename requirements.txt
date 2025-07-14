@@ -22,6 +22,17 @@ numpy>=1.24.0
 # YouTube transcripts
 youtube-transcript-api>=0.6.0
 
+# Visualization and analysis
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Date/time parsing
+python-dateutil>=2.8.0
+
+# Async HTTP requests
+aiohttp>=3.8.0
+
 # Optional: Development dependencies
 # pytest>=7.0.0
 # black>=23.0.0

@@ -135,6 +135,44 @@ The old scripts have been replaced:
 - `get_council_votes.py` → `clearcouncil parse-voting`
 - `scripts/getminuteswithfilename.sh` → `clearcouncil download-pdfs`
 
+## New Voting Analysis Features
+
+### Advanced Voting Analysis Commands
+
+```bash
+# Analyze representative voting patterns with time ranges
+clearcouncil analyze-voting york_county_sc "District 2" "last year" --create-charts
+
+# Compare representatives
+clearcouncil analyze-voting york_county_sc "John Smith" "last 6 months" \
+  --compare-with "Jane Doe" "Bob Wilson" --output-format html
+
+# Analyze entire districts
+clearcouncil analyze-district york_county_sc "District 2" "last year"
+
+# Batch download missing documents for time periods
+clearcouncil update-documents york_county_sc "last 5 months"
+
+# Explain municipal government terms
+clearcouncil explain-terms "movant" "rezoning" "ordinance"
+```
+
+### Key Features
+
+1. **Smart Time Range Parsing**: "last year", "last 6 months", "2023-01-01 to 2024-01-01"
+2. **Automatic Document Discovery**: Finds and downloads missing documents
+3. **Parallel Processing**: Efficient batch processing of multiple documents
+4. **Interactive Visualizations**: Charts showing voting patterns and comparisons
+5. **Municipal Glossary**: Built-in explanations for government terms
+6. **Multiple Output Formats**: Plain text, JSON, CSV, HTML with tooltips
+
+### Architecture Updates
+
+- `src/clearcouncil/analysis/` - Voting analysis and time range parsing
+- `src/clearcouncil/visualization/` - Chart generation with matplotlib/seaborn
+- `src/clearcouncil/glossary/` - Municipal terminology system
+- `config/councils/*.yaml` - Enhanced council configurations
+
 ## Testing
 
 Run basic functionality tests:
@@ -142,4 +180,8 @@ Run basic functionality tests:
 clearcouncil list-councils
 clearcouncil download-pdfs york_county_sc --document-id 2280
 clearcouncil process-pdfs york_county_sc
+
+# Test new voting analysis features
+clearcouncil explain-terms "movant" "second"
+clearcouncil analyze-voting york_county_sc "District 2" "last 3 months" --create-charts
 ```

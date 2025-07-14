@@ -1,0 +1,232 @@
+"""Representative tracking and voting history management."""
+
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List, Optional, Set
+from collections import defaultdict
+import logging
+
+from ..core.models import VotingRecord
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Vote:
+    """Represents a single vote by a representative."""
+    case_number: str
+    representative: str
+    district: str
+    vote_type: str  # "movant", "second", "for", "against", "abstain"
+    date: Optional[datetime] = None
+    description: str = ""
+    category: str = ""  # "rezoning", "ordinance", "budget", etc.
+
+
+@dataclass
+class RepresentativeProfile:
+    """Profile information for a representative."""
+    name: str
+    district: str
+    total_votes: int = 0
+    votes_for: int = 0
+    votes_against: int = 0
+    abstentions: int = 0
+    motions_made: int = 0
+    seconds_given: int = 0
+    vote_history: List[Vote] = None
+    
+    def __post_init__(self):
+        if self.vote_history is None:
+            self.vote_history = []
+    
+    @property
+    def participation_rate(self) -> float:
+        """Calculate participation rate (non-abstentions / total)."""
+        if self.total_votes == 0:
+            return 0.0
+        return (self.total_votes - self.abstentions) / self.total_votes
+    
+    @property
+    def agreement_rate_with(self, other: 'RepresentativeProfile') -> float:
+        """Calculate agreement rate with another representative."""
+        # This would need vote-by-vote comparison
+        # Placeholder for now
+        return 0.0
+
+
+class RepresentativeTracker:
+    """Tracks representatives and their voting patterns."""
+    
+    def __init__(self):
+        self.representatives: Dict[str, RepresentativeProfile] = {}
+        self.votes_by_case: Dict[str, List[Vote]] = defaultdict(list)
+        self.votes_by_date: Dict[str, List[Vote]] = defaultdict(list)
+    
+    def add_voting_record(self, record: VotingRecord) -> None:
+        """Add a voting record and extract representative votes."""
+        if not record.case_number:
+            logger.warning("Voting record missing case number, skipping")
+            return
+        
+        # Extract votes from the record
+        votes = self._extract_votes_from_record(record)
+        
+        for vote in votes:
+            self._add_vote(vote)
+    
+    def _extract_votes_from_record(self, record: VotingRecord) -> List[Vote]:
+        """Extract individual votes from a voting record."""
+        votes = []
+        
+        # Create base vote info
+        base_info = {
+            'case_number': record.case_number or '',
+            'date': None,  # Would need to be parsed from record
+            'description': record.rezoning_action or record.zoning_request or '',
+            'category': self._categorize_vote(record)
+        }
+        
+        # Extract movant (person who made the motion)
+        if record.movant and record.district and record.representative:
+            votes.append(Vote(
+                representative=record.representative,
+                district=record.district,
+                vote_type="movant",
+                **base_info
+            ))
+        
+        # Extract second (person who seconded the motion)
+        if record.second:
+            # Try to match second to a known representative
+            # For now, create a vote without district info
+            votes.append(Vote(
+                representative=record.second,
+                district="Unknown",  # Would need district mapping
+                vote_type="second",
+                **base_info
+            ))
+        
+        return votes
+    
+    def _categorize_vote(self, record: VotingRecord) -> str:
+        """Categorize the type of vote based on the record content."""
+        if record.zoning_request or record.rezoning_action:
+            return "rezoning"
+        elif "ordinance" in (record.rezoning_action or "").lower():
+            return "ordinance"
+        elif "budget" in (record.rezoning_action or "").lower():
+            return "budget"
+        else:
+            return "other"
+    
+    def _add_vote(self, vote: Vote) -> None:
+        """Add a vote to the tracking system."""
+        # Update representative profile
+        if vote.representative not in self.representatives:
+            self.representatives[vote.representative] = RepresentativeProfile(
+                name=vote.representative,
+                district=vote.district
+            )
+        
+        rep = self.representatives[vote.representative]
+        rep.vote_history.append(vote)
+        rep.total_votes += 1
+        
+        # Update vote counts based on type
+        if vote.vote_type == "movant":
+            rep.motions_made += 1
+        elif vote.vote_type == "second":
+            rep.seconds_given += 1
+        elif vote.vote_type == "for":
+            rep.votes_for += 1
+        elif vote.vote_type == "against":
+            rep.votes_against += 1
+        elif vote.vote_type == "abstain":
+            rep.abstentions += 1
+        
+        # Add to case and date indexes
+        self.votes_by_case[vote.case_number].append(vote)
+        if vote.date:
+            date_key = vote.date.strftime("%Y-%m-%d")
+            self.votes_by_date[date_key].append(vote)
+    
+    def get_representative(self, name_or_district: str) -> Optional[RepresentativeProfile]:
+        """Get representative by name or district."""
+        # Try exact name match first
+        if name_or_district in self.representatives:
+            return self.representatives[name_or_district]
+        
+        # Try district match
+        for rep in self.representatives.values():
+            if rep.district.lower() == name_or_district.lower():
+                return rep
+        
+        return None
+    
+    def get_representatives_by_district(self, district: str) -> List[RepresentativeProfile]:
+        """Get all representatives for a district."""
+        return [
+            rep for rep in self.representatives.values() 
+            if rep.district.lower() == district.lower()
+        ]
+    
+    def get_votes_in_date_range(self, start_date: datetime, end_date: datetime) -> List[Vote]:
+        """Get all votes within a date range."""
+        votes = []
+        for rep in self.representatives.values():
+            for vote in rep.vote_history:
+                if vote.date and start_date <= vote.date <= end_date:
+                    votes.append(vote)
+        return votes
+    
+    def get_representative_comparison(self, rep_names: List[str]) -> Dict:
+        """Compare multiple representatives' voting patterns."""
+        comparison = {
+            'representatives': [],
+            'common_cases': [],
+            'agreement_matrix': {}
+        }
+        
+        reps = [self.get_representative(name) for name in rep_names]
+        reps = [rep for rep in reps if rep is not None]
+        
+        if len(reps) < 2:
+            return comparison
+        
+        comparison['representatives'] = reps
+        
+        # Find cases where multiple representatives voted
+        case_participation = defaultdict(list)
+        for rep in reps:
+            for vote in rep.vote_history:
+                case_participation[vote.case_number].append((rep.name, vote))
+        
+        # Find common cases (where 2+ representatives participated)
+        common_cases = {
+            case: votes for case, votes in case_participation.items() 
+            if len(votes) >= 2
+        }
+        comparison['common_cases'] = list(common_cases.keys())
+        
+        return comparison
+    
+    def get_voting_summary(self) -> Dict:
+        """Get overall voting summary statistics."""
+        return {
+            'total_representatives': len(self.representatives),
+            'total_cases': len(self.votes_by_case),
+            'most_active_representative': max(
+                self.representatives.values(), 
+                key=lambda r: r.total_votes,
+                default=None
+            ),
+            'representatives_by_district': self._group_by_district()
+        }
+    
+    def _group_by_district(self) -> Dict[str, List[str]]:
+        """Group representatives by district."""
+        by_district = defaultdict(list)
+        for rep in self.representatives.values():
+            by_district[rep.district].append(rep.name)
+        return dict(by_district)
