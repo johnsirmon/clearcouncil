@@ -1,0 +1,44 @@
+# Template configuration for new council
+# Copy this file and customize for your local government
+
+name: "Your Council Name"
+identifier: "your_council_id"  # Use lowercase with underscores
+description: "Description of your council"
+
+# Website configuration
+website:
+  base_url: "https://your-council-website.com"
+  document_url_template: "{base_url}/documents/{id}"  # Customize URL pattern
+  id_ranges:
+    - start: 1
+      end: 100
+      description: "Document ID range description"
+
+# File naming patterns (customize regex patterns for your documents)
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}).*\\.pdf"  # Adjust regex as needed
+  date_format: "%Y-%m-%d"
+
+# Data storage (usually keep defaults)
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []  # Add video IDs for regular meetings
+
+# Parsing rules (customize for your council's document structure)
+parsing:
+  voting_fields:
+    - "Field 1"
+    - "Field 2"
+    # Add fields specific to your council's documents

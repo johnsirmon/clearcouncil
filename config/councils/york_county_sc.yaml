@@ -1,0 +1,51 @@
+name: "York County South Carolina"
+identifier: "york_county_sc"
+description: "York County South Carolina Council"
+
+# Website configuration
+website:
+  base_url: "https://yorkcountysc.iqm2.com/Citizens/FileOpen.aspx"
+  document_url_template: "{base_url}?Type=12&ID={id}&Inline=True"
+  id_ranges:
+    - start: 1800
+      end: 2280
+      description: "2018-2023 documents"
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}) (?P<meeting_type>.*?) - (?P<document_type>.*?)-(?P<document_id>\\d+)\\.pdf"
+  date_format: "%Y-%m-%d"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration (if applicable)
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  voting_fields:
+    - "Council District"
+    - "Case #"
+    - "Acres"
+    - "Owner"
+    - "Location"
+    - "Applicant"
+    - "Planning Commission Date"
+    - "Staff Recommendation"
+    - "PC Recommendation"
+    - "Zoning Request"
+    - "Rezoning Action"
+    - "MOVANT"
+    - "SECOND"
