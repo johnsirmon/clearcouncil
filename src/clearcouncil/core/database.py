@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import List, Optional
 import logging
 
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 
 from .models import Document, DocumentMetadata

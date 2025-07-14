@@ -34,13 +34,21 @@ def setup_logging(level: str = "INFO"):
     )
 
 
-def ensure_environment():
+def ensure_environment(command: str = None):
     """Ensure required environment variables are set."""
     load_dotenv()
     
-    if not os.getenv("OPENAI_API_KEY"):
+    # Commands that don't require OpenAI API key
+    commands_without_openai = {
+        "list-councils", 
+        "explain-terms",
+        "download-pdfs"
+    }
+    
+    if command not in commands_without_openai and not os.getenv("OPENAI_API_KEY"):
         print("Error: OPENAI_API_KEY environment variable is required")
         print("Please create a .env file with your OpenAI API key")
+        print("You can get one from: https://platform.openai.com/api-keys")
         sys.exit(1)
 
 
@@ -248,7 +256,7 @@ def main():
     args = parser.parse_args()
     
     setup_logging(args.log_level)
-    ensure_environment()
+    ensure_environment(args.command)
     
     if not args.command:
         parser.print_help()

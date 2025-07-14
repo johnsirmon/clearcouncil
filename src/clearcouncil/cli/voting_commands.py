@@ -144,9 +144,22 @@ async def analyze_voting_command(args):
         )
         
         print(f"📊 Processing complete:")
-        print(f"   • Documents processed: {metadata['total_documents_processed']}")
-        print(f"   • Representatives found: {metadata['representatives_found']}")
-        print(f"   • Total votes extracted: {metadata['total_votes_extracted']}")
+        print(f"   • Documents processed: {metadata.get('total_documents_processed', metadata.get('documents_processed', 0))}")
+        print(f"   • Representatives found: {metadata.get('representatives_found', 0)}")
+        print(f"   • Total votes extracted: {metadata.get('total_votes_extracted', metadata.get('votes_extracted', 0))}")
+        
+        # Check if we have enough data to proceed
+        if metadata.get('total_documents_processed', metadata.get('documents_processed', 0)) == 0:
+            print(f"\n⚠️  No documents found for the specified time period!")
+            print(f"   This could mean:")
+            print(f"   • No documents exist for '{args.time_range}'")
+            print(f"   • Documents need to be downloaded (try --download-missing)")
+            print(f"   • The council identifier '{args.council}' might be incorrect")
+            print(f"\n💡 Try:")
+            print(f"   • List available councils: python clearcouncil.py list-councils")
+            print(f"   • Download documents: python clearcouncil.py download-pdfs {args.council}")
+            print(f"   • Check data directory: {config.get_data_path('pdf')}")
+            return
         
         # Perform analysis
         analysis = analyzer.analyze_representative_voting(

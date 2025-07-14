@@ -1,11 +1,50 @@
-# Ignore the main data folder
+# Ignore the main data folder (contains PDFs, transcripts, indexes, results)
 data/*
 
-# But keep track of the examples
+# But keep track of the examples and config templates
 !data/examples/
+!data/README.md
 
-# Ignore other common file types and folders
+# Ignore virtual environment
+clearcouncil_env/
+
+# Ignore environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore logs
 *.log
 *.temp
-node_modules/
-.env
+clearcouncil.log
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore backup files
+*.bak
+*.backup
+
+# Ignore any large data files that might be created elsewhere
+*.pdf
+*.csv
+*.json
+results.csv
+
+# But allow config files and examples
+!config/**/*.pdf
+!docs/**/*.pdf
+!examples/**/*.pdf
