@@ -65,8 +65,9 @@ class RepresentativeTracker:
     
     def add_voting_record(self, record: VotingRecord) -> None:
         """Add a voting record and extract representative votes."""
-        if not record.case_number:
-            logger.warning("Voting record missing case number, skipping")
+        # Accept records with either case numbers or basic voting info (movant + result)
+        if not record.case_number and not (record.movant and record.result):
+            logger.warning("Voting record missing case number and basic voting info, skipping")
             return
         
         # Extract votes from the record
@@ -79,19 +80,22 @@ class RepresentativeTracker:
         """Extract individual votes from a voting record."""
         votes = []
         
+        # Create a unique identifier for records without case numbers
+        case_id = record.case_number or f"vote_{record.movant}_{record.result}_{len(self.votes_by_case)}"
+        
         # Create base vote info
         base_info = {
-            'case_number': record.case_number or '',
+            'case_number': case_id,
             'date': None,  # Would need to be parsed from record
-            'description': record.rezoning_action or record.zoning_request or '',
+            'description': record.result or record.rezoning_action or record.zoning_request or '',
             'category': self._categorize_vote(record)
         }
         
         # Extract movant (person who made the motion)
-        if record.movant and record.district and record.representative:
+        if record.movant:
             votes.append(Vote(
-                representative=record.representative,
-                district=record.district,
+                representative=record.representative or record.movant,
+                district=record.district or '',
                 vote_type="movant",
                 **base_info
             ))

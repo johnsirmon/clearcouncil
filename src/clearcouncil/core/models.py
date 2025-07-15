@@ -78,6 +78,9 @@ class VotingRecord:
     rezoning_action: Optional[str] = None
     movant: Optional[str] = None
     second: Optional[str] = None
+    result: Optional[str] = None
+    ayes: Optional[str] = None
+    nays: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for CSV export."""
@@ -95,5 +98,8 @@ class VotingRecord:
             'Zoning Request': self.zoning_request,
             'Rezoning Action': self.rezoning_action,
             'Movant': self.movant,
-            'Second': self.second
+            'Second': self.second,
+            'Result': self.result,
+            'Ayes': self.ayes,
+            'Nays': self.nays
         }

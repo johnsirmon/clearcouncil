@@ -18,39 +18,104 @@ class VotingParser(BaseParser):
         """Parse text and extract voting records."""
         lines = text.split('\n')
         records = []
-        current_record = VotingRecord()
         
-        for line in lines:
-            line = line.strip()
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
             if not line:
+                i += 1
                 continue
             
-            # Look for each configured field
-            for field_name in self.config.parsing.voting_fields:
-                value = self._extract_field_value(line, field_name)
-                if value is not None:
-                    self._set_record_field(current_record, field_name, value)
+            # Look for voting result patterns (APPROVED, DENIED, etc.)
+            if self._is_voting_result_line(line):
+                # Start a new voting record
+                current_record = VotingRecord()
+                current_record.result = self._extract_voting_result(line)
+                
+                # Look for MOVANT, SECOND, and AYES in the next few lines
+                j = i + 1
+                while j < len(lines) and j < i + 15:  # Look ahead max 15 lines
+                    next_line = lines[j].strip()
                     
-                    # Special handling for MOVANT which indicates end of record
-                    if field_name == "MOVANT":
-                        # Also extract SECOND from the same line
-                        second_value = self._extract_second_from_movant_line(line)
-                        if second_value:
-                            current_record.second = second_value
+                    if next_line == "MOVANT:" and j + 1 < len(lines):
+                        # MOVANT is on the next line
+                        movant = lines[j + 1].strip()
+                        if movant:
+                            current_record.movant = movant
+                            current_record.representative = self._clean_representative_name(movant)
+                            j += 1  # Skip the movant line
+                    
+                    elif next_line == "SECOND:" and j + 1 < len(lines):
+                        # SECOND is on the next line
+                        second = lines[j + 1].strip()
+                        if second:
+                            current_record.second = second
+                            j += 1  # Skip the second line
+                    
+                    elif next_line == "AYES:" and j + 1 < len(lines):
+                        # AYES is on the next line
+                        ayes = lines[j + 1].strip()
+                        if ayes:
+                            current_record.ayes = ayes
                         
-                        # Add completed record and start new one
+                        # AYES usually marks the end of a voting record
                         if self._is_valid_record(current_record):
                             records.append(current_record)
-                        current_record = VotingRecord()
+                        break
+                    
+                    elif next_line == "NAYS:" and j + 1 < len(lines):
+                        # NAYS is on the next line
+                        nays = lines[j + 1].strip()
+                        if nays:
+                            current_record.nays = nays
+                            j += 1  # Skip the nays line
+                    
+                    j += 1
+            
+            # Also look for configured rezoning fields for backward compatibility
+            for field_name in getattr(self.config.parsing, 'voting_fields', []):
+                value = self._extract_field_value(line, field_name)
+                if value is not None:
+                    # This would need a current_record context, skip for now
                     break
-        
-        # Add final record if it has data
-        if self._is_valid_record(current_record):
-            records.append(current_record)
+            
+            i += 1
         
         logger.info(f"Extracted {len(records)} voting records")
         return records
     
+    def _is_voting_result_line(self, line: str) -> bool:
+        """Check if a line contains a voting result."""
+        voting_results = ['APPROVED', 'DENIED', 'PASSED', 'FAILED', 'ACCEPTED', 'REJECTED']
+        line_upper = line.upper()
+        return any(result in line_upper for result in voting_results)
+    
+    def _extract_voting_result(self, line: str) -> str:
+        """Extract the voting result from a line."""
+        voting_results = ['APPROVED', 'DENIED', 'PASSED', 'FAILED', 'ACCEPTED', 'REJECTED']
+        line_upper = line.upper()
+        for result in voting_results:
+            if result in line_upper:
+                # Extract additional info like [Unanimous] if present
+                match = re.search(rf'{result}\s*\[([^\]]+)\]', line_upper)
+                if match:
+                    return f"{result} [{match.group(1)}]"
+                return result
+        return line.strip()
+    
+    def _clean_representative_name(self, name: str) -> str:
+        """Clean and standardize representative name."""
+        if not name:
+            return name
+            
+        # Remove common prefixes/suffixes
+        name = re.sub(r'\b(Council\s+member|Councilman|Councilwoman)\s+', '', name, flags=re.IGNORECASE)
+        name = re.sub(r'\s+(Jr\.?|Sr\.?|III?|II?)$', '', name, flags=re.IGNORECASE)
+        
+        # Basic cleanup
+        name = ' '.join(name.split())  # Normalize whitespace
+        return name.strip()
+
     def _extract_field_value(self, line: str, field_name: str) -> str:
         """Extract value for a specific field from a line."""
         patterns = {
@@ -65,7 +130,10 @@ class VotingParser(BaseParser):
             "PC Recommendation": r"PC Recommendation:\s*(.+?)(?:\s|$)",
             "Zoning Request": r"Zoning Request:\s*(.+?)(?:\s|$)",
             "Rezoning Action": r"Rezoning Action:\s*(.+?)(?:\s|$)",
-            "MOVANT": r"MOVANT:\s*(.+?)(?:\s*SECOND:|$)"
+            "MOVANT": r"MOVANT:\s*(.+?)(?:\s*$)",
+            "SECOND": r"SECOND:\s*(.+?)(?:\s*$)",
+            "AYES": r"AYES:\s*(.+?)(?:\s*$)",
+            "NAYS": r"NAYS:\s*(.+?)(?:\s*$)"
         }
         
         if field_name not in patterns:
@@ -93,11 +161,22 @@ class VotingParser(BaseParser):
             "PC Recommendation": lambda r, v: setattr(r, 'pc_recommendation', v),
             "Zoning Request": lambda r, v: setattr(r, 'zoning_request', v),
             "Rezoning Action": lambda r, v: setattr(r, 'rezoning_action', v),
-            "MOVANT": lambda r, v: setattr(r, 'movant', v)
+            "MOVANT": self._set_movant_field
         }
         
         if field_name in field_mapping:
             field_mapping[field_name](record, value)
+            
+    def _set_movant_field(self, record: VotingRecord, value: str):
+        """Set movant field and try to extract representative name."""
+        record.movant = value
+        
+        # Try to extract a clean representative name from the movant
+        representative = self._extract_representative_from_text(f"Council member {value}")
+        if representative:
+            record.representative = representative
+        elif value and len(value.split()) <= 3:  # Reasonable name length
+            record.representative = value.strip()
     
     def _parse_council_district(self, record: VotingRecord, value: str):
         """Parse council district which may include representative name."""
@@ -108,11 +187,32 @@ class VotingParser(BaseParser):
             record.representative = parts[1].strip()
         else:
             record.district = value
+            
+    def _extract_representative_from_text(self, text: str) -> str:
+        """Extract representative name from various text patterns."""
+        # Try multiple patterns to extract representative names
+        patterns = [
+            r'Council\s+member\s+([A-Z][a-z]+\s+[A-Z][a-z]+)',
+            r'Councilman\s+([A-Z][a-z]+\s+[A-Z][a-z]+)', 
+            r'Councilwoman\s+([A-Z][a-z]+\s+[A-Z][a-z]+)',
+            r'([A-Z][a-z]+\s+[A-Z][a-z]+)\s+AYES',
+            r'([A-Z][a-z]+\s+[A-Z][a-z]+)\s+NAYS',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                name = match.group(1).strip()
+                # Basic validation - should be two words (first and last name)
+                if len(name.split()) == 2:
+                    return name
+        
+        return None
     
     def _is_valid_record(self, record: VotingRecord) -> bool:
         """Check if a record has enough data to be considered valid."""
-        # A record is valid if it has at least a case number or district
-        return bool(record.case_number or record.district)
+        # A record is valid if it has a movant and result, or case number
+        return bool(record.movant and record.result) or bool(record.case_number)
     
     def save_to_csv(self, records: List[VotingRecord], file_path) -> None:
         """Save voting records to CSV file."""

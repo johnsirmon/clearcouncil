@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 import logging
 
-from PyPDF2 import PdfReader
+import fitz  # PyMuPDF - better PDF text extraction
 from langchain.text_splitter import CharacterTextSplitter
 
 from .base_processor import BaseProcessor
@@ -53,20 +53,30 @@ class PDFProcessor(BaseProcessor):
             raise ProcessingError(f"Failed to process PDF {file_path}: {e}")
     
     def _extract_text_from_pdf(self, file_path: Path) -> str:
-        """Extract text content from PDF file."""
+        """Extract text content from PDF file using PyMuPDF for better encoding handling."""
         try:
-            with open(file_path, 'rb') as f:
-                pdf_reader = PdfReader(f)
-                text_parts = []
-                
-                for page_num in range(len(pdf_reader.pages)):
-                    page = pdf_reader.pages[page_num]
-                    text_parts.append(page.extract_text())
-                
-                return ''.join(text_parts)
+            # Use PyMuPDF which handles encoding issues better than PyPDF2
+            doc = fitz.open(str(file_path))
+            text_parts = []
+            
+            for page_num in range(doc.page_count):
+                page = doc[page_num]
+                text_parts.append(page.get_text())
+            
+            doc.close()
+            
+            # Join all text and ensure we have content
+            full_text = '\n'.join(text_parts).strip()
+            
+            if not full_text:
+                logger.warning(f"No text extracted from PDF: {file_path}")
+                return ""
+            
+            logger.debug(f"Extracted {len(full_text)} characters from {file_path}")
+            return full_text
                 
         except Exception as e:
-            raise ProcessingError(f"Failed to extract text from PDF: {e}")
+            raise ProcessingError(f"Failed to extract text from PDF {file_path}: {e}")
     
     def _extract_metadata_from_filename(self, file_path: Path) -> DocumentMetadata:
         """Extract metadata from PDF filename using configured pattern."""
