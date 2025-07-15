@@ -23,18 +23,43 @@ class BaseDownloader(ABC):
         """Download a single document by ID."""
         pass
     
-    def download_range(self, start_id: int, end_id: int, save_path: Optional[Path] = None) -> List[Path]:
+    def download_range(self, start_id: int, end_id: int, save_path: Optional[Path] = None, force: bool = False) -> List[Path]:
         """Download a range of documents."""
         downloaded_files = []
+        total_docs = end_id - start_id + 1
         
-        for doc_id in range(start_id, end_id + 1):
+        logger.info(f"Starting download of {total_docs} documents (IDs {start_id}-{end_id})")
+        
+        for i, doc_id in enumerate(range(start_id, end_id + 1), 1):
             try:
-                file_path = self.download_document(str(doc_id), save_path)
+                if hasattr(self, 'download_document'):
+                    # Check if download_document supports force parameter
+                    try:
+                        file_path = self.download_document(str(doc_id), save_path, force=force)
+                    except TypeError:
+                        # Fallback for older signature
+                        file_path = self.download_document(str(doc_id), save_path)
+                else:
+                    raise NotImplementedError("Subclass must implement download_document method")
+                
                 downloaded_files.append(file_path)
-                logger.info(f"Downloaded document {doc_id}")
+                
+                # Progress logging
+                if i % 10 == 0 or i == total_docs:
+                    logger.info(f"Progress: {i}/{total_docs} documents processed")
+                    
             except DownloadError as e:
                 logger.warning(f"Failed to download document {doc_id}: {e}")
                 continue
+            except Exception as e:
+                logger.error(f"Unexpected error downloading document {doc_id}: {e}")
+                continue
+        
+        # Log final statistics if available
+        if hasattr(self, 'get_download_stats'):
+            stats = self.get_download_stats()
+            logger.info(f"Download completed - Successful: {stats['successful']}, "
+                       f"Skipped: {stats['skipped']}, Failed: {stats['failed']}")
         
         return downloaded_files
     

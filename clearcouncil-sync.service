@@ -1,0 +1,27 @@
+# ClearCouncil Systemd Service Configuration
+# Copy this to /etc/systemd/system/clearcouncil-sync.service
+# Then enable with: sudo systemctl enable clearcouncil-sync.service
+
+[Unit]
+Description=ClearCouncil Auto-Sync Service
+After=network.target
+
+[Service]
+Type=oneshot
+User=john
+Group=john
+WorkingDirectory=/home/john/projects/clearcouncil
+ExecStart=/home/john/projects/clearcouncil/auto_sync.sh
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/john
+
+# Resource limits
+TimeoutStartSec=3600
+MemoryMax=2G
+
+[Install]
+WantedBy=multi-user.target

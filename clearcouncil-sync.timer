@@ -1,0 +1,18 @@
+# ClearCouncil Systemd Timer Configuration
+# Copy this to /etc/systemd/system/clearcouncil-sync.timer
+# Then enable with: sudo systemctl enable clearcouncil-sync.timer
+
+[Unit]
+Description=Run ClearCouncil Auto-Sync Daily
+Requires=clearcouncil-sync.service
+
+[Timer]
+# Run daily at 6 AM
+OnCalendar=daily
+Persistent=true
+
+# Add some randomization to avoid server load spikes
+RandomizedDelaySec=1800
+
+[Install]
+WantedBy=timers.target
