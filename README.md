@@ -197,10 +197,30 @@ clearcouncil/
 
 ## 🛠️ Requirements
 
-- Python 3.8+
-- OpenAI API key (for embeddings and search)
-- 2GB+ disk space for documents
-- Internet connection for document downloads
+- **Python 3.8+** with virtual environment support
+- **OpenAI API key** (for embeddings and AI-powered search)
+- **2GB+ disk space** for documents and analysis results
+- **Internet connection** for document downloads and API calls
+- **Optional**: systemd for automated scheduling (Linux systems)
+
+## 🔧 Dependencies
+
+### Core Libraries
+- **LangChain** - AI document processing and embeddings
+- **OpenAI** - GPT-powered search and analysis
+- **FAISS** - Vector database for semantic search
+- **Flask** - Web interface framework
+
+### Analysis & Visualization
+- **fuzzywuzzy** - Intelligent name matching with Levenshtein distance
+- **pandas/numpy** - Data manipulation and analysis
+- **matplotlib/seaborn/plotly** - Chart generation and visualization
+- **PyMuPDF** - PDF document processing
+
+### Additional Features
+- **youtube-transcript-api** - YouTube meeting transcript processing
+- **python-dateutil** - Smart date/time parsing
+- **aiohttp** - Asynchronous HTTP requests for faster processing
 
 ## 📚 Documentation
 
