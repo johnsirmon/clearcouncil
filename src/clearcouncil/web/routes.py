@@ -42,6 +42,68 @@ def index():
     return render_template('index.html', councils=councils)
 
 
+@main_bp.route('/transparency')
+def data_transparency():
+    """Data transparency page showing processed files and data sources."""
+    councils = list_available_councils()
+    council_data = {}
+    
+    for council_id in councils:
+        try:
+            with db.get_connection() as conn:
+                cursor = conn.cursor()
+                
+                # Get document statistics
+                cursor.execute('''
+                    SELECT COUNT(*) as total_docs,
+                           COUNT(CASE WHEN processing_status = 'completed' THEN 1 END) as completed_docs,
+                           MIN(processed_at) as first_processed,
+                           MAX(processed_at) as last_processed
+                    FROM documents 
+                    WHERE council_id = ?
+                ''', (council_id,))
+                
+                doc_stats = cursor.fetchone()
+                
+                # Get voting record statistics
+                cursor.execute('''
+                    SELECT COUNT(*) as total_votes,
+                           COUNT(DISTINCT representative_name) as unique_reps,
+                           MIN(meeting_date) as earliest_meeting,
+                           MAX(meeting_date) as latest_meeting
+                    FROM voting_records 
+                    WHERE council_id = ?
+                ''', (council_id,))
+                
+                vote_stats = cursor.fetchone()
+                
+                # Get recent processed documents
+                cursor.execute('''
+                    SELECT title, meeting_date, document_type, processed_at
+                    FROM documents 
+                    WHERE council_id = ? AND processing_status = 'completed'
+                    ORDER BY processed_at DESC 
+                    LIMIT 10
+                ''', (council_id,))
+                
+                recent_docs = cursor.fetchall()
+                
+                council_data[council_id] = {
+                    'name': load_council_config(council_id).name,
+                    'doc_stats': doc_stats,
+                    'vote_stats': vote_stats,
+                    'recent_docs': recent_docs
+                }
+                
+        except Exception as e:
+            logger.error(f"Error loading transparency data for {council_id}: {e}")
+            council_data[council_id] = {'error': str(e)}
+    
+    return render_template('transparency.html', 
+                         councils=councils, 
+                         council_data=council_data)
+
+
 @main_bp.route('/council/<council_id>')
 def council_overview(council_id):
     """Council overview page."""

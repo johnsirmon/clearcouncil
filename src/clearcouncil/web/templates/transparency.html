@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Data Transparency - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="fas fa-search-plus"></i> Data Transparency</h1>
+            <p class="lead">See exactly what data has been processed and where it comes from</p>
+        </div>
+    </div>
+
+    {% for council_id, data in council_data.items() %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ data.name }}</h2>
+        </div>
+        <div class="card-body">
+            {% if data.error %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error loading data: {{ data.error }}
+                </div>
+            {% else %}
+                <div class="row">
+                    <!-- Document Statistics -->
+                    <div class="col-md-6">
+                        <h4><i class="fas fa-file-pdf"></i> Document Processing</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <th>Total Documents:</th>
+                                        <td>{{ data.doc_stats[0] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Successfully Processed:</th>
+                                        <td>{{ data.doc_stats[1] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>First Processed:</th>
+                                        <td>{{ data.doc_stats[2] or 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Last Processed:</th>
+                                        <td>{{ data.doc_stats[3] or 'N/A' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Voting Record Statistics -->
+                    <div class="col-md-6">
+                        <h4><i class="fas fa-vote-yea"></i> Voting Records</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <th>Total Voting Records:</th>
+                                        <td>{{ data.vote_stats[0] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Unique Representatives:</th>
+                                        <td>{{ data.vote_stats[1] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Earliest Meeting:</th>
+                                        <td>{{ data.vote_stats[2] or 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Latest Meeting:</th>
+                                        <td>{{ data.vote_stats[3] or 'N/A' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Documents -->
+                <div class="mt-4">
+                    <h4><i class="fas fa-clock"></i> Recently Processed Documents</h4>
+                    {% if data.recent_docs %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Document Title</th>
+                                    <th>Meeting Date</th>
+                                    <th>Document Type</th>
+                                    <th>Processed At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in data.recent_docs %}
+                                <tr>
+                                    <td>{{ doc[0] }}</td>
+                                    <td>{{ doc[1] or 'N/A' }}</td>
+                                    <td>{{ doc[2] or 'N/A' }}</td>
+                                    <td>{{ doc[3] or 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No processed documents found.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Data Source Information -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="fas fa-info-circle"></i> Data Sources & Methodology</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Data Sources</h5>
+                    <ul>
+                        <li><strong>York County Council:</strong> Official meeting minutes and agendas from the York County government website</li>
+                        <li><strong>Committee Minutes:</strong> Finance & Operations, Transportation, Planning Commission, Board of Zoning Appeals</li>
+                        <li><strong>PDF Documents:</strong> All source documents are official government PDF files</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Processing Method</h5>
+                    <ul>
+                        <li><strong>Text Extraction:</strong> PDF content is extracted using PyMuPDF</li>
+                        <li><strong>Voting Pattern Recognition:</strong> Automated parsing of voting records using pattern matching</li>
+                        <li><strong>Representative Mapping:</strong> Names are mapped to districts using official council structure</li>
+                        <li><strong>Data Validation:</strong> Records are cross-referenced for accuracy</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <h5>District Assignments</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>York County Council Districts:</strong>
+                        <ul class="list-unstyled ml-3">
+                            <li>District 1: Joel Hamilton</li>
+                            <li>District 2: Albert Quarles</li>
+                            <li>District 3: Tom Audette</li>
+                            <li>District 4: Barbara Candler</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li>District 5: Tommy Adkins</li>
+                            <li>District 6: Tony Smith</li>
+                            <li>District 7: Debi Cloninger</li>
+                            <li>At-Large: Allison Love, William "Bump" Roddey</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Information -->
+    <div class="alert alert-info mt-4">
+        <h5><i class="fas fa-sync-alt"></i> How Data is Updated</h5>
+        <p>Data is processed from official government PDF documents. The system automatically extracts voting records, representative information, and meeting details. All data is sourced from publicly available government documents.</p>
+        <p><strong>Last Updated:</strong> Data processing runs regularly to include new documents as they become available.</p>
+    </div>
+</div>
+{% endblock %}
