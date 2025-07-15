@@ -7,11 +7,31 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 from contextlib import contextmanager
 import json
+import time
+import threading
 
 from ..core.models import VotingRecord, DocumentMetadata
 from ..config.settings import CouncilConfig
 
 logger = logging.getLogger(__name__)
+
+
+def retry_on_database_locked(max_retries=3, delay=0.1):
+    """Decorator to retry database operations on lock errors."""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e) and attempt < max_retries - 1:
+                        logger.warning(f"Database locked, retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(delay * (2 ** attempt))  # Exponential backoff
+                        continue
+                    raise
+            return None
+        return wrapper
+    return decorator
 
 
 class DatabaseManager:
@@ -21,6 +41,7 @@ class DatabaseManager:
         """Initialize database manager."""
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
         self.init_database()
     
     def init_database(self):
@@ -149,52 +170,58 @@ class DatabaseManager:
     @contextmanager
     def get_connection(self):
         """Get database connection with automatic cleanup."""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
         conn.row_factory = sqlite3.Row
+        # Enable WAL mode for better concurrency
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
         try:
             yield conn
         finally:
             conn.close()
     
+    @retry_on_database_locked(max_retries=5, delay=0.1)
     def insert_voting_record(self, record: VotingRecord, council_id: str, 
                            document_id: str = None, meeting_date: datetime = None) -> int:
         """Insert a voting record into the database."""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            
-            # First, get or create representative
-            rep_id = self.get_or_create_representative(
-                record.representative, record.district, council_id
-            )
-            
-            # Determine case category from zoning request
-            category = self.categorize_case(record.zoning_request)
-            
-            cursor.execute('''
-                INSERT INTO voting_records (
-                    case_number, representative_id, district, representative_name,
-                    meeting_date, vote_type, vote_result, case_category,
-                    location, acres, owner, applicant, zoning_request,
-                    staff_recommendation, pc_recommendation, movant, second,
-                    ayes, nays, council_id, document_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                record.case_number, rep_id, record.district, record.representative,
-                meeting_date, 'vote', record.result, category,
-                record.location, record.acres, record.owner, record.applicant,
-                record.zoning_request, record.staff_recommendation, record.pc_recommendation,
-                record.movant, record.second, record.ayes, record.nays,
-                council_id, document_id
-            ))
-            
-            record_id = cursor.lastrowid
-            
-            # Update representative statistics
-            self.update_representative_stats(rep_id, record)
-            
-            conn.commit()
-            return record_id
+        with self._lock:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                
+                # First, get or create representative
+                rep_id = self.get_or_create_representative(
+                    record.representative, record.district, council_id
+                )
+                
+                # Determine case category from zoning request
+                category = self.categorize_case(record.zoning_request)
+                
+                cursor.execute('''
+                    INSERT INTO voting_records (
+                        case_number, representative_id, district, representative_name,
+                        meeting_date, vote_type, vote_result, case_category,
+                        location, acres, owner, applicant, zoning_request,
+                        staff_recommendation, pc_recommendation, movant, second,
+                        ayes, nays, council_id, document_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    record.case_number, rep_id, record.district, record.representative,
+                    meeting_date, 'vote', record.result, category,
+                    record.location, record.acres, record.owner, record.applicant,
+                    record.zoning_request, record.staff_recommendation, record.pc_recommendation,
+                    record.movant, record.second, record.ayes, record.nays,
+                    council_id, document_id
+                ))
+                
+                record_id = cursor.lastrowid
+                
+                # Update representative statistics
+                self.update_representative_stats(rep_id, record)
+                
+                conn.commit()
+                return record_id
     
+    @retry_on_database_locked(max_retries=5, delay=0.1)
     def get_or_create_representative(self, name: str, district: str, council_id: str) -> int:
         """Get or create a representative record."""
         if not name:
