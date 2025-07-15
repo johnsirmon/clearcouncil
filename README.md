@@ -1,8 +1,8 @@
 # ClearCouncil 🏛️
 
-**A local government transparency tool that makes understanding council decisions simple**
+**A comprehensive local government transparency tool that makes understanding council decisions simple**
 
-ClearCouncil processes PDF documents and creates interactive dashboards to help citizens understand what their representatives are voting on and how they compare to others.
+ClearCouncil processes PDF documents, extracts voting records, and creates interactive dashboards to help citizens understand what their representatives are voting on and how they compare to others. Features intelligent name matching, automated document processing, and comprehensive voting analysis.
 
 ## 🚀 Quick Start
 
@@ -30,14 +30,22 @@ python setup_web.py
 # See available councils
 python clearcouncil.py list-councils
 
-# Process council documents
+# Download and process council documents
+python clearcouncil.py update-documents york_county_sc "last 6 months"
 python clearcouncil.py process-pdfs york_county_sc
 
-# Search documents
+# Search documents with AI-powered search
 python clearcouncil.py search york_county_sc "rezoning ordinance"
 
-# Analyze voting patterns
-python clearcouncil.py analyze-voting york_county_sc "District 2" "last year" --create-charts
+# Analyze voting patterns with fuzzy name matching
+python clearcouncil.py analyze-voting york_county_sc "Love" "last year" --create-charts
+python clearcouncil.py analyze-voting york_county_sc "District 2" "since 2020" --compare-with "District 1" "District 3"
+
+# Analyze district performance
+python clearcouncil.py analyze-district york_county_sc "District 1" "last 2 years" --create-charts
+
+# Get municipal term explanations
+python clearcouncil.py explain-terms
 
 # Get help
 python clearcouncil.py --help
@@ -57,26 +65,59 @@ python clearcouncil_web.py serve
 # Open your browser to http://localhost:5000
 ```
 
+#### Automated Sync
+```bash
+# Set up automated document processing
+chmod +x auto_sync.sh
+./auto_sync.sh  # Run manual sync
+
+# For automated scheduling, use the systemd service:
+sudo cp clearcouncil-sync.service /etc/systemd/system/
+sudo cp clearcouncil-sync.timer /etc/systemd/system/
+sudo systemctl enable clearcouncil-sync.timer
+sudo systemctl start clearcouncil-sync.timer
+```
+
 ## 📊 Features
 
-### Interactive Web Dashboard
+### 🧠 Intelligent Name Matching
+- **Fuzzy String Matching**: Find representatives even with misspellings, nicknames, or partial names
+- **Multi-tier Search**: Exact → case-insensitive → partial → fuzzy matching
+- **Smart Suggestions**: Get similar name suggestions when exact matches aren't found
+- **Examples**: "Love" finds "Allison Love", "Bob" finds "Robert Winkler"
+
+### 📈 Advanced Voting Analysis
+- **Individual Representative Tracking**: Detailed voting history and patterns
+- **District Comparisons**: Compare performance across different districts
+- **Time-based Analysis**: Track changes over specific periods
+- **Voting Pattern Insights**: Identify trends, agreements, and disagreements
+- **Automated Chart Generation**: Visual representations of voting data
+
+### 🌐 Interactive Web Dashboard
 - **Representative Analysis**: View detailed voting records and patterns
 - **Interactive Charts**: Filter by time period and representative
-- **Search Functionality**: Find specific topics or cases
+- **Search Functionality**: Find specific topics or cases with AI-powered search
 - **Comparison Tools**: Compare representatives side-by-side
 - **Mobile Responsive**: Works on phones, tablets, and desktops
+- **Real-time Updates**: Stay current with latest council decisions
 
-### Command Line Tools
-- **Document Processing**: Extract voting records from PDF files
-- **Data Analysis**: Generate reports and visualizations
-- **Batch Operations**: Process multiple files efficiently
-- **Search**: Find specific content across all documents
-
-### Data Management
-- **Optimized Database**: Fast queries with proper indexing
-- **Parallel Processing**: Handle multiple documents simultaneously
+### 🤖 AI-Powered Processing
+- **Document Processing**: Intelligent extraction from PDF documents
 - **Vector Search**: Find relevant content using AI embeddings
-- **Automatic Updates**: Keep data current with new documents
+- **Municipal Glossary**: Built-in explanations of government terms
+- **Automated Categorization**: Smart classification of voting records
+
+### 🔄 Automated Operations
+- **Scheduled Downloads**: Automatic document fetching with systemd integration
+- **Batch Processing**: Handle multiple documents efficiently
+- **Background Updates**: Keep data current without manual intervention
+- **Error Recovery**: Robust handling of failed operations
+
+### 📊 Data Export & Visualization
+- **Multiple Formats**: Export data as CSV, JSON, or interactive charts
+- **Custom Time Ranges**: Analyze any period from days to years
+- **Comprehensive Reports**: Detailed summaries with statistics
+- **Shareable Visualizations**: Generate charts for presentations or reports
 
 ## 🏛️ Currently Supported
 
@@ -89,22 +130,59 @@ python clearcouncil_web.py serve
 clearcouncil/
 ├── clearcouncil.py              # Main CLI application
 ├── clearcouncil_web.py          # Web interface launcher
+├── auto_sync.sh                 # Automated sync script
 ├── setup_web.py                 # Web setup script
-├── requirements.txt             # Python dependencies
+├── requirements.txt             # Python dependencies (with fuzzy matching)
 ├── config/                      # Council configurations
 │   └── councils/
-│       └── york_county_sc.yaml  # Example council config
+│       ├── template.yaml        # Template for new councils
+│       └── york_county_sc.yaml  # York County configuration
 ├── src/clearcouncil/            # Main source code
-│   ├── web/                     # Web interface
+│   ├── web/                     # Web interface components
+│   │   ├── app.py              # Flask application
+│   │   ├── routes.py           # Web routes
+│   │   ├── database.py         # Web database layer
+│   │   ├── charts.py           # Chart generation
+│   │   └── templates/          # HTML templates
 │   ├── cli/                     # Command line interface
+│   │   ├── main.py             # CLI entry point
+│   │   └── voting_commands.py  # Voting analysis commands
+│   ├── analysis/                # Data analysis modules
+│   │   ├── voting_analyzer.py  # Core voting analysis
+│   │   ├── batch_processor.py  # Bulk processing
+│   │   ├── representative_tracker.py  # Rep tracking with fuzzy matching
+│   │   └── time_range.py       # Time period parsing
+│   ├── visualization/           # Chart and graph generation
+│   │   └── voting_charts.py    # Voting visualization tools
 │   ├── processors/              # Document processors
+│   │   ├── pdf_processor.py    # PDF handling
+│   │   └── transcript_processor.py  # YouTube transcript processing
 │   ├── parsers/                 # Data parsers
+│   │   ├── voting_parser.py    # Extract voting records
+│   │   └── base_parser.py      # Base parsing functionality
+│   ├── downloaders/             # Document downloaders
+│   │   ├── pdf_downloader.py   # Automated PDF fetching
+│   │   └── base_downloader.py  # Base download functionality
+│   ├── glossary/                # Municipal term explanations
+│   │   ├── municipal_glossary.py  # Government term definitions
+│   │   └── tooltip_generator.py   # Interactive explanations
 │   └── core/                    # Core functionality
+│       ├── database.py         # Vector database
+│       ├── models.py           # Data models
+│       └── exceptions.py       # Custom exceptions
 ├── data/                        # Data storage
 │   ├── PDFs/                    # Downloaded documents
-│   ├── results/                 # Analysis results
-│   └── faiss_indexes/           # Vector database
-└── tests/                       # Test files
+│   ├── results/                 # Analysis results and charts
+│   ├── faiss_indexes/           # Vector database indexes
+│   └── transcripts/             # YouTube transcripts
+├── tests/                       # Test files
+│   ├── test_fuzzy_matching.py  # Fuzzy name matching tests
+│   ├── test_voting_parser.py   # Parser validation
+│   ├── test_web_integration.py # Web interface tests
+│   └── test_rep_extraction.py  # Representative extraction tests
+└── systemd/                     # System service files
+    ├── clearcouncil-sync.service  # Systemd service
+    └── clearcouncil-sync.timer    # Automated scheduling
 ```
 
 ## 🔧 Adding Your Council
