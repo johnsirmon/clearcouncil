@@ -1,224 +1,193 @@
 # ClearCouncil 🏛️
 
-**Understanding Local Government Made Simple**
+**A local government transparency tool that makes understanding council decisions simple**
 
-ClearCouncil helps everyday citizens understand what their local government representatives are voting on and how they compare to others - all explained in plain English!
+ClearCouncil processes PDF documents and creates interactive dashboards to help citizens understand what their representatives are voting on and how they compare to others.
 
-## 🎯 What ClearCouncil Does
+## 🚀 Quick Start
 
-- **📊 Analyze Representatives**: See what your district representative has been voting on
-- **📈 Compare Performance**: Compare representatives to understand different approaches
-- **📚 Explain Terms**: Get plain English explanations of government jargon
-- **📥 Auto-Download**: Automatically find and download missing meeting documents
-- **📋 Create Visuals**: Generate charts and graphs to visualize voting patterns
-- **⏰ Time Analysis**: Look at any time period - "last year", "last 6 months", etc.
-
-## 🚀 Quick Start (5 Minutes) - TESTED & WORKING ✅
-
-### Step 1: Download and Setup
-
-1. **Download** all ClearCouncil files to a folder on your computer
-2. **Install dependencies** (one command):
-   ```bash
-   python3 -m pip install --user python-dotenv PyYAML requests pandas PyPDF2 python-dateutil tqdm matplotlib seaborn
-   ```
-3. **Test everything works**:
-   ```bash
-   python3 run_local_tests.py
-   ```
-
-### Step 2: Try It Out (All Commands Tested ✅)
-
-Open your command prompt/terminal in the ClearCouncil folder and try:
-
+### 1. Setup (One Time)
 ```bash
-# See what councils are available ✅ TESTED - WORKS
-python clearcouncil_simple.py list-councils
+# Clone or download this repository
+git clone [repository-url]
+cd clearcouncil
 
-# Learn basic government terms ✅ TESTED - WORKS  
-python clearcouncil_simple.py explain-basic
+# Install dependencies
+pip install -r requirements.txt
 
-# Analyze your representative ✅ TESTED - WORKS
+# Set up your environment
+cp .env.example .env
+# Edit .env and add your OpenAI API key
+
+# Initialize the application
+python setup_web.py
+```
+
+### 2. Using the Application
+
+#### Command Line Interface
+```bash
+# See available councils
+python clearcouncil.py list-councils
+
+# Process council documents
+python clearcouncil.py process-pdfs york_county_sc
+
+# Search documents
+python clearcouncil.py search york_county_sc "rezoning ordinance"
+
+# Analyze voting patterns
 python clearcouncil.py analyze-voting york_county_sc "District 2" "last year" --create-charts
+
+# Get help
+python clearcouncil.py --help
 ```
 
-**Test Status**: ✅ All basic functionality verified working. Advanced features work after dependency installation.
-
-## 📋 Real-World Examples
-
-### "What has my representative been voting on?"
+#### Web Interface
 ```bash
-python clearcouncil.py analyze-voting york_county_sc "District 2" "last 6 months" --create-charts
-```
-**You get**: Detailed report with charts showing vote counts, types of issues, and activity timeline
+# Initialize the database
+python clearcouncil_web.py init-db
 
-### "How does my rep compare to others?"
-```bash
-python clearcouncil.py analyze-voting york_county_sc "District 2" "last year" --compare-with "District 1" "District 3"
-```
-**You get**: Side-by-side comparison showing who's most active and in what areas
+# Process data for web interface
+python clearcouncil_web.py process-data york_county_sc
 
-### "I don't understand these government terms"
-```bash
-python clearcouncil.py explain-terms "movant" "second" "rezoning" "ordinance"
-```
-**You get**: Plain English explanations like "Movant = the person who proposes an action"
+# Start the web server
+python clearcouncil_web.py serve
 
-### "Get me caught up on recent activity"
-```bash
-python clearcouncil.py update-documents york_county_sc "last 5 months"
-```
-**You get**: Automatic download and processing of any missing meeting documents
-
-## 🎨 What You'll See
-
-### Text Reports
-```
-📊 VOTING ANALYSIS REPORT
-Representative: John Smith (District 2)
-Time Period: Last 12 months
-Total Votes: 45
-Motions Made: 8
-
-🏛️ Cases by Type:
-   • Rezoning: 15
-   • Budget: 12  
-   • Ordinances: 18
+# Open your browser to http://localhost:5000
 ```
 
-### Visual Charts
-- Bar charts comparing representatives
-- Timeline showing activity over months
-- Pie charts breaking down vote types
-- All saved as shareable image files
+## 📊 Features
 
-### Interactive HTML Reports
-- Click on any government term for instant explanation
-- Sidebar glossary with definitions
-- Professional formatting for sharing
+### Interactive Web Dashboard
+- **Representative Analysis**: View detailed voting records and patterns
+- **Interactive Charts**: Filter by time period and representative
+- **Search Functionality**: Find specific topics or cases
+- **Comparison Tools**: Compare representatives side-by-side
+- **Mobile Responsive**: Works on phones, tablets, and desktops
 
-## 🛠️ No Technical Skills Required
+### Command Line Tools
+- **Document Processing**: Extract voting records from PDF files
+- **Data Analysis**: Generate reports and visualizations
+- **Batch Operations**: Process multiple files efficiently
+- **Search**: Find specific content across all documents
 
-ClearCouncil is designed for **anyone** to use:
+### Data Management
+- **Optimized Database**: Fast queries with proper indexing
+- **Parallel Processing**: Handle multiple documents simultaneously
+- **Vector Search**: Find relevant content using AI embeddings
+- **Automatic Updates**: Keep data current with new documents
 
-- ✅ **Simple Commands**: Just type what you want to know
-- ✅ **Plain English**: All results explained in everyday language  
-- ✅ **Automatic Setup**: Setup script handles all technical details
-- ✅ **Smart Time Parsing**: Understands "last year", "last 6 months", etc.
-- ✅ **Error Guidance**: If something goes wrong, you get clear instructions
-- ✅ **Multiple Formats**: Choose text, charts, HTML, or spreadsheet output
-
-## 📊 Key Features
-
-### 🔍 Smart Analysis
-- **Time Ranges**: "last year", "last 6 months", "since 2023", or specific dates
-- **Natural Language**: Ask questions the way you naturally think
-- **Auto-Discovery**: Finds relevant documents automatically
-- **Missing Data**: Identifies and downloads missing meeting documents
-
-### 📈 Visual Insights  
-- **Representative Summaries**: Complete voting activity overview
-- **Comparison Charts**: Side-by-side representative analysis
-- **Activity Timelines**: See voting patterns over time
-- **District Overviews**: All representatives in your area
-
-### 📚 Educational
-- **25+ Municipal Terms**: Built-in glossary of government language
-- **Plain English**: Everything explained in everyday terms
-- **Interactive Tooltips**: Hover over terms for instant definitions
-- **Examples**: Real-world examples for every concept
-
-### ⚡ Efficient Processing
-- **Parallel Processing**: Handles multiple documents simultaneously
-- **Smart Caching**: Reuses existing data when possible
-- **Batch Operations**: Process months of data in one command
-- **Progress Tracking**: See exactly what's happening
-
-## 🏛️ Currently Supports
+## 🏛️ Currently Supported
 
 - **York County, South Carolina** (fully configured)
-- **Any Council** with PDF meeting documents (easily configurable)
+- **Easy Configuration**: Add new councils by copying and editing YAML config files
 
-### Adding Your Council
+## 📁 Project Structure
+
+```
+clearcouncil/
+├── clearcouncil.py              # Main CLI application
+├── clearcouncil_web.py          # Web interface launcher
+├── setup_web.py                 # Web setup script
+├── requirements.txt             # Python dependencies
+├── config/                      # Council configurations
+│   └── councils/
+│       └── york_county_sc.yaml  # Example council config
+├── src/clearcouncil/            # Main source code
+│   ├── web/                     # Web interface
+│   ├── cli/                     # Command line interface
+│   ├── processors/              # Document processors
+│   ├── parsers/                 # Data parsers
+│   └── core/                    # Core functionality
+├── data/                        # Data storage
+│   ├── PDFs/                    # Downloaded documents
+│   ├── results/                 # Analysis results
+│   └── faiss_indexes/           # Vector database
+└── tests/                       # Test files
+```
+
+## 🔧 Adding Your Council
+
 1. Copy `config/councils/template.yaml`
-2. Rename to `your_council.yaml`
-3. Update website URLs and document patterns
-4. Start analyzing immediately
+2. Rename to `your_council_id.yaml`
+3. Update the configuration:
+   - Website URLs
+   - Document download patterns
+   - File naming conventions
+   - Storage directories
 
-## 📁 File Organization
+## 🛠️ Requirements
 
-After setup, your folder contains:
-```
-ClearCouncil/
-├── clearcouncil_simple.py    # Easy starter script
-├── setup.bat / setup.sh      # Automatic setup
-├── data/
-│   ├── PDFs/                 # Downloaded documents  
-│   ├── results/              # Analysis results
-│   └── results/charts/       # Generated visualizations
-├── config/councils/          # Council configurations
-└── GETTING_STARTED.md        # Detailed user guide
-```
+- Python 3.8+
+- OpenAI API key (for embeddings and search)
+- 2GB+ disk space for documents
+- Internet connection for document downloads
+
+## 📚 Documentation
+
+- **[CLAUDE.md](CLAUDE.md)** - Technical documentation and project overview
+- **[VOTING_ANALYSIS_GUIDE.md](VOTING_ANALYSIS_GUIDE.md)** - Advanced voting analysis features
+- **[LOCAL_SETUP_GUIDE.md](LOCAL_SETUP_GUIDE.md)** - Detailed setup instructions
+- **[GIT_LARGE_FILES_GUIDE.md](GIT_LARGE_FILES_GUIDE.md)** - Managing large files with Git LFS
 
 ## 🚨 Troubleshooting
 
-### Setup Issues
-- **Windows**: Make sure Python is installed and "Add to PATH" was checked
-- **Mac/Linux**: Install Python 3.8+ from python.org
-- **Permission errors**: Try running setup as administrator
+### Common Issues
 
-### Analysis Issues  
-- **"No documents found"**: Run `python clearcouncil.py update-documents york_county_sc "last year"`
-- **"Representative not found"**: Try "District 2" instead of names, or vice versa
-- **Missing charts**: Run `pip install matplotlib seaborn --user`
+**"OpenAI API key not found"**
+- Add your API key to the `.env` file
+- Get one from https://platform.openai.com/api-keys
 
-### Quick Fixes
+**"No documents found"**
+- Run `python clearcouncil.py download-pdfs york_county_sc` first
+- Check that the council configuration is correct
+
+**"Database locked" errors**
+- The improved database handling should prevent this
+- If it persists, try processing fewer files at once
+
+### Getting Help
+
 ```bash
-# Test basic functionality
-python clearcouncil_simple.py list-councils
-
-# Re-run setup if needed
-./setup.sh  # or setup.bat on Windows
+# Check if everything is working
+python tests/test_web_integration.py
 
 # Get help for any command
 python clearcouncil.py --help
-python clearcouncil.py analyze-voting --help
+python clearcouncil_web.py --help
+
+# Test basic functionality
+python clearcouncil.py list-councils
 ```
-
-## 📖 Documentation
-
-- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Complete step-by-step guide
-- **[VOTING_ANALYSIS_GUIDE.md](VOTING_ANALYSIS_GUIDE.md)** - Advanced analysis features
-- **[MIGRATION.md](MIGRATION.md)** - For users upgrading from old scripts
-- **[CLAUDE.md](CLAUDE.md)** - Technical documentation
 
 ## 🎯 Use Cases
 
-### 👥 For Citizens
+### For Citizens
 - Track your representative's voting record
-- Compare candidates during elections
 - Understand local government decisions
+- Compare candidates during elections
 - Stay informed about district activities
 
-### 📰 For Journalists & Researchers
-- Analyze voting patterns across time
-- Compare representatives' focus areas
+### For Journalists & Researchers
+- Analyze voting patterns over time
 - Export data for detailed analysis
 - Generate shareable visualizations
-
-### 🏛️ For Transparency Organizations
 - Monitor government accountability
+
+### For Transparency Organizations
 - Create public reports
 - Track policy trends
 - Educate citizens about local politics
+- Monitor government accountability
 
 ## 🤝 Contributing
 
 We welcome contributions! Whether you're:
-- 🐛 **Reporting bugs** - Help us improve
-- 💡 **Suggesting features** - Tell us what you need
-- 🏛️ **Adding councils** - Help expand coverage
-- 📖 **Improving docs** - Make it easier for others
+- 🐛 Reporting bugs
+- 💡 Suggesting features
+- 🏛️ Adding councils
+- 📖 Improving documentation
 
 ## 📜 License
 
