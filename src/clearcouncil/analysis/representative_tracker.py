@@ -1,10 +1,11 @@
-"""Representative tracking and voting history management."""
+"""Representative tracking and voting history management with deduplication."""
 
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict
 import logging
+import re
 from fuzzywuzzy import fuzz, process
 
 from ..core.models import VotingRecord
@@ -361,3 +362,132 @@ class RepresentativeTracker:
                 return False
         
         return True
+    
+    def normalize_representative_name(self, name: str) -> str:
+        """Normalize representative name for consistent storage."""
+        if not name:
+            return name
+            
+        # Remove extra whitespace
+        name = ' '.join(name.split())
+        
+        # Common name normalizations
+        name = name.replace('"Bump"', '"Bump"')  # Standardize quotes
+        name = name.replace('Jeff ', 'Jeffrey ')  # Expand common nicknames
+        name = name.replace('Tom ', 'Thomas ')
+        name = name.replace('Bob ', 'Robert ')
+        name = name.replace('Tony ', 'Anthony ')
+        
+        # Handle "Bud" Smith case
+        if 'Thomas "Bud" Smith' in name or 'Tony Smith' in name:
+            name = 'Anthony "Tony" Smith'
+        
+        return name
+    
+    def consolidate_duplicates(self) -> None:
+        """Consolidate duplicate representatives and merge their voting records."""
+        logger.info("Starting representative deduplication process...")
+        
+        # Build mapping of normalized names to canonical names
+        name_mapping = {}
+        canonical_representatives = {}
+        
+        # First pass: normalize and identify canonical versions
+        for original_name, rep in self.representatives.items():
+            normalized = self.normalize_representative_name(original_name)
+            
+            # Create a key for finding duplicates (using last name + first initial)
+            name_parts = normalized.split()
+            if len(name_parts) >= 2:
+                dedup_key = f"{name_parts[-1].lower()}_{name_parts[0][0].lower()}"
+            else:
+                dedup_key = normalized.lower()
+            
+            if dedup_key not in canonical_representatives:
+                # This is the first time we see this person - make them canonical
+                canonical_representatives[dedup_key] = normalized
+                name_mapping[original_name] = normalized
+            else:
+                # We've seen this person before - map to canonical version
+                canonical_name = canonical_representatives[dedup_key]
+                name_mapping[original_name] = canonical_name
+                logger.info(f"Mapping duplicate '{original_name}' -> '{canonical_name}'")
+        
+        # Second pass: merge representatives with same canonical name
+        new_representatives = {}
+        for original_name, rep in self.representatives.items():
+            canonical_name = name_mapping[original_name]
+            
+            if canonical_name not in new_representatives:
+                # Create new representative with canonical name
+                new_rep = RepresentativeProfile(
+                    name=canonical_name,
+                    district=rep.district or self._get_district_for_representative(canonical_name),
+                    vote_history=[],
+                    total_votes=0,
+                    motions_made=0,
+                    seconds_given=0,
+                    votes_for=0,
+                    votes_against=0,
+                    abstentions=0
+                )
+                new_representatives[canonical_name] = new_rep
+            
+            # Merge voting data
+            target_rep = new_representatives[canonical_name]
+            target_rep.vote_history.extend(rep.vote_history)
+            target_rep.total_votes += rep.total_votes
+            target_rep.motions_made += rep.motions_made
+            target_rep.seconds_given += rep.seconds_given
+            target_rep.votes_for += rep.votes_for
+            target_rep.votes_against += rep.votes_against
+            target_rep.abstentions += rep.abstentions
+            
+            # Use the most complete district information
+            if not target_rep.district and rep.district:
+                target_rep.district = rep.district
+        
+        # Update vote records to use canonical names
+        for votes in self.votes_by_case.values():
+            for vote in votes:
+                if vote.representative in name_mapping:
+                    vote.representative = name_mapping[vote.representative]
+        
+        for votes in self.votes_by_date.values():
+            for vote in votes:
+                if vote.representative in name_mapping:
+                    vote.representative = name_mapping[vote.representative]
+        
+        # Replace representatives dictionary
+        old_count = len(self.representatives)
+        self.representatives = new_representatives
+        new_count = len(self.representatives)
+        
+        logger.info(f"Deduplication complete: {old_count} -> {new_count} representatives")
+        
+        # Update district information for known representatives
+        self._update_district_information()
+    
+    def _update_district_information(self) -> None:
+        """Update district information for representatives."""
+        # Known York County districts mapping
+        district_mapping = {
+            'Joel Hamilton': 'District 1',
+            'Albert Quarles': 'District 2',
+            'Thomas Audette': 'District 3',
+            'Tom Audette': 'District 3',
+            'Barbara Candler': 'District 4',
+            'Tommy Adkins': 'District 5',
+            'Anthony "Tony" Smith': 'District 6',
+            'Tony Smith': 'District 6',
+            'Debi Cloninger': 'District 7',
+            'Allison Love': 'At-Large',
+            'William "Bump" Roddey': 'At-Large',
+            'Christi Cox': 'At-Large',
+            'Robert Winkler': 'At-Large'
+        }
+        
+        for name, rep in self.representatives.items():
+            if name in district_mapping:
+                rep.district = district_mapping[name]
+                logger.debug(f"Updated district for {name}: {rep.district}")
