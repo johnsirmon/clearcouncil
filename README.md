@@ -234,22 +234,36 @@ clearcouncil/
 ### Common Issues
 
 **"OpenAI API key not found"**
-- Add your API key to the `.env` file
+- Add your API key to the `.env` file: `OPENAI_API_KEY=your_key_here`
 - Get one from https://platform.openai.com/api-keys
 
-**"No documents found"**
-- Run `python clearcouncil.py download-pdfs york_county_sc` first
-- Check that the council configuration is correct
+**"No documents found" or "Representative not found"**
+- Try fuzzy matching: `python clearcouncil.py analyze-voting york_county_sc "Love" "last year"`
+- Update documents first: `python clearcouncil.py update-documents york_county_sc "last 6 months"`
+- Check council configuration in `config/councils/`
 
 **"Database locked" errors**
 - The improved database handling should prevent this
-- If it persists, try processing fewer files at once
+- If it persists, try processing fewer files at once with `--max-workers 2`
+
+**Fuzzy matching not working**
+- Ensure fuzzywuzzy is installed: `pip install fuzzywuzzy python-Levenshtein`
+- Check the test: `python tests/test_fuzzy_matching.py`
+
+**Web interface not loading**
+- Initialize database: `python clearcouncil_web.py init-db`
+- Process data: `python clearcouncil_web.py process-data york_county_sc`
+- Check logs in `clearcouncil_web.log`
 
 ### Getting Help
 
 ```bash
-# Check if everything is working
+# Test if everything is working
 python tests/test_web_integration.py
+python tests/test_fuzzy_matching.py
+
+# Check representative extraction
+python extract_representatives.py
 
 # Get help for any command
 python clearcouncil.py --help
@@ -257,27 +271,78 @@ python clearcouncil_web.py --help
 
 # Test basic functionality
 python clearcouncil.py list-councils
+
+# Debug PDF content extraction
+python debug_pdf_content.py path/to/pdf/file.pdf
+
+# Check sync status
+./sync_status.sh
 ```
+
+### Performance Optimization
+
+**For large datasets:**
+- Use `--max-workers` to control parallel processing
+- Process documents in batches using time ranges
+- Use `--download-missing false` to skip downloads when analyzing
+
+**For faster searching:**
+- Build FAISS indexes with `process-pdfs` command
+- Use specific time ranges instead of "all time"
+- Cache results with automated sync script
 
 ## 🎯 Use Cases
 
 ### For Citizens
-- Track your representative's voting record
-- Understand local government decisions
-- Compare candidates during elections
-- Stay informed about district activities
+- **Track Your Representative**: Monitor voting patterns with intelligent name search
+- **Understand Decisions**: Get context for complex municipal issues with built-in glossary
+- **Compare Candidates**: Side-by-side analysis during elections with visual comparisons
+- **Stay Informed**: Automated updates keep you current with district activities
+- **Access History**: Search years of voting records instantly with AI-powered search
 
 ### For Journalists & Researchers
-- Analyze voting patterns over time
-- Export data for detailed analysis
-- Generate shareable visualizations
-- Monitor government accountability
+- **Investigative Reporting**: Deep-dive analysis with exportable data and visualizations
+- **Trend Analysis**: Track policy changes over time with comprehensive time-range analysis
+- **Data Journalism**: Generate shareable charts and export raw data for stories
+- **Accountability Reporting**: Monitor government transparency with automated tracking
+- **Source Documentation**: Direct links to original documents for fact-checking
 
 ### For Transparency Organizations
-- Create public reports
-- Track policy trends
-- Educate citizens about local politics
-- Monitor government accountability
+- **Public Education**: Create accessible reports with automated chart generation
+- **Government Monitoring**: Track policy trends across multiple districts and time periods
+- **Civic Engagement**: Help citizens understand local politics with plain-language explanations
+- **Data Advocacy**: Use comprehensive analytics to support transparency initiatives
+- **Community Outreach**: Mobile-responsive interface for public meetings and events
+
+### For Government Officials
+- **Historical Reference**: Quick access to past decisions and voting patterns
+- **Constituent Services**: Answer citizen questions with detailed voting history
+- **Policy Research**: Analyze the impact of past decisions with trend analysis
+- **Transparency Compliance**: Provide easy public access to voting records
+- **Inter-district Coordination**: Compare approaches across different districts
+
+## 🔬 Advanced Features
+
+### Municipal Glossary Integration
+- Built-in explanations for government terms and procedures
+- Interactive tooltips for complex municipal concepts
+- Context-aware definitions based on document content
+
+### Intelligent Document Processing
+- Automatic extraction of voting records from various PDF formats
+- Smart categorization of meeting types and document contents
+- Handles complex table structures and multi-column layouts
+
+### Time-Range Analysis
+- Flexible date parsing: "last year", "since 2020", "Q1 2023"
+- Comparative analysis across different time periods
+- Trend identification and pattern recognition
+
+### Automated Scheduling
+- Systemd integration for hands-off operation
+- Configurable sync intervals and retry logic
+- Email notifications for process completion or errors
+- Automatic cleanup of old logs and temporary files
 
 ## 🤝 Contributing
 
