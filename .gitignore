@@ -18,6 +18,9 @@ clearcouncil_env/
 *.temp
 clearcouncil.log
 
+# Ignore private content
+linkedin_post.md
+
 # Ignore Python cache
 __pycache__/
 *.py[cod]
