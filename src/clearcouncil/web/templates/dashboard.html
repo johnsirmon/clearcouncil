@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Header Section -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-landmark text-primary me-3"></i>
+                    Local Government Transparency
+                </h1>
+                <p class="lead mb-4">
+                    Understand what your representatives are voting on and how they compare to others
+                </p>
+                
+                {% if default_council %}
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Currently viewing: <strong>{{ default_council|replace('_', ' ')|title }}</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if default_council %}
+<!-- Main Dashboard Content -->
+<div class="row">
+    <!-- Quick Stats -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number">{{ representatives|length }}</div>
+                        <div class="stats-label">Representatives</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number">{{ recent_meetings|length }}</div>
+                        <div class="stats-label">Recent Meetings</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number" id="totalVotes">-</div>
+                        <div class="stats-label">Total Votes</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number" id="activePeriod">-</div>
+                        <div class="stats-label">Active Period</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Representatives Section -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Your Representatives
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for rep in representatives %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card representative-card" 
+                             onclick="window.location.href='{{ url_for('main.representative_detail', rep_id=rep.id) }}'">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title mb-1">{{ rep.name }}</h6>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ rep.district }}
+                                        </p>
+                                        <div class="d-flex gap-2">
+                                            <span class="badge bg-primary">{{ rep.total_votes }} votes</span>
+                                            <span class="badge bg-success">{{ rep.motions_made }} motions</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('main.compare_representatives', council_id=default_council) }}" 
+                       class="btn btn-primary">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Compare Representatives
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('main.search', council_id=default_council) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-search me-2"></i>
+                        Search Documents
+                    </a>
+                    
+                    <a href="{{ url_for('main.council_overview', council_id=default_council) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Council Overview
+                    </a>
+                    
+                    <a href="{{ url_for('main.upload_documents') }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-upload me-2"></i>
+                        Upload Documents
+                    </a>
+                    
+                    <button class="btn btn-outline-primary" onclick="explainTerms()">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Explain Terms
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Meetings
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_meetings %}
+                <div class="list-group list-group-flush">
+                    {% for meeting_date in recent_meetings[:5] %}
+                    <div class="list-group-item border-0 px-0">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ meeting_date|datetime_format('%B %d, %Y') }}</span>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt"></i>
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No recent meetings found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Council Overview Chart -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Council Activity Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="councilOverviewChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- No Council Selected -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-4x text-muted mb-4"></i>
+                <h3>Select a Council to Get Started</h3>
+                <p class="text-muted mb-4">
+                    Choose a council from the list below to view representatives and voting records.
+                </p>
+                
+                {% if councils %}
+                <div class="row">
+                    {% for council_id in councils %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ council_id|replace('_', ' ')|title }}</h5>
+                                <a href="{{ url_for('main.council_overview', council_id=council_id) }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-arrow-right me-2"></i>
+                                    View Council
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No councils configured. Please check your configuration.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if default_council %}
+    // Load council overview chart
+    loadCouncilOverview();
+    
+    // Load dashboard stats
+    loadDashboardStats();
+    {% endif %}
+});
+
+function loadCouncilOverview() {
+    fetch('/api/council/{{ default_council }}/overview-chart')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const chartData = JSON.parse(data.chart);
+                Plotly.newPlot('councilOverviewChart', chartData.data, chartData.layout, {
+                    responsive: true,
+                    displayModeBar: false
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading council overview:', error);
+            document.getElementById('councilOverviewChart').innerHTML = 
+                '<div class="alert alert-warning">Unable to load council overview chart</div>';
+        });
+}
+
+function loadDashboardStats() {
+    fetch('/api/council/{{ default_council }}/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('totalVotes').textContent = data.stats.total_votes || 0;
+                document.getElementById('activePeriod').textContent = data.stats.active_period || 'N/A';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading dashboard stats:', error);
+        });
+}
+
+function explainTerms() {
+    const commonTerms = {
+        'Movant': 'The person who makes a motion (proposes an action) in a council meeting',
+        'Second': 'A council member who supports a motion so it can be discussed and voted on',
+        'Rezoning': 'Changing the designated use of a piece of land (residential, commercial, etc.)',
+        'Ordinance': 'A local law passed by the city or county government',
+        'Variance': 'Permission to deviate from normal zoning requirements',
+        'Conditional Use': 'A use that requires special approval in a zoning district'
+    };
+    
+    let explanationHTML = '<div class="terms-explanation">';
+    explanationHTML += '<h5><i class="fas fa-book me-2"></i>Common Municipal Terms</h5>';
+    
+    for (const [term, definition] of Object.entries(commonTerms)) {
+        explanationHTML += `
+            <div class="term-item mb-3">
+                <strong>${term}:</strong> ${definition}
+            </div>
+        `;
+    }
+    
+    explanationHTML += '</div>';
+    
+    // Show in a modal or alert
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Municipal Government Terms</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ${explanationHTML}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+    
+    // Remove modal after it's hidden
+    modal.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modal);
+    });
+}
+</script>
+{% endblock %}

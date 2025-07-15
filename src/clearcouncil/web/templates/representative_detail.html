@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block title %}{{ representative.name }} - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-user-tie text-primary me-3"></i>
+                            {{ representative.name }}
+                        </h1>
+                        <p class="lead mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {{ representative.district }} | 
+                            <i class="fas fa-building me-2"></i>
+                            {{ representative.council_id|replace('_', ' ')|title }}
+                        </p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-primary fs-6">{{ representative.total_votes }} Total Votes</span>
+                            <span class="badge bg-success fs-6">{{ representative.motions_made }} Motions</span>
+                            <span class="badge bg-info fs-6">{{ representative.seconds_given }} Seconds</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="btn-group">
+                            <a href="{{ url_for('main.council_overview', council_id=representative.council_id) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Council
+                            </a>
+                            <a href="{{ url_for('main.compare_representatives', council_id=representative.council_id, representatives=representative.id) }}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-balance-scale me-2"></i>Compare
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="filter-section">
+            <h5 class="mb-3">
+                <i class="fas fa-filter me-2"></i>
+                Filter Data
+            </h5>
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="start_date" 
+                           value="{{ start_date.strftime('%Y-%m-%d') if start_date else '' }}"
+                           min="{{ min_date }}" max="{{ max_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="end_date" 
+                           value="{{ end_date.strftime('%Y-%m-%d') if end_date else '' }}"
+                           min="{{ min_date }}" max="{{ max_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="quickFilter" class="form-label">Quick Filter</label>
+                    <select class="form-select" id="quickFilter">
+                        <option value="">All Time</option>
+                        <option value="last_month">Last Month</option>
+                        <option value="last_3_months">Last 3 Months</option>
+                        <option value="last_6_months">Last 6 Months</option>
+                        <option value="last_year">Last Year</option>
+                        <option value="this_year">This Year</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync me-2"></i>Update
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Charts -->
+<div class="row">
+    <!-- Voting Overview -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Voting Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="votingOverviewChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Breakdown -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Votes by Category
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="categoryBreakdownChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Monthly Activity -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Monthly Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="monthlyActivityChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Key Metrics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-12 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number" id="totalVotesMetric">{{ dashboard.stats.total_votes or 0 }}</div>
+                            <div class="stats-label">Total Votes</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-success" id="motionsMetric">{{ dashboard.stats.motions_made or 0 }}</div>
+                            <div class="stats-label">Motions</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-info" id="secondsMetric">{{ dashboard.stats.seconds_given or 0 }}</div>
+                            <div class="stats-label">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-warning" id="residentialMetric">{{ dashboard.stats.residential_votes or 0 }}</div>
+                            <div class="stats-label">Residential</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number text-danger" id="commercialMetric">{{ dashboard.stats.commercial_votes or 0 }}</div>
+                            <div class="stats-label">Commercial</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Voting Timeline -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-timeline me-2"></i>
+                    Voting Timeline
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="votingTimelineChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Voting Records Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Voting Records
+                </h5>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV()">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportToHTML()">
+                        <i class="fas fa-code me-1"></i>Export HTML
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="votingRecordsTable">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Date</th>
+                                <th>Case Number</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                                <th>Role</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in voting_records %}
+                            <tr>
+                                <td>{{ record.meeting_date|datetime_format if record.meeting_date else 'N/A' }}</td>
+                                <td>
+                                    {% if record.case_number %}
+                                        <span class="badge bg-secondary">{{ record.case_number }}</span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.case_category %}
+                                        <span class="badge bg-info">{{ record.case_category }}</span>
+                                    {% else %}
+                                        <span class="text-muted">Other</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.location|truncate_text(30) if record.location else 'N/A' }}</td>
+                                <td>{{ record.zoning_request|truncate_text(40) if record.zoning_request else 'N/A' }}</td>
+                                <td>
+                                    {% if record.movant == representative.name %}
+                                        <span class="badge bg-success">Movant</span>
+                                    {% elif record.second == representative.name %}
+                                        <span class="badge bg-primary">Second</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">Voter</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.vote_result %}
+                                        {% if 'approve' in record.vote_result.lower() or 'pass' in record.vote_result.lower() %}
+                                            <span class="badge bg-success">{{ record.vote_result }}</span>
+                                        {% elif 'deny' in record.vote_result.lower() or 'fail' in record.vote_result.lower() %}
+                                            <span class="badge bg-danger">{{ record.vote_result }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ record.vote_result }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentDashboard = {{ dashboard.charts|tojson if dashboard.charts else '{}' }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial charts
+    loadCharts();
+    
+    // Setup form handler
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateDashboard();
+    });
+    
+    // Quick filter handler
+    document.getElementById('quickFilter').addEventListener('change', function() {
+        applyQuickFilter(this.value);
+    });
+});
+
+function loadCharts() {
+    if (currentDashboard.voting_overview) {
+        const chartData = JSON.parse(currentDashboard.voting_overview);
+        Plotly.newPlot('votingOverviewChart', chartData.data, chartData.layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
+    
+    if (currentDashboard.category_breakdown) {
+        const chartData = JSON.parse(currentDashboard.category_breakdown);
+        Plotly.newPlot('categoryBreakdownChart', chartData.data, chartData.layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
+    
+    if (currentDashboard.monthly_activity) {
+        const chartData = JSON.parse(currentDashboard.monthly_activity);
+        Plotly.newPlot('monthlyActivityChart', chartData.data, chartData.layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
+    
+    if (currentDashboard.voting_timeline) {
+        const chartData = JSON.parse(currentDashboard.voting_timeline);
+        Plotly.newPlot('votingTimelineChart', chartData.data, chartData.layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
+}
+
+function updateDashboard() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    // Show loading
+    showLoading('votingOverviewChart');
+    showLoading('categoryBreakdownChart');
+    showLoading('monthlyActivityChart');
+    showLoading('votingTimelineChart');
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    // Fetch updated dashboard
+    fetch(`/api/representative/{{ representative.id }}/dashboard?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentDashboard = data.dashboard.charts;
+                loadCharts();
+                updateMetrics(data.dashboard.stats);
+                
+                // Update URL without reloading
+                updateURL({
+                    start_date: startDate,
+                    end_date: endDate
+                });
+                
+                // Reload voting records table
+                reloadVotingRecordsTable(startDate, endDate);
+            } else {
+                alert('Error updating dashboard: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating dashboard:', error);
+            alert('Error updating dashboard');
+        });
+}
+
+function updateMetrics(stats) {
+    document.getElementById('totalVotesMetric').textContent = stats.total_votes || 0;
+    document.getElementById('motionsMetric').textContent = stats.motions_made || 0;
+    document.getElementById('secondsMetric').textContent = stats.seconds_given || 0;
+    document.getElementById('residentialMetric').textContent = stats.residential_votes || 0;
+    document.getElementById('commercialMetric').textContent = stats.commercial_votes || 0;
+}
+
+function applyQuickFilter(period) {
+    const today = new Date();
+    let startDate = '';
+    let endDate = today.toISOString().split('T')[0];
+    
+    switch(period) {
+        case 'last_month':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()).toISOString().split('T')[0];
+            break;
+        case 'last_3_months':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate()).toISOString().split('T')[0];
+            break;
+        case 'last_6_months':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate()).toISOString().split('T')[0];
+            break;
+        case 'last_year':
+            startDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+            break;
+        case 'this_year':
+            startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+            break;
+        default:
+            startDate = '';
+            endDate = '';
+    }
+    
+    document.getElementById('startDate').value = startDate;
+    document.getElementById('endDate').value = endDate;
+    
+    if (period !== '') {
+        updateDashboard();
+    }
+}
+
+function clearFilters() {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    document.getElementById('quickFilter').value = '';
+    updateDashboard();
+}
+
+function reloadVotingRecordsTable(startDate, endDate) {
+    const params = new URLSearchParams();
+    params.append('council_id', '{{ representative.council_id }}');
+    params.append('representative_id', '{{ representative.id }}');
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    fetch(`/api/council/{{ representative.council_id }}/voting-records?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update table with new data
+                const tableBody = document.querySelector('#votingRecordsTable tbody');
+                tableBody.innerHTML = '';
+                
+                data.records.forEach(record => {
+                    const row = createTableRow(record);
+                    tableBody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error reloading voting records:', error);
+        });
+}
+
+function createTableRow(record) {
+    const row = document.createElement('tr');
+    
+    // Format date
+    const date = record.meeting_date ? new Date(record.meeting_date).toLocaleDateString() : 'N/A';
+    
+    // Determine role
+    let role = 'Voter';
+    let roleBadge = 'bg-light text-dark';
+    if (record.movant === '{{ representative.name }}') {
+        role = 'Movant';
+        roleBadge = 'bg-success';
+    } else if (record.second === '{{ representative.name }}') {
+        role = 'Second';
+        roleBadge = 'bg-primary';
+    }
+    
+    // Determine result color
+    let resultBadge = 'bg-secondary';
+    if (record.vote_result) {
+        if (record.vote_result.toLowerCase().includes('approve') || record.vote_result.toLowerCase().includes('pass')) {
+            resultBadge = 'bg-success';
+        } else if (record.vote_result.toLowerCase().includes('deny') || record.vote_result.toLowerCase().includes('fail')) {
+            resultBadge = 'bg-danger';
+        }
+    }
+    
+    row.innerHTML = `
+        <td>${date}</td>
+        <td>${record.case_number ? `<span class="badge bg-secondary">${record.case_number}</span>` : '<span class="text-muted">N/A</span>'}</td>
+        <td>${record.case_category ? `<span class="badge bg-info">${record.case_category}</span>` : '<span class="text-muted">Other</span>'}</td>
+        <td>${record.location ? record.location.substring(0, 30) + (record.location.length > 30 ? '...' : '') : 'N/A'}</td>
+        <td>${record.zoning_request ? record.zoning_request.substring(0, 40) + (record.zoning_request.length > 40 ? '...' : '') : 'N/A'}</td>
+        <td><span class="badge ${roleBadge}">${role}</span></td>
+        <td>${record.vote_result ? `<span class="badge ${resultBadge}">${record.vote_result}</span>` : '<span class="text-muted">N/A</span>'}</td>
+    `;
+    
+    return row;
+}
+
+function exportToCSV() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    const params = new URLSearchParams();
+    params.append('council_id', '{{ representative.council_id }}');
+    params.append('representative_id', '{{ representative.id }}');
+    params.append('format', 'csv');
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    window.open(`/api/council/{{ representative.council_id }}/voting-records?${params.toString()}`, '_blank');
+}
+
+function exportToHTML() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    const params = new URLSearchParams();
+    params.append('council_id', '{{ representative.council_id }}');
+    params.append('representative_id', '{{ representative.id }}');
+    params.append('format', 'html');
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    window.open(`/api/council/{{ representative.council_id }}/voting-records?${params.toString()}`, '_blank');
+}
+</script>
+{% endblock %}
