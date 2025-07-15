@@ -14,6 +14,21 @@ logger = logging.getLogger(__name__)
 class VotingParser(BaseParser):
     """Extracts voting records and rezoning data from council documents."""
     
+    # Known representative-to-district mapping for York County
+    YORK_COUNTY_DISTRICTS = {
+        'Joel Hamilton': 'District 1',
+        'Albert Quarles': 'District 2', 
+        'Tom Audette': 'District 3',
+        'Barbara Candler': 'District 4',
+        'Tommy Adkins': 'District 5',
+        'Tony Smith': 'District 6',
+        'Debi Cloninger': 'District 7',
+        'Allison Love': 'At-Large',
+        'William "Bump" Roddey': 'At-Large',
+        'Christi Cox': 'At-Large',  # May be former representative
+        'Bump Roddey': 'At-Large'  # Alternative name format
+    }
+    
     def parse_text(self, text: str) -> List[VotingRecord]:
         """Parse text and extract voting records."""
         lines = text.split('\n')
@@ -43,7 +58,8 @@ class VotingParser(BaseParser):
                         if movant:
                             current_record.movant = movant
                             current_record.representative = self._clean_representative_name(movant)
-                            j += 1  # Skip the movant line
+                            current_record.district = self._get_district_for_representative(current_record.representative)
+                        j += 1  # Skip the movant line
                     
                     elif next_line == "SECOND:" and j + 1 < len(lines):
                         # SECOND is on the next line
@@ -115,6 +131,23 @@ class VotingParser(BaseParser):
         # Basic cleanup
         name = ' '.join(name.split())  # Normalize whitespace
         return name.strip()
+    
+    def _get_district_for_representative(self, representative_name: str) -> str:
+        """Get district for a representative based on known mappings."""
+        if not representative_name:
+            return None
+        
+        # Check direct match
+        if representative_name in self.YORK_COUNTY_DISTRICTS:
+            return self.YORK_COUNTY_DISTRICTS[representative_name]
+        
+        # Check for partial matches (in case of slight name variations)
+        for known_name, district in self.YORK_COUNTY_DISTRICTS.items():
+            if known_name.lower() in representative_name.lower() or representative_name.lower() in known_name.lower():
+                return district
+        
+        # If no match found, return None
+        return None
 
     def _extract_field_value(self, line: str, field_name: str) -> str:
         """Extract value for a specific field from a line."""
