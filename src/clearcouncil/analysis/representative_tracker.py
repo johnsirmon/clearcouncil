@@ -422,7 +422,7 @@ class RepresentativeTracker:
                 # Create new representative with canonical name
                 new_rep = RepresentativeProfile(
                     name=canonical_name,
-                    district=rep.district or self._get_district_for_representative(canonical_name),
+                    district=rep.district,  # Will be updated later in _update_district_information
                     vote_history=[],
                     total_votes=0,
                     motions_made=0,
