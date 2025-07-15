@@ -59,14 +59,13 @@ async def update_web_database_with_deduplication():
         for vote in case_votes:
             cursor.execute('''
                 INSERT INTO voting_records (representative_name, case_number, vote_type,
-                                          vote_date, description, category, council_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                                          meeting_date, case_category, council_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
             ''', (
                 vote.representative,
                 vote.case_number,
                 vote.vote_type,
-                vote.date.isoformat() if vote.date else None,
-                vote.description,
+                vote.date.strftime('%Y-%m-%d') if vote.date else None,
                 vote.category,
                 'york_county_sc'
             ))
