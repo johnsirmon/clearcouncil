@@ -10,6 +10,7 @@ from ..config.settings import load_council_config, list_available_councils
 from ..core.database import VectorDatabase
 from .database import db
 from .charts import InteractiveChartGenerator
+from .data_sources_api import get_data_sources_info
 
 logger = logging.getLogger(__name__)
 
@@ -502,6 +503,93 @@ def upload_document():
     
     except Exception as e:
         logger.error(f"Upload error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@api_bp.route('/data-sources')
+def get_data_sources():
+    """Get data sources information for transparency."""
+    try:
+        data_sources_info = get_data_sources_info()
+        return jsonify({
+            'success': True,
+            **data_sources_info
+        })
+    
+    except Exception as e:
+        logger.error(f"Error getting data sources info: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@api_bp.route('/council/<council_id>/stats')
+def get_council_stats(council_id):
+    """Get council statistics for dashboard."""
+    try:
+        with db.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Get total votes
+            cursor.execute('''
+                SELECT COUNT(*) as total_votes
+                FROM voting_records 
+                WHERE council_id = ?
+            ''', (council_id,))
+            total_votes = cursor.fetchone()[0]
+            
+            # Get active period
+            cursor.execute('''
+                SELECT MIN(meeting_date) as earliest,
+                       MAX(meeting_date) as latest
+                FROM voting_records 
+                WHERE council_id = ?
+            ''', (council_id,))
+            dates = cursor.fetchone()
+            
+            active_period = 'N/A'
+            if dates and dates[0] and dates[1]:
+                earliest = datetime.fromisoformat(dates[0])
+                latest = datetime.fromisoformat(dates[1])
+                years = latest.year - earliest.year
+                if years > 0:
+                    active_period = f"{years}+ years"
+                else:
+                    months = (latest.year - earliest.year) * 12 + (latest.month - earliest.month)
+                    active_period = f"{months} months"
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_votes': total_votes,
+                'active_period': active_period
+            }
+        })
+    
+    except Exception as e:
+        logger.error(f"Error getting council stats: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@api_bp.route('/council/<council_id>/overview-chart')
+def get_council_overview_chart(council_id):
+    """Get council overview chart."""
+    try:
+        chart_json = chart_generator.create_council_overview_chart(council_id)
+        return jsonify({
+            'success': True,
+            'chart': chart_json
+        })
+    
+    except Exception as e:
+        logger.error(f"Error getting council overview chart: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
