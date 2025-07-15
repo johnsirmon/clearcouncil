@@ -233,9 +233,11 @@ def backup_data(council_id: str, backup_dir: str):
 
 
 # Add to existing CLI
-def add_web_commands(cli):
-    """Add web commands to existing CLI."""
-    cli.add_command(web)
+def add_web_commands(parser):
+    """Add web commands to existing ArgumentParser."""
+    # For now, skip adding web commands to ArgumentParser
+    # The web commands are available through clearcouncil_web.py
+    pass
 
 
 if __name__ == '__main__':
