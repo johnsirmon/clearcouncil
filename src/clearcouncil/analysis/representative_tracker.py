@@ -2,9 +2,10 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict
 import logging
+from fuzzywuzzy import fuzz, process
 
 from ..core.models import VotingRecord
 
@@ -126,6 +127,11 @@ class RepresentativeTracker:
     
     def _add_vote(self, vote: Vote) -> None:
         """Add a vote to the tracking system."""
+        # Validate representative name
+        if not self._is_valid_representative_name(vote.representative):
+            logger.warning(f"Skipping invalid representative name: '{vote.representative}'")
+            return
+            
         # Update representative profile
         if vote.representative not in self.representatives:
             self.representatives[vote.representative] = RepresentativeProfile(
@@ -155,18 +161,103 @@ class RepresentativeTracker:
             date_key = vote.date.strftime("%Y-%m-%d")
             self.votes_by_date[date_key].append(vote)
     
-    def get_representative(self, name_or_district: str) -> Optional[RepresentativeProfile]:
-        """Get representative by name or district."""
+    def get_representative(self, name_or_district: str, fuzzy_threshold: int = 70) -> Optional[RepresentativeProfile]:
+        """
+        Get representative by name or district with fuzzy matching support.
+        
+        Args:
+            name_or_district: Name or district to search for
+            fuzzy_threshold: Minimum similarity score (0-100) for fuzzy matching
+            
+        Returns:
+            RepresentativeProfile if found, None otherwise
+        """
         # Try exact name match first
         if name_or_district in self.representatives:
             return self.representatives[name_or_district]
         
-        # Try district match
+        # Try exact district match
         for rep in self.representatives.values():
             if rep.district.lower() == name_or_district.lower():
                 return rep
         
+        # Try partial name matching (last name only)
+        search_lower = name_or_district.lower().strip()
+        for rep_name, rep in self.representatives.items():
+            # Skip invalid entries
+            if ":" in rep_name or len(rep_name.strip()) < 2:
+                continue
+                
+            # Check if search term is contained in the full name
+            if search_lower in rep_name.lower():
+                logger.info(f"Found partial match: '{name_or_district}' -> '{rep_name}'")
+                return rep
+            
+            # Check if it matches the last name
+            name_parts = rep_name.lower().split()
+            if name_parts and search_lower == name_parts[-1]:
+                logger.info(f"Found last name match: '{name_or_district}' -> '{rep_name}'")
+                return rep
+        
+        # Try fuzzy name matching
+        representative_names = [name for name in self.representatives.keys() 
+                               if ":" not in name and len(name.strip()) >= 2]
+        if representative_names:
+            # Find the best match using fuzzy string matching
+            best_match, score = process.extractOne(
+                name_or_district, 
+                representative_names,
+                scorer=fuzz.ratio
+            )
+            
+            if score >= fuzzy_threshold:
+                logger.info(f"Found fuzzy match: '{name_or_district}' -> '{best_match}' (score: {score})")
+                return self.representatives[best_match]
+        
+        # Try fuzzy district matching
+        districts = [rep.district for rep in self.representatives.values() 
+                    if rep.district and rep.district.strip()]
+        if districts:
+            best_district_match, district_score = process.extractOne(
+                name_or_district,
+                districts,
+                scorer=fuzz.ratio
+            )
+            
+            if district_score >= fuzzy_threshold:
+                for rep in self.representatives.values():
+                    if rep.district == best_district_match:
+                        logger.info(f"Found fuzzy district match: '{name_or_district}' -> '{best_district_match}' (score: {district_score})")
+                        return rep
+        
         return None
+    
+    def get_similar_representatives(self, name_or_district: str, limit: int = 5) -> List[Tuple[str, int]]:
+        """
+        Get a list of similar representative names with similarity scores.
+        
+        Args:
+            name_or_district: Name or district to search for
+            limit: Maximum number of suggestions to return
+            
+        Returns:
+            List of tuples (representative_name, similarity_score)
+        """
+        # Filter out invalid entries
+        representative_names = [name for name in self.representatives.keys() 
+                               if ":" not in name and len(name.strip()) >= 2]
+        if not representative_names:
+            return []
+        
+        # Get fuzzy matches with scores
+        matches = process.extract(
+            name_or_district,
+            representative_names,
+            scorer=fuzz.ratio,
+            limit=limit
+        )
+        
+        return matches
     
     def get_representatives_by_district(self, district: str) -> List[RepresentativeProfile]:
         """Get all representatives for a district."""
@@ -234,3 +325,39 @@ class RepresentativeTracker:
         for rep in self.representatives.values():
             by_district[rep.district].append(rep.name)
         return dict(by_district)
+    
+    def _is_valid_representative_name(self, name: str) -> bool:
+        """Check if a representative name is valid."""
+        if not name or not isinstance(name, str):
+            return False
+        
+        name = name.strip()
+        
+        # Reject names that are too short
+        if len(name) < 2:
+            return False
+        
+        # Reject names that contain colons (parsing artifacts)
+        if ":" in name:
+            return False
+        
+        # Reject names that are all uppercase with special characters (likely parsing errors)
+        if name.isupper() and any(char in name for char in ":<>[]{}()"):
+            return False
+        
+        # Reject common parsing artifacts
+        invalid_patterns = [
+            "SECOND:",
+            "MOVANT:",
+            "AYES:",
+            "NAYS:",
+            "ABSTAIN:",
+            "MOTION:",
+            "VOTE:",
+        ]
+        
+        for pattern in invalid_patterns:
+            if pattern in name.upper():
+                return False
+        
+        return True

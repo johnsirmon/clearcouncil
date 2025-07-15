@@ -50,12 +50,21 @@ class VotingAnalyzer:
         # Get the target representative
         target_rep = self.tracker.get_representative(representative_identifier)
         if not target_rep:
-            # Try district-based search
-            district_reps = self.tracker.get_representatives_by_district(representative_identifier)
-            if district_reps:
-                target_rep = district_reps[0]  # Take the first one
+            # Try to find similar representatives for better error message
+            similar_reps = self.tracker.get_similar_representatives(representative_identifier, limit=3)
+            if similar_reps:
+                suggestions = ", ".join([f"'{name}' (score: {score})" for name, score in similar_reps])
+                error_msg = f"Representative '{representative_identifier}' not found. Did you mean one of these?\n{suggestions}"
             else:
-                raise ClearCouncilError(f"Representative '{representative_identifier}' not found")
+                # Try district-based search
+                district_reps = self.tracker.get_representatives_by_district(representative_identifier)
+                if district_reps:
+                    target_rep = district_reps[0]  # Take the first one
+                else:
+                    error_msg = f"Representative '{representative_identifier}' not found"
+            
+            if not target_rep:
+                raise ClearCouncilError(error_msg)
         
         # Get votes in time range
         votes_in_range = [
