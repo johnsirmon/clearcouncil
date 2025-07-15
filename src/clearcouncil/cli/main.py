@@ -21,6 +21,13 @@ from ..downloaders.pdf_downloader import PDFDownloader
 from ..parsers.voting_parser import VotingParser
 from .voting_commands import add_voting_analysis_commands
 
+# Import web commands if available
+try:
+    from ..web.cli_integration import add_web_commands
+    WEB_AVAILABLE = True
+except ImportError:
+    WEB_AVAILABLE = False
+
 
 def setup_logging(level: str = "INFO"):
     """Setup logging configuration."""
@@ -246,6 +253,10 @@ def create_parser() -> argparse.ArgumentParser:
     
     # Add voting analysis commands
     add_voting_analysis_commands(subparsers)
+    
+    # Add web commands if available
+    if WEB_AVAILABLE:
+        add_web_commands(parser)
     
     return parser
 

@@ -6,182 +6,173 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ClearCouncil is a modular local government transparency tool that democratizes access to council information through RAG (Retrieval Augmented Generation). The system processes PDF documents, YouTube transcripts, and extracts structured data to enable natural language querying about local government activities.
 
-## New Modular Architecture
+## Development Commands
 
-The codebase has been completely restructured with a modular, extensible architecture:
+### Setup and Installation
+```bash
+# Development installation
+pip install -e .
 
+# Quick start without installation
+pip install -r requirements.txt
+python clearcouncil.py --help
+
+# Alternative setup using platform-specific scripts
+./setup.sh      # Linux/Mac
+setup.bat       # Windows
+```
+
+### Running Tests
+```bash
+# Run comprehensive test suite
+python run_local_tests.py
+
+# Test basic functionality only
+python clearcouncil_simple.py --help
+python clearcouncil_simple.py list-councils
+
+# Run specific CLI tests
+python clearcouncil.py list-councils
+python clearcouncil.py explain-terms "movant" "second"
+```
+
+**Important**: There are no formal unit tests or linting configured. The project uses `run_local_tests.py` for integration testing and `TEST_WORKFLOW.md` for manual testing procedures.
+
+## Architecture
+
+### Modular Structure
 ```
 src/clearcouncil/
-├── config/          # Configuration management for different councils
-├── core/            # Core data models, database interface, exceptions
+├── config/          # YAML-based council configurations
+├── core/            # Data models, database interface, exceptions
 ├── processors/      # Document processors (PDF, transcripts)
-├── downloaders/     # Document downloaders
+├── downloaders/     # Document downloaders with connection testing
 ├── parsers/         # Structured data parsers (voting records)
-└── cli/             # Command-line interface
+├── analysis/        # Voting analysis and time range parsing
+├── visualization/   # Chart generation with matplotlib/seaborn
+├── glossary/        # Municipal terminology system
+└── cli/             # Command-line interface with async support
 ```
 
 ### Key Components
 
-1. **Configuration System**: Council-specific YAML configs in `config/councils/`
-2. **Processors**: Modular document processing with proper error handling
-3. **Vector Database**: FAISS integration with automatic index management
-4. **CLI Interface**: Comprehensive command-line tool for all operations
-5. **Data Models**: Proper dataclasses for documents, metadata, and voting records
+1. **Configuration System**: Council-specific YAML configs in `config/councils/` with template-based setup
+2. **Data Models**: Dataclasses for `Document`, `DocumentMetadata`, `VotingRecord`, and `ProcessingResult`
+3. **Vector Database**: FAISS integration with automatic index management and embedding support
+4. **Processing Pipeline**: Multi-threaded document processing with proper error handling
+5. **CLI Interface**: Comprehensive command-line tool with subcommands and async operations
+
+### Core Data Flow
+
+1. **Document Processing**: PDF/transcript → chunks → vector embeddings → FAISS index
+2. **Analysis Pipeline**: Time range parsing → document discovery → voting extraction → visualization
+3. **Configuration**: YAML configs → dataclasses → runtime settings
 
 ## Environment Setup
 
-### Installation Options
-
-**Option 1: Development Installation**
-```bash
-pip install -e .
-```
-
-**Option 2: Quick Start (without installation)**
-```bash
-pip install -r requirements.txt
-python clearcouncil.py --help
-```
-
 ### Required Environment Variables
-- `OPENAI_API_KEY` - Required for OpenAI embeddings
+- `OPENAI_API_KEY` - Required for OpenAI embeddings (not needed for basic commands)
 - Create `.env` file in project root
+
+### Directory Structure
+The system auto-creates these directories:
+- `data/PDFs/` - Downloaded council documents
+- `data/transcripts/` - YouTube transcripts
+- `data/faiss_indexes/` - Vector database indexes
+- `data/results/` - Analysis results and exports
+- `data/results/charts/` - Generated visualizations
 
 ## CLI Usage
 
-The new CLI provides a unified interface for all operations:
+### Entry Points
+- `clearcouncil.py` - Main CLI (requires full dependencies)
+- `clearcouncil_simple.py` - Simplified CLI with graceful dependency handling
 
-### List Available Councils
+### Core Commands
 ```bash
+# Council management
 clearcouncil list-councils
-```
-
-### Process PDF Documents
-```bash
-clearcouncil process-pdfs york_county_sc
-```
-
-### Download Documents
-```bash
-# Download using configured ranges
-clearcouncil download-pdfs york_county_sc
-
-# Download specific document
 clearcouncil download-pdfs york_county_sc --document-id 2280
-```
 
-### Process YouTube Transcripts
-```bash
+# Document processing
+clearcouncil process-pdfs york_county_sc
 clearcouncil process-transcripts york_county_sc --video-id y7wMTwJN7rA
-```
 
-### Parse Voting Records
-```bash
-clearcouncil parse-voting york_county_sc --file-path data/PDFs/document.pdf
-```
-
-### Search Documents
-```bash
+# Analysis and search
 clearcouncil search york_county_sc "rezoning ordinance" --limit 10
+clearcouncil analyze-voting york_county_sc "District 2" "last year" --create-charts
+clearcouncil analyze-district york_county_sc "District 2" "last year"
+
+# Utilities
+clearcouncil explain-terms "movant" "rezoning" "ordinance"
+clearcouncil update-documents york_county_sc "last 5 months"
 ```
 
-## Adding New Councils
-
-1. Copy `config/councils/template.yaml`
-2. Rename to `your_council_id.yaml`
-3. Customize all configuration sections:
-   - Website URLs and download patterns
-   - File naming patterns (regex)
-   - Storage directories
-   - Parsing rules for voting data
-
-Example:
-```yaml
-name: "Your City Council"
-identifier: "your_city"
-website:
-  base_url: "https://your-city.gov"
-  document_url_template: "{base_url}/documents/{id}"
-```
+### Advanced Features
+- **Time Range Parsing**: Natural language like "last year", "last 6 months", "2023-01-01 to 2024-01-01"
+- **Parallel Processing**: Multi-threaded document processing and downloads
+- **Multiple Output Formats**: Plain text, JSON, CSV, HTML with tooltips
+- **Chart Generation**: Matplotlib/seaborn visualizations saved to `data/results/charts/`
+- **Municipal Glossary**: Built-in explanations for government terms
 
 ## Development Guidelines
 
+### Adding New Councils
+1. Copy `config/councils/template.yaml`
+2. Rename to `your_council_id.yaml`
+3. Configure website URLs, file patterns, and parsing rules
+4. Test with `clearcouncil list-councils`
+
+### Adding New Components
+
+**Processors**: Inherit from `BaseProcessor` in `src/clearcouncil/processors/base_processor.py`
+- Implement `process_file()` method
+- Return `ProcessingResult` objects
+- Use proper logging and error handling
+
+**Parsers**: Inherit from `BaseParser` in `src/clearcouncil/parsers/base_parser.py`
+- Implement `parse_text()` method
+- Return structured data objects
+- Handle malformed input gracefully
+
+**Analysis**: Add to `src/clearcouncil/analysis/` with async support
+- Use time range parsing from `time_range.py`
+- Integrate with visualization system
+- Support multiple output formats
+
 ### Error Handling
-- All components use proper exception hierarchies
-- Processing results include success/error status
-- Comprehensive logging throughout
+- All components use `ClearCouncilError` exception hierarchy
+- Processing results include success/error status with timing
+- Comprehensive logging to `clearcouncil.log`
+- Graceful degradation for missing dependencies
 
-### Adding New Processors
-1. Inherit from `BaseProcessor`
-2. Implement `process_file()` method
-3. Return `Document` objects with proper metadata
+### Code Conventions
+- Use dataclasses for structured data
+- Async/await for I/O operations
+- Type hints throughout
+- Configuration-driven rather than hardcoded values
 
-### Adding New Parsers
-1. Inherit from `BaseParser`
-2. Implement `parse_text()` method
-3. Return structured data objects
+## Architecture Notes
 
-## File Structure
-- `config/councils/` - Council configurations
-- `data/` - All data files (PDFs, transcripts, indexes, results)
-- `src/clearcouncil/` - Main package code
-- `clearcouncil.py` - Quick start script
+### Vector Database Integration
+The system uses FAISS for document embeddings with automatic index management. Vector stores are saved with date-based filenames and loaded automatically on startup.
 
-## Migration from Old Code
+### Async Processing
+The CLI supports both sync and async commands. Voting analysis commands use async for parallel document processing and downloads.
 
-The old scripts have been replaced:
+### Configuration Management
+Council configurations are YAML-based with validation through dataclasses. The system supports multiple councils with different document patterns and parsing rules.
+
+### Testing Strategy
+- Integration tests via `run_local_tests.py`
+- Manual testing procedures in `TEST_WORKFLOW.md`
+- No formal unit tests or CI/CD pipeline
+- Testing focuses on end-to-end functionality
+
+## Migration Notes
+
+Legacy scripts have been replaced:
 - `encod_langchain.py` → `clearcouncil process-pdfs`
 - `get_youtube_transcripts.py` → `clearcouncil process-transcripts`
 - `get_council_votes.py` → `clearcouncil parse-voting`
 - `scripts/getminuteswithfilename.sh` → `clearcouncil download-pdfs`
-
-## New Voting Analysis Features
-
-### Advanced Voting Analysis Commands
-
-```bash
-# Analyze representative voting patterns with time ranges
-clearcouncil analyze-voting york_county_sc "District 2" "last year" --create-charts
-
-# Compare representatives
-clearcouncil analyze-voting york_county_sc "John Smith" "last 6 months" \
-  --compare-with "Jane Doe" "Bob Wilson" --output-format html
-
-# Analyze entire districts
-clearcouncil analyze-district york_county_sc "District 2" "last year"
-
-# Batch download missing documents for time periods
-clearcouncil update-documents york_county_sc "last 5 months"
-
-# Explain municipal government terms
-clearcouncil explain-terms "movant" "rezoning" "ordinance"
-```
-
-### Key Features
-
-1. **Smart Time Range Parsing**: "last year", "last 6 months", "2023-01-01 to 2024-01-01"
-2. **Automatic Document Discovery**: Finds and downloads missing documents
-3. **Parallel Processing**: Efficient batch processing of multiple documents
-4. **Interactive Visualizations**: Charts showing voting patterns and comparisons
-5. **Municipal Glossary**: Built-in explanations for government terms
-6. **Multiple Output Formats**: Plain text, JSON, CSV, HTML with tooltips
-
-### Architecture Updates
-
-- `src/clearcouncil/analysis/` - Voting analysis and time range parsing
-- `src/clearcouncil/visualization/` - Chart generation with matplotlib/seaborn
-- `src/clearcouncil/glossary/` - Municipal terminology system
-- `config/councils/*.yaml` - Enhanced council configurations
-
-## Testing
-
-Run basic functionality tests:
-```bash
-clearcouncil list-councils
-clearcouncil download-pdfs york_county_sc --document-id 2280
-clearcouncil process-pdfs york_county_sc
-
-# Test new voting analysis features
-clearcouncil explain-terms "movant" "second"
-clearcouncil analyze-voting york_county_sc "District 2" "last 3 months" --create-charts
-```

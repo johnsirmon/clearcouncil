@@ -1,4 +1,4 @@
-#!/bin/bash
+c#!/bin/bash
 
 # ClearCouncil Auto-Sync Script
 # This script automatically downloads new documents, processes them, and updates the database
