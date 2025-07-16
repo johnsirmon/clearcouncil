@@ -20,6 +20,9 @@ python clearcouncil.py --help
 # Web interface setup
 python setup_web.py
 
+# Chat interface setup
+python setup_chat.py
+
 # Alternative setup using platform-specific scripts
 ./setup.sh      # Linux/Mac
 setup.bat       # Windows
@@ -47,6 +50,22 @@ python simple_web_server.py
 # Runs on port 5001 with data sources transparency dashboard
 ```
 
+### Chat Interface Commands
+```bash
+# Start AI chat interface
+python clearcouncil_chat.py
+# Runs on port 5002 with GitHub AI models
+
+# Enhanced chat with integrated features
+python clearcouncil_chat_enhanced.py
+
+# Integrated server with chat and web features
+python clearcouncil_enhanced_server.py
+
+# Test chat functionality
+python test_chat_basic.py
+```
+
 ### Running Tests
 ```bash
 # Run comprehensive test suite
@@ -71,6 +90,16 @@ python clearcouncil_simple.py list-councils
 # Run specific CLI tests
 python clearcouncil.py list-councils
 python clearcouncil.py explain-terms "movant" "second"
+
+# Test chat functionality
+python test_chat_basic.py
+python test_enhanced_chat.py
+
+# Test web server
+python test_web_server.py
+
+# Test GitHub API integration
+python test_github_api.py
 ```
 
 **Important**: There are no formal unit tests or linting configured. The project uses `run_local_tests.py` for integration testing, `test_web_integration.py` for web interface testing, and `quick_test.sh` for quick functionality checks. Additional test files include:
@@ -78,6 +107,10 @@ python clearcouncil.py explain-terms "movant" "second"
 - `test_rep_extraction.py` - Tests representative extraction
 - `test_voting_parser.py` - Tests voting record parsing
 - `test_deduplication.py` - Tests deduplication functionality
+- `test_chat_basic.py` - Tests basic chat functionality
+- `test_enhanced_chat.py` - Tests enhanced chat features
+- `test_web_server.py` - Tests web server functionality
+- `test_github_api.py` - Tests GitHub API integration
 
 ## Architecture
 
@@ -136,7 +169,20 @@ The web interface (`src/clearcouncil/web/`) provides a modern, interactive front
 
 ### Required Environment Variables
 - `OPENAI_API_KEY` - Required for OpenAI embeddings (not needed for basic commands)
+- `GITHUB_TOKEN` - Required for GitHub AI models in chat interface (free alternative)
 - Create `.env` file in project root
+
+### Environment File Template
+```bash
+# For OpenAI-based features (legacy)
+OPENAI_API_KEY=your_openai_key_here
+
+# For GitHub AI models (free alternative)
+GITHUB_TOKEN=your_github_token_here
+
+# Optional: Custom model endpoints
+GITHUB_API_BASE_URL=https://models.inference.ai.azure.com
+```
 
 ### Directory Structure
 The system auto-creates these directories:
@@ -153,6 +199,9 @@ The system auto-creates these directories:
 - `clearcouncil_simple.py` - Simplified CLI with graceful dependency handling
 - `clearcouncil_web.py` - Web interface launcher
 - `simple_web_server.py` - Standalone transparency dashboard server
+- `clearcouncil_chat.py` - AI chat interface with GitHub models
+- `clearcouncil_chat_enhanced.py` - Enhanced chat with additional features
+- `clearcouncil_enhanced_server.py` - Enhanced server with integrated chat
 
 ### Core Commands
 ```bash
@@ -268,6 +317,10 @@ sudo systemctl start clearcouncil-sync.timer
 - `extract_representatives.py` - Representative extraction utility
 - `check_representatives.py` - Representative validation
 - `debug_pdf_content.py` - PDF content debugging
+- `setup_chat.py` - Chat application setup
+- `install_chat_deps.py` - Chat dependency installation
+- `start_chat_server.py` - Chat server startup
+- `data_preloader.py` - Data preloading utility
 
 ## Migration Notes
 
