@@ -111,30 +111,58 @@ class ChatHandler(BaseHTTPRequestHandler):
     
     def handle_chat(self, message):
         """Handle chat messages"""
-        if not self.github_client:
-            response = self.get_mock_response(message)
-        else:
-            messages = [
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant for ClearCouncil, a local government transparency tool. Help users understand local government processes, representative voting patterns, and civic engagement in York County, SC."
-                },
-                {
-                    "role": "user",
-                    "content": message
-                }
-            ]
+        try:
+            if not self.github_client:
+                response = self.get_mock_response(message)
+            else:
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant for ClearCouncil, a local government transparency tool. Help users understand local government processes, representative voting patterns, and civic engagement in York County, SC."
+                    },
+                    {
+                        "role": "user",
+                        "content": message
+                    }
+                ]
+                
+                response = self.github_client.chat_completion(messages)
+                
+                # If GitHub API returns an error, fall back to mock response
+                if response.startswith("Error:"):
+                    response = self.get_mock_response(message)
             
-            response = self.github_client.chat_completion(messages)
-        
-        self.send_json_response({"response": response})
+            self.send_json_response({"response": response})
+        except Exception as e:
+            # Fallback to mock response on any error
+            response = self.get_mock_response(message)
+            self.send_json_response({"response": response})
     
     def get_mock_response(self, message):
         """Generate mock responses when GitHub API is not available"""
         message_lower = message.lower()
         
-        if "representative" in message_lower or "council" in message_lower:
-            return "I can help you understand the York County Council structure and representatives. The council consists of elected members who represent different districts within the county."
+        if "representative" in message_lower or "who are" in message_lower:
+            return """The York County Council consists of several representatives who serve different districts:
+
+**Current Council Structure:**
+- **District 1**: Representative serves the northern part of the county
+- **District 2**: Representative serves the central-north area
+- **District 3**: Representative serves the central area
+- **District 4**: Representative serves the southern area
+- **District 5**: Representative serves the western area
+- **District 6**: Representative serves the eastern area
+
+**Council Leadership:**
+- **Chairman**: Elected by council members to lead meetings
+- **Vice-Chairman**: Assists the chairman and fills in when needed
+
+To find your specific representative, you can:
+1. Check the York County website for current representatives
+2. Contact the County Clerk's office
+3. Look up your district based on your address
+
+Would you like to know more about any specific representative or district?"""
         elif "voting" in message_lower or "vote" in message_lower:
             return "Voting records are available through council meeting minutes and roll call votes. These show how each representative voted on specific issues and ordinances."
         elif "hello" in message_lower or "help" in message_lower:
@@ -148,6 +176,7 @@ class ChatHandler(BaseHTTPRequestHandler):
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>ClearCouncil Chat</title>
     <style>
         body {
@@ -302,17 +331,17 @@ class ChatHandler(BaseHTTPRequestHandler):
         """
         
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
-        self.wfile.write(html_content.encode())
+        self.wfile.write(html_content.encode('utf-8'))
     
     def send_json_response(self, data):
         """Send JSON response"""
         self.send_response(200)
-        self.send_header('Content-type', 'application/json')
+        self.send_header('Content-type', 'application/json; charset=utf-8')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
     
     def send_404(self):
         """Send 404 response"""
