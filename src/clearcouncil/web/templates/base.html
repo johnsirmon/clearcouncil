@@ -208,6 +208,11 @@
                             <i class="fas fa-home me-1"></i>Dashboard
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.insights') }}">
+                            <i class="fas fa-lightbulb me-1"></i>Insights
+                        </a>
+                    </li>
                     {% if councils %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="councilDropdown" role="button" data-bs-toggle="dropdown">

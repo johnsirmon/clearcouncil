@@ -12,6 +12,7 @@ from ..core.database import VectorDatabase
 from .database import init_db, get_db_connection
 from .charts import InteractiveChartGenerator
 from .routes import api_bp, main_bp
+from .insights_api import insights_bp
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ def create_app(config_name='development'):
     # Register blueprints
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(insights_bp)
     
     # Error handlers
     @app.errorhandler(404)

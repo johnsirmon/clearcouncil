@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+
+{% block title %}Government Insights - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card gradient-header">
+                <div class="card-body text-center text-white py-5">
+                    <i class="fas fa-lightbulb fa-4x mb-3 opacity-75"></i>
+                    <h1 class="display-4 mb-3">Government Insights Dashboard</h1>
+                    <p class="lead mb-4">
+                        Discover patterns, trends, and insights hidden in local government data.<br>
+                        Understanding how your representatives work together and what drives their decisions.
+                    </p>
+                    <div class="row justify-content-center" id="live-stats">
+                        <!-- Stats will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Insights Grid -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Key Discoveries About Your Local Government
+            </h2>
+        </div>
+    </div>
+
+    <div class="row mb-5" id="insights-grid">
+        <!-- Insights will be loaded dynamically -->
+    </div>
+
+    <!-- Leadership Analysis -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-crown me-2"></i>
+                        Leadership Activity Analysis
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h5 class="mb-3">Most Active Representatives by Leadership Actions</h5>
+                            <p class="text-muted mb-4">
+                                Leadership activity is measured by the number of motions made and seconds given. 
+                                This shows which representatives take initiative in bringing forward legislation 
+                                and supporting their colleagues' proposals.
+                            </p>
+                            <div id="leadership-chart">
+                                <!-- Chart will be loaded dynamically -->
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="insights-sidebar">
+                                <h6 class="text-primary">What This Tells Us</h6>
+                                <ul class="list-unstyled insight-points">
+                                    <li>
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Initiative Takers:</strong> Representatives who frequently make motions 
+                                        are actively driving the legislative agenda
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Team Players:</strong> Those giving seconds show collaboration 
+                                        and support for colleagues' ideas
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Balanced Leadership:</strong> High activity in both areas indicates 
+                                        well-rounded leadership style
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-4">
+                                    <h6 class="text-primary">Learn More</h6>
+                                    <p class="small text-muted">
+                                        A "motion" is a formal proposal for action, while a "second" 
+                                        is required support before the motion can be discussed and voted on.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voting Patterns Analysis -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-handshake me-2"></i>
+                        Consensus & Collaboration
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div id="consensus-analysis">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Contentious Issues
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div id="contentious-analysis">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- District Representation -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-map me-2"></i>
+                        District Representation Overview
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h5>Geographic Distribution</h5>
+                            <p class="text-muted">
+                                Understanding how representation is distributed across districts 
+                                and the activity levels in each area.
+                            </p>
+                            <div id="district-chart">
+                                <!-- Chart will be loaded dynamically -->
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5>What This Means</h5>
+                            <div class="district-insights">
+                                <div class="insight-box mb-3">
+                                    <h6 class="text-primary">Equal Representation</h6>
+                                    <p class="small text-muted">
+                                        Each district should have adequate representation to ensure 
+                                        all community voices are heard in government decisions.
+                                    </p>
+                                </div>
+                                <div class="insight-box mb-3">
+                                    <h6 class="text-primary">Activity Patterns</h6>
+                                    <p class="small text-muted">
+                                        Differences in activity levels between districts can indicate 
+                                        varying approaches to governance or different community needs.
+                                    </p>
+                                </div>
+                                <div class="insight-box">
+                                    <h6 class="text-primary">At-Large vs District</h6>
+                                    <p class="small text-muted">
+                                        At-Large representatives serve the entire jurisdiction, 
+                                        while district representatives focus on specific geographic areas.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Methodology & Data Sources -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        How We Generate These Insights
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="methodology-step">
+                                <div class="step-number bg-primary">1</div>
+                                <h6>Data Collection</h6>
+                                <p class="text-muted">
+                                    We automatically process official council meeting documents, 
+                                    extracting voting records, motions, and representative actions.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="methodology-step">
+                                <div class="step-number bg-success">2</div>
+                                <h6>Pattern Analysis</h6>
+                                <p class="text-muted">
+                                    Advanced algorithms identify patterns in voting behavior, 
+                                    leadership activity, and collaboration between representatives.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="methodology-step">
+                                <div class="step-number bg-info">3</div>
+                                <h6>Insight Generation</h6>
+                                <p class="text-muted">
+                                    We translate complex data patterns into meaningful insights 
+                                    that help citizens understand their local government.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Data Transparency & Accuracy
+                                </h6>
+                                <p class="mb-0">
+                                    All insights are generated from publicly available government documents. 
+                                    We maintain complete transparency about our data sources and methodology. 
+                                    <a href="{{ url_for('main.data_transparency') }}" class="alert-link">
+                                        View our data transparency report →
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center action-card">
+                <div class="card-body py-5">
+                    <h4 class="card-title">Dive Deeper Into the Data</h4>
+                    <p class="card-text text-muted mb-4">
+                        These insights are just the beginning. Explore detailed representative profiles, 
+                        compare voting patterns, and discover trends that matter to your community.
+                    </p>
+                    <div class="btn-group">
+                        <a href="{{ url_for('main.index') }}#councils" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>
+                            Explore Council Data
+                        </a>
+                        <a href="{{ url_for('main.data_transparency') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            View All Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Header Styles */
+.gradient-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Styles */
+.stat-card {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 0 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #667eea;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Insight Cards */
+.insight-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.insight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.insight-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.insight-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #667eea;
+    margin: 15px 0;
+    line-height: 1;
+}
+
+/* Sidebar Styles */
+.insights-sidebar {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.insight-points li {
+    margin-bottom: 15px;
+    padding-left: 5px;
+}
+
+/* District Insights */
+.insight-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #17a2b8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Methodology Steps */
+.methodology-step {
+    text-align: center;
+    padding: 20px;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin: 0 auto 15px;
+}
+
+/* Action Card */
+.action-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Charts */
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading States */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.spinner-border-custom {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .stat-card {
+        margin: 5px 0;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .insight-value {
+        font-size: 2.5rem;
+    }
+    
+    .methodology-step {
+        margin-bottom: 30px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadLiveStats();
+    loadInsightsGrid();
+    loadLeadershipChart();
+    loadConsensusAnalysis();
+    loadContentiousAnalysis();
+    loadDistrictChart();
+});
+
+function loadLiveStats() {
+    fetch('/api/insights/summary')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const statsHtml = `
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" data-value="${data.stats.total_representatives}">0</div>
+                            <div class="stat-label">Representatives</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" data-value="${data.stats.total_votes}">0</div>
+                            <div class="stat-label">Votes Tracked</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" data-value="${data.stats.total_motions}">0</div>
+                            <div class="stat-label">Motions Made</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" data-value="${data.stats.districts}">0</div>
+                            <div class="stat-label">Districts</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('live-stats').innerHTML = statsHtml;
+                animateStatNumbers();
+            }
+        })
+        .catch(error => console.error('Error loading stats:', error));
+}
+
+function loadInsightsGrid() {
+    fetch('/api/insights/patterns')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let gridHtml = '';
+                data.patterns.slice(0, 6).forEach((pattern, index) => {
+                    const colors = ['primary', 'success', 'warning', 'info', 'secondary', 'dark'];
+                    const icons = ['crown', 'handshake', 'balance-scale', 'chart-line', 'users', 'lightbulb'];
+                    
+                    gridHtml += `
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="insight-card">
+                                <div class="insight-icon bg-${colors[index]}">
+                                    <i class="fas fa-${icons[index]}"></i>
+                                </div>
+                                <h5>${pattern.title}</h5>
+                                <div class="insight-value">${formatValue(pattern.value, pattern.type)}</div>
+                                <p class="text-muted">${pattern.description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('insights-grid').innerHTML = gridHtml;
+            }
+        })
+        .catch(error => console.error('Error loading insights:', error));
+}
+
+function loadLeadershipChart() {
+    fetch('/api/insights/leadership')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let chartHtml = '<div class="leadership-chart">';
+                data.representatives.slice(0, 8).forEach((rep, index) => {
+                    const maxMotions = Math.max(...data.representatives.map(r => r.motions));
+                    const maxSeconds = Math.max(...data.representatives.map(r => r.seconds));
+                    const motionWidth = (rep.motions / maxMotions) * 100;
+                    const secondWidth = (rep.seconds / maxSeconds) * 100;
+                    
+                    chartHtml += `
+                        <div class="rep-bar mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>${rep.name}</strong>
+                                    <span class="text-muted ms-2">(${rep.district})</span>
+                                </div>
+                                <small class="text-muted">Total: ${rep.total}</small>
+                            </div>
+                            <div class="progress mb-1" style="height: 20px;">
+                                <div class="progress-bar bg-primary" style="width: ${motionWidth}%">
+                                    ${rep.motions} motions
+                                </div>
+                            </div>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-success" style="width: ${secondWidth}%">
+                                    ${rep.seconds} seconds
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                chartHtml += '</div>';
+                document.getElementById('leadership-chart').innerHTML = chartHtml;
+            }
+        })
+        .catch(error => console.error('Error loading leadership chart:', error));
+}
+
+function loadConsensusAnalysis() {
+    fetch('/api/insights/patterns')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const unanimousPattern = data.patterns.find(p => p.type === 'unanimous_rate');
+                if (unanimousPattern) {
+                    const html = `
+                        <div class="text-center mb-4">
+                            <div class="display-4 text-success mb-2">${unanimousPattern.value.toFixed(1)}%</div>
+                            <h5>Unanimous Decisions</h5>
+                        </div>
+                        <p class="text-muted">
+                            ${unanimousPattern.description}
+                        </p>
+                        <div class="mt-4">
+                            <h6 class="text-success">What This Shows</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Strong collaboration</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Effective compromise</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Shared priorities</li>
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('consensus-analysis').innerHTML = html;
+                }
+            }
+        })
+        .catch(error => console.error('Error loading consensus analysis:', error));
+}
+
+function loadContentiousAnalysis() {
+    fetch('/api/insights/patterns')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const closeVotePattern = data.patterns.find(p => p.type === 'close_votes');
+                if (closeVotePattern) {
+                    const html = `
+                        <div class="text-center mb-4">
+                            <div class="display-4 text-warning mb-2">${closeVotePattern.count}</div>
+                            <h5>Close Votes</h5>
+                        </div>
+                        <p class="text-muted">
+                            ${closeVotePattern.description}
+                        </p>
+                        <div class="mt-4">
+                            <h6 class="text-warning">Why This Matters</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-exclamation text-warning me-2"></i>Complex issues</li>
+                                <li><i class="fas fa-exclamation text-warning me-2"></i>Diverse viewpoints</li>
+                                <li><i class="fas fa-exclamation text-warning me-2"></i>Careful deliberation</li>
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('contentious-analysis').innerHTML = html;
+                }
+            }
+        })
+        .catch(error => console.error('Error loading contentious analysis:', error));
+}
+
+function loadDistrictChart() {
+    fetch('/api/insights/districts')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let chartHtml = '<div class="district-grid">';
+                Object.entries(data.district_counts).forEach(([district, count]) => {
+                    const percentage = (count / data.total_representatives) * 100;
+                    chartHtml += `
+                        <div class="district-item mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><strong>${district}</strong></span>
+                                <span class="text-muted">${count} reps</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 8px;">
+                                <div class="progress-bar bg-info" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                chartHtml += '</div>';
+                document.getElementById('district-chart').innerHTML = chartHtml;
+            }
+        })
+        .catch(error => console.error('Error loading district chart:', error));
+}
+
+function formatValue(value, type) {
+    if (type === 'unanimous_rate' || type === 'approval_rate' || type === 'close_votes') {
+        return `${value.toFixed(1)}%`;
+    }
+    return value.toLocaleString();
+}
+
+function animateStatNumbers() {
+    const statNumbers = document.querySelectorAll('.stat-number[data-value]');
+    statNumbers.forEach(stat => {
+        const finalValue = parseInt(stat.getAttribute('data-value'));
+        animateNumber(stat, 0, finalValue, 2000);
+    });
+}
+
+function animateNumber(element, start, end, duration) {
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const current = Math.floor(start + (end - start) * easeOutCubic(progress));
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+</script>
+{% endblock %}

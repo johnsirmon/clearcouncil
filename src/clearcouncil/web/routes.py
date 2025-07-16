@@ -24,8 +24,14 @@ chart_generator = InteractiveChartGenerator(db)
 
 @main_bp.route('/')
 def index():
-    """Main dashboard page."""
+    """Enhanced main page with insights showcase."""
     councils = list_available_councils()
+    
+    # Check if we should show enhanced version with insights
+    show_enhanced = request.args.get('enhanced', 'true').lower() == 'true'
+    
+    if show_enhanced:
+        return render_template('index_enhanced.html', councils=councils)
     
     # Get default council if only one exists
     default_council = councils[0] if len(councils) == 1 else None
@@ -41,6 +47,12 @@ def index():
                              recent_meetings=recent_meetings)
     
     return render_template('index.html', councils=councils)
+
+
+@main_bp.route('/insights')
+def insights():
+    """Government insights and analysis page."""
+    return render_template('insights.html')
 
 
 @main_bp.route('/transparency')
