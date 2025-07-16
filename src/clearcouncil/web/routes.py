@@ -10,7 +10,7 @@ from ..config.settings import load_council_config, list_available_councils
 from ..core.database import VectorDatabase
 from .database import db
 from .charts import InteractiveChartGenerator
-from .data_sources_api import get_data_sources_info
+from .data_sources_api import get_data_sources
 
 logger = logging.getLogger(__name__)
 
