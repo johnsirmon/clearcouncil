@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearCouncil AI Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 70vh;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .assistant-message {
+            background-color: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+        
+        .message-header {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+        
+        .sidebar {
+            background-color: #ffffff;
+            border-right: 1px solid #dee2e6;
+            height: 100vh;
+            padding: 20px;
+        }
+        
+        .council-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-actions {
+            margin-top: 20px;
+        }
+        
+        .quick-action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        
+        .typing-indicator {
+            display: none;
+            margin-bottom: 15px;
+        }
+        
+        .typing-dots {
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            position: relative;
+            animation: typing 1.5s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 20% { background-color: #e9ecef; }
+            50% { background-color: #dee2e6; }
+            80%, 100% { background-color: #e9ecef; }
+        }
+        
+        .context-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .search-results {
+            margin-top: 15px;
+        }
+        
+        .search-result {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-connected {
+            background-color: #28a745;
+        }
+        
+        .status-disconnected {
+            background-color: #dc3545;
+        }
+        
+        .model-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fas fa-robot text-primary me-2"></i>
+                    <h4 class="mb-0">ClearCouncil AI</h4>
+                </div>
+                
+                <!-- Council Selection -->
+                <div class="council-info">
+                    <h6><i class="fas fa-building me-2"></i>Council</h6>
+                    <select id="councilSelect" class="form-select mb-3">
+                        <option value="">Select a council...</option>
+                        {% for council in councils %}
+                        <option value="{{ council }}">{{ council.replace('_', ' ').title() }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="councilStatus" class="small text-muted">
+                        <span class="status-indicator status-disconnected"></span>
+                        No council selected
+                    </div>
+                </div>
+                
+                <!-- Connection Status -->
+                <div class="mb-3">
+                    <h6><i class="fas fa-plug me-2"></i>AI Connection</h6>
+                    <div id="connectionStatus" class="small">
+                        <span class="status-indicator status-disconnected"></span>
+                        Checking connection...
+                    </div>
+                    <div class="model-info">
+                        Model: GitHub GPT-4o-mini (Free)
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h6><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                    <button class="btn btn-outline-primary quick-action-btn" onclick="quickAction('What representatives are available?')">
+                        <i class="fas fa-users me-2"></i>Show Representatives
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" onclick="quickAction('What documents are available?')">
+                        <i class="fas fa-file-alt me-2"></i>Show Documents
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" onclick="quickAction('Show voting summary for last year')">
+                        <i class="fas fa-chart-bar me-2"></i>Voting Summary
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" onclick="quickAction('Help me understand local government terms')">
+                        <i class="fas fa-question-circle me-2"></i>Government Terms
+                    </button>
+                </div>
+                
+                <!-- Data Info -->
+                <div class="mt-4">
+                    <h6><i class="fas fa-database me-2"></i>Data Status</h6>
+                    <div id="dataStatus" class="small text-muted">
+                        Select a council to see data status
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Chat Area -->
+            <div class="col-md-9">
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-comments me-2"></i>Chat with Your Council Data</h5>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearChat()">
+                            <i class="fas fa-trash me-1"></i>Clear Chat
+                        </button>
+                    </div>
+                    
+                    <!-- Chat Messages -->
+                    <div id="chatContainer" class="chat-container">
+                        <div class="message assistant-message">
+                            <div class="message-header">
+                                <i class="fas fa-robot me-1"></i>ClearCouncil AI
+                            </div>
+                            <div>
+                                👋 Hello! I'm your ClearCouncil AI assistant. I can help you understand local government data, voting records, and council documents.
+                                <br><br>
+                                <strong>To get started:</strong>
+                                <br>1. Select a council from the sidebar
+                                <br>2. Ask me questions about representatives, voting records, or documents
+                                <br>3. Use the quick actions for common queries
+                                <br><br>
+                                <em>Examples:</em>
+                                <br>• "Show me voting records for John Smith"
+                                <br>• "What happened in the last council meeting?"
+                                <br>• "Compare voting patterns between districts"
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="typing-indicator">
+                        <div class="message assistant-message">
+                            <div class="message-header">
+                                <i class="fas fa-robot me-1"></i>ClearCouncil AI is typing...
+                            </div>
+                            <div class="typing-dots"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <input type="text" id="messageInput" class="form-control" 
+                                   placeholder="Ask me about your council data..." 
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Tip: Ask specific questions about representatives, voting records, or search for documents
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentCouncil = '';
+        let chatHistory = [];
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkConnection();
+            loadCouncils();
+        });
+        
+        // Check AI connection status
+        async function checkConnection() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('connectionStatus');
+                const statusIndicator = statusElement.querySelector('.status-indicator');
+                
+                if (data.github_token_configured) {
+                    statusIndicator.className = 'status-indicator status-connected';
+                    statusElement.innerHTML = '<span class="status-indicator status-connected"></span>Connected to GitHub Models';
+                } else {
+                    statusIndicator.className = 'status-indicator status-disconnected';
+                    statusElement.innerHTML = '<span class="status-indicator status-disconnected"></span>GitHub token not configured';
+                }
+            } catch (error) {
+                console.error('Connection check failed:', error);
+                document.getElementById('connectionStatus').innerHTML = 
+                    '<span class="status-indicator status-disconnected"></span>Connection error';
+            }
+        }
+        
+        // Load available councils
+        async function loadCouncils() {
+            try {
+                const response = await fetch('/api/councils');
+                const data = await response.json();
+                
+                const select = document.getElementById('councilSelect');
+                select.innerHTML = '<option value="">Select a council...</option>';
+                
+                data.councils.forEach(council => {
+                    const option = document.createElement('option');
+                    option.value = council;
+                    option.textContent = council.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading councils:', error);
+            }
+        }
+        
+        // Handle council selection
+        document.getElementById('councilSelect').addEventListener('change', async function() {
+            const councilId = this.value;
+            if (!councilId) return;
+            
+            try {
+                const response = await fetch('/api/set-council', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ council_id: councilId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    currentCouncil = councilId;
+                    updateCouncilStatus(councilId);
+                    updateDataStatus();
+                    addMessage('system', `✅ Connected to ${councilId.replace('_', ' ').toUpperCase()}. You can now ask questions about this council's data.`);
+                } else {
+                    addMessage('system', `❌ Failed to connect to ${councilId}: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error setting council:', error);
+                addMessage('system', `❌ Error connecting to council: ${error.message}`);
+            }
+        });
+        
+        // Update council status display
+        function updateCouncilStatus(councilId) {
+            const statusElement = document.getElementById('councilStatus');
+            const statusIndicator = statusElement.querySelector('.status-indicator');
+            
+            statusIndicator.className = 'status-indicator status-connected';
+            statusElement.innerHTML = `<span class="status-indicator status-connected"></span>Connected: ${councilId.replace('_', ' ').toUpperCase()}`;
+        }
+        
+        // Update data status
+        async function updateDataStatus() {
+            if (!currentCouncil) return;
+            
+            try {
+                const response = await fetch('/api/representatives');
+                const data = await response.json();
+                
+                document.getElementById('dataStatus').innerHTML = `
+                    <div>${data.count} representatives tracked</div>
+                    <div class="small text-muted mt-1">Recent: ${data.representatives.slice(0, 3).join(', ')}</div>
+                `;
+            } catch (error) {
+                console.error('Error updating data status:', error);
+            }
+        }
+        
+        // Handle key press in input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            if (!currentCouncil) {
+                addMessage('system', '⚠️ Please select a council first.');
+                return;
+            }
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.response) {
+                    addMessage('assistant', data.response);
+                } else {
+                    addMessage('system', `❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                addMessage('system', `❌ Error: ${error.message}`);
+            } finally {
+                hideTypingIndicator();
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(role, content) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            
+            let roleIcon = '';
+            let roleName = '';
+            let messageClass = '';
+            
+            switch (role) {
+                case 'user':
+                    roleIcon = '<i class="fas fa-user me-1"></i>';
+                    roleName = 'You';
+                    messageClass = 'user-message';
+                    break;
+                case 'assistant':
+                    roleIcon = '<i class="fas fa-robot me-1"></i>';
+                    roleName = 'ClearCouncil AI';
+                    messageClass = 'assistant-message';
+                    break;
+                case 'system':
+                    roleIcon = '<i class="fas fa-info-circle me-1"></i>';
+                    roleName = 'System';
+                    messageClass = 'assistant-message';
+                    break;
+            }
+            
+            messageDiv.className = `message ${messageClass}`;
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    ${roleIcon}${roleName}
+                </div>
+                <div>${content}</div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Store in history
+            chatHistory.push({ role, content, timestamp: new Date() });
+        }
+        
+        // Show typing indicator
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        // Quick action handler
+        function quickAction(message) {
+            if (!currentCouncil) {
+                addMessage('system', '⚠️ Please select a council first.');
+                return;
+            }
+            
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+        
+        // Clear chat
+        function clearChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = `
+                <div class="message assistant-message">
+                    <div class="message-header">
+                        <i class="fas fa-robot me-1"></i>ClearCouncil AI
+                    </div>
+                    <div>
+                        Chat cleared! How can I help you with your council data?
+                    </div>
+                </div>
+            `;
+            chatHistory = [];
+        }
+        
+        // Auto-resize chat container on window resize
+        window.addEventListener('resize', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>

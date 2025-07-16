@@ -80,6 +80,20 @@ python simple_web_server.py
 # Open your browser to http://localhost:5001
 ```
 
+#### 🤖 AI Chat Interface (NEW!)
+```bash
+# Setup chat application with free GitHub AI models
+python setup_chat.py
+
+# Start the AI chat interface
+python clearcouncil_chat.py
+# Open your browser to http://localhost:5002
+
+# Or use the startup scripts:
+./start_chat.sh         # Linux/Mac
+start_chat.bat          # Windows
+```
+
 #### Web API Endpoints
 ```bash
 # Data sources transparency information
@@ -108,6 +122,15 @@ sudo systemctl start clearcouncil-sync.timer
 ```
 
 ## 📊 Features
+
+### 🤖 **AI Chat Interface (NEW!)**
+- **Free GitHub AI Models**: Chat with your council data using GitHub's free GPT-4o-mini
+- **Natural Language Queries**: Ask questions in plain English about representatives and voting
+- **Contextual Responses**: AI understands your council's specific data and history
+- **Real-time Chat**: Interactive web interface with instant responses
+- **Document Search**: AI can search through council documents to answer questions
+- **Voting Analysis**: Ask about voting patterns, representative performance, and trends
+- **No API Costs**: Uses GitHub's free AI models - no OpenAI subscription required
 
 ### 🔍 **Data Sources Transparency**
 - **Complete Source Attribution**: Clear documentation of where all data originates
@@ -250,6 +273,10 @@ clearcouncil/
 └── systemd/                     # System service files
     ├── clearcouncil-sync.service  # Systemd service
     └── clearcouncil-sync.timer    # Automated scheduling
+├── clearcouncil_chat.py          # AI chat web application
+├── setup_chat.py                 # Chat application setup script
+├── start_chat.sh                 # Linux/Mac startup script
+└── start_chat.bat                # Windows startup script
 ```
 
 ## 🔧 Adding Your Council
@@ -301,8 +328,10 @@ clearcouncil/
 ### Common Issues
 
 **"OpenAI API key not found"**
-- Add your API key to the `.env` file: `OPENAI_API_KEY=your_key_here`
-- Get one from https://platform.openai.com/api-keys
+- For AI chat: Add GitHub token to `.env` file: `GITHUB_TOKEN=your_token_here`
+- For legacy features: Add OpenAI key: `OPENAI_API_KEY=your_key_here`
+- Get GitHub token from https://github.com/settings/tokens (free!)
+- Get OpenAI key from https://platform.openai.com/api-keys
 
 **"No documents found" or "Representative not found"**
 - Try fuzzy matching: `python clearcouncil.py analyze-voting york_county_sc "Love" "last year"`
@@ -322,6 +351,12 @@ clearcouncil/
 - Process data: `python clearcouncil_web.py process-data york_county_sc`
 - Try the simple server: `python simple_web_server.py` (runs on port 5001)
 - Check logs in `clearcouncil_web.log`
+
+**AI chat not working**
+- Run setup: `python setup_chat.py`
+- Check GitHub token in `.env` file
+- Test connection: Visit http://localhost:5002/health
+- Check logs in `clearcouncil_chat.log`
 
 **Data transparency information missing**
 - Verify web server is running: check `http://localhost:5001/api/health`
@@ -367,8 +402,9 @@ python debug_pdf_content.py path/to/pdf/file.pdf
 ## 🎯 Use Cases
 
 ### For Citizens
+- **Chat with Your Data**: Ask questions like "How did my representative vote on housing issues?" using natural language
 - **Track Your Representative**: Monitor voting patterns with intelligent name search and deduplication
-- **Understand Decisions**: Get context for complex municipal issues with built-in glossary
+- **Understand Decisions**: Get context for complex municipal issues with built-in glossary and AI explanations
 - **Compare Candidates**: Side-by-side analysis during elections with visual comparisons
 - **Stay Informed**: Automated updates keep you current with district activities
 - **Access History**: Search years of voting records instantly with AI-powered search

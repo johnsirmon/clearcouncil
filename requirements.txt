@@ -43,6 +43,9 @@ click>=8.0.0
 fuzzywuzzy>=0.18.0
 python-Levenshtein>=0.12.2
 
+# Chat application dependencies
+flask-cors>=4.0.0
+
 # Optional: Development dependencies
 # pytest>=7.0.0
 # black>=23.0.0
