@@ -89,6 +89,8 @@ class ClearCouncilChatHandler(BaseHTTPRequestHandler):
                             github_token = line.split('=', 1)[1].strip()
                             break
             
+            print(f"🔑 GitHub token loaded: {'✅ Yes' if github_token else '❌ No'}")
+            
             if CHATBOT_AVAILABLE:
                 ClearCouncilChatHandler.chatbot = ClearCouncilChatBot(github_token)
             else:
