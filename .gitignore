@@ -1,54 +1,219 @@
-# Ignore the main data folder (contains PDFs, transcripts, indexes, results)
-data/*
+# =============================================================================
+# ClearCouncil Project .gitignore
+# Local Government Transparency Tool
+# =============================================================================
 
-# But keep track of the examples and config templates
-!data/examples/
-!data/README.md
-
-# Ignore virtual environment
-clearcouncil_env/
-
-# Ignore environment files
+# =============================================================================
+# SECURITY & SECRETS (CRITICAL)
+# =============================================================================
+# Environment files with API keys and secrets
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
 
-# Ignore logs
-*.log
-*.temp
-clearcouncil.log
+# Key files and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+credentials.json
 
-# Ignore private content
-linkedin_post.md
-
-# Ignore Python cache
+# =============================================================================
+# PYTHON & DEVELOPMENT
+# =============================================================================
+# Python cache and compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+.Python
 
-# Ignore IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Virtual environments
+clearcouncil_env/
+.venv/
+venv/
+env/
+ENV/
 
-# Ignore OS files
-.DS_Store
-Thumbs.db
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Ignore backup files
-*.bak
-*.backup
+# PyInstaller
+*.manifest
+*.spec
 
-# Ignore any large data files that might be created elsewhere
+# =============================================================================
+# CLAUDE CODE & DEVELOPMENT TOOLS
+# =============================================================================
+# Claude development files
+.claude/cache/
+*.claude-session
+.claude/temp/
+
+# Development and testing
+.pytest_cache/
+.coverage
+.tox/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# =============================================================================
+# DATA & LOGS
+# =============================================================================
+# Main data folder (contains PDFs, transcripts, indexes, results)
+data/*
+# But keep track of examples and config templates
+!data/examples/
+!data/README.md
+!data/.gitkeep
+
+# Log files
+*.log
+*.temp
+clearcouncil.log
+*.log.*
+
+# Large data files
 *.pdf
 *.csv
 *.json
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 results.csv
 
-# But allow config files and examples
+# FAISS indexes and vector databases
+faiss_indexes/
+*.index
+*.faiss
+
+# =============================================================================
+# IDE & EDITOR FILES
+# =============================================================================
+# VS Code
+.vscode/
+.vscode/settings.json
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim/Emacs
+*.swp
+*.swo
+*~
+.#*
+\#*#
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =============================================================================
+# BACKUP & TEMPORARY FILES
+# =============================================================================
+# Backup files
+*.bak
+*.backup
+*.orig
+*.tmp
+*.temp
+*~
+.#*
+\#*#
+
+# Archive directories (for project cleanup)
+archive/
+old/
+backup/
+
+# =============================================================================
+# WEB & UPLOADS
+# =============================================================================
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+
+# Node.js (if used for web interface)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================================================
+# CLEARCOUNCIL SPECIFIC
+# =============================================================================
+# Private content
+linkedin_post.md
+social_media/
+
+# Large generated files
+clearcouncil_data.json
+representatives_cache.json
+
+# Processing results
+results/
+charts/
+exports/
+
+# =============================================================================
+# EXCEPTIONS (Files to ALWAYS track)
+# =============================================================================
+# Allow important config files and examples
 !config/**/*.pdf
 !docs/**/*.pdf
 !examples/**/*.pdf
-.env
+!.env.example
+!requirements.txt
+!setup.py
+!CLAUDE.md
+!README.md

@@ -102,7 +102,7 @@ python test_web_server.py
 python test_github_api.py
 ```
 
-**Important**: There are no formal unit tests or linting configured. The project uses `run_local_tests.py` for integration testing, `test_web_integration.py` for web interface testing, and `quick_test.sh` for quick functionality checks. Additional test files include:
+**Important**: There are no formal unit tests or linting configured. The project uses integration testing via various test scripts and `quick_test.sh` for quick functionality checks. Test files include:
 - `test_fuzzy_matching.py` - Tests intelligent name matching
 - `test_rep_extraction.py` - Tests representative extraction
 - `test_voting_parser.py` - Tests voting record parsing
@@ -282,10 +282,12 @@ The CLI supports both sync and async commands. Voting analysis commands use asyn
 Council configurations are YAML-based with validation through dataclasses. The system supports multiple councils with different document patterns and parsing rules.
 
 ### Testing Strategy
-- Integration tests via `run_local_tests.py`
+- Integration tests via various test scripts in root directory
 - Component-specific tests in `tests/` directory
 - Quick functionality checks with `quick_test.sh`
-- Web interface integration tests with `test_web_integration.py`
+- Web interface integration tests in `tests/test_web_integration.py`
+- Chat functionality tests with `test_chat_basic.py` and `test_enhanced_chat.py`
+- GitHub API integration tests with `test_github_api.py`
 - Deduplication testing with `test_deduplication.py`
 - No formal unit tests or CI/CD pipeline
 - Testing focuses on end-to-end functionality
