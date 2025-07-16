@@ -41,6 +41,10 @@ python clearcouncil_web.py init-db
 
 # List available councils
 python clearcouncil_web.py list-councils
+
+# Alternative: Simple standalone server with transparency features
+python simple_web_server.py
+# Runs on port 5001 with data sources transparency dashboard
 ```
 
 ### Running Tests
@@ -51,6 +55,15 @@ python run_local_tests.py
 # Test web interface integration
 python test_web_integration.py
 
+# Quick functionality test
+./quick_test.sh
+
+# Test specific components
+python tests/test_fuzzy_matching.py
+python tests/test_rep_extraction.py
+python tests/test_voting_parser.py
+python test_deduplication.py
+
 # Test basic functionality only
 python clearcouncil_simple.py --help
 python clearcouncil_simple.py list-councils
@@ -60,7 +73,11 @@ python clearcouncil.py list-councils
 python clearcouncil.py explain-terms "movant" "second"
 ```
 
-**Important**: There are no formal unit tests or linting configured. The project uses `run_local_tests.py` for integration testing, `test_web_integration.py` for web interface testing, and `TEST_WORKFLOW.md` for manual testing procedures.
+**Important**: There are no formal unit tests or linting configured. The project uses `run_local_tests.py` for integration testing, `test_web_integration.py` for web interface testing, and `quick_test.sh` for quick functionality checks. Additional test files include:
+- `test_fuzzy_matching.py` - Tests intelligent name matching
+- `test_rep_extraction.py` - Tests representative extraction
+- `test_voting_parser.py` - Tests voting record parsing
+- `test_deduplication.py` - Tests deduplication functionality
 
 ## Architecture
 
@@ -108,10 +125,12 @@ The web interface (`src/clearcouncil/web/`) provides a modern, interactive front
 
 **Key Features**:
 - **Interactive Dashboards**: Real-time filtering with dropdowns for representatives and time periods
+- **Data Sources Transparency**: Complete visibility into data origins and processing methods
 - **Comparison Tools**: Side-by-side analysis of multiple representatives
 - **Export Capabilities**: CSV, PDF, and HTML exports with shareable links
 - **Mobile Responsive**: Bootstrap 5 design optimized for all devices
 - **API Endpoints**: RESTful API for programmatic access to data
+- **Quality Metrics**: Real-time statistics on processing success rates and data coverage
 
 ## Environment Setup
 
@@ -132,6 +151,8 @@ The system auto-creates these directories:
 ### Entry Points
 - `clearcouncil.py` - Main CLI (requires full dependencies)
 - `clearcouncil_simple.py` - Simplified CLI with graceful dependency handling
+- `clearcouncil_web.py` - Web interface launcher
+- `simple_web_server.py` - Standalone transparency dashboard server
 
 ### Core Commands
 ```bash
@@ -155,10 +176,13 @@ clearcouncil update-documents york_county_sc "last 5 months"
 
 ### Advanced Features
 - **Time Range Parsing**: Natural language like "last year", "last 6 months", "2023-01-01 to 2024-01-01"
+- **Fuzzy Name Matching**: Intelligent name matching with `fuzzywuzzy` and Levenshtein distance
 - **Parallel Processing**: Multi-threaded document processing and downloads
 - **Multiple Output Formats**: Plain text, JSON, CSV, HTML with tooltips
 - **Chart Generation**: Matplotlib/seaborn visualizations saved to `data/results/charts/`
 - **Municipal Glossary**: Built-in explanations for government terms
+- **Data Deduplication**: Advanced representative deduplication and canonical name mapping
+- **Automated Sync**: Systemd integration for scheduled updates
 
 ## Development Guidelines
 
@@ -210,9 +234,40 @@ Council configurations are YAML-based with validation through dataclasses. The s
 
 ### Testing Strategy
 - Integration tests via `run_local_tests.py`
-- Manual testing procedures in `TEST_WORKFLOW.md`
+- Component-specific tests in `tests/` directory
+- Quick functionality checks with `quick_test.sh`
+- Web interface integration tests with `test_web_integration.py`
+- Deduplication testing with `test_deduplication.py`
 - No formal unit tests or CI/CD pipeline
 - Testing focuses on end-to-end functionality
+
+## Automation and Maintenance
+
+### Automated Sync Setup
+```bash
+# Set up automated document processing
+chmod +x auto_sync.sh
+./auto_sync.sh  # Run manual sync
+
+# For automated scheduling using systemd
+sudo cp clearcouncil-sync.service /etc/systemd/system/
+sudo cp clearcouncil-sync.timer /etc/systemd/system/
+sudo systemctl enable clearcouncil-sync.timer
+sudo systemctl start clearcouncil-sync.timer
+
+# Check sync status
+./sync_status.sh
+```
+
+### Utility Scripts
+- `auto_sync.sh` - Automated document sync
+- `setup_auto_sync.sh` - Setup automated scheduling
+- `sync_status.sh` - Check sync status
+- `quick_test.sh` - Quick functionality test
+- `update_web_database.py` - Database deduplication
+- `extract_representatives.py` - Representative extraction utility
+- `check_representatives.py` - Representative validation
+- `debug_pdf_content.py` - PDF content debugging
 
 ## Migration Notes
 

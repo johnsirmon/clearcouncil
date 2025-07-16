@@ -429,7 +429,23 @@ We welcome contributions! Whether you're:
 
 ## 📜 License
 
-MIT License - Use it, modify it, share it!
+**ClearCouncil uses a dual licensing structure:**
+
+### 🏠 **Personal & Educational Use** - MIT License
+- **Personal use** by individuals
+- **Educational use** by academic institutions for teaching and research  
+- **Non-commercial open source projects**
+
+### 🏢 **Commercial/Governmental/Organizational Use** - Separate License Required
+- Commercial use by businesses or corporations
+- Government agencies at any level (federal, state, local)
+- Non-profit organizations for operational use
+- Consulting firms or contractors providing services
+- Integration into commercial products or services
+
+**For commercial licensing inquiries, contact:** johnsirmon@hotmail.com
+
+See the [LICENSE](LICENSE) file for complete terms and conditions.
 
 ---
 
