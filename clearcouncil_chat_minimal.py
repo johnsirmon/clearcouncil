@@ -81,10 +81,11 @@ class GitHubModelsClient:
     
     def __init__(self, token: str):
         self.token = token
-        self.base_url = "https://models.inference.ai.azure.com"
+        self.base_url = "https://models.github.ai"
         self.headers = {
             "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         }
         self.available = False
         self._test_connection()
@@ -95,10 +96,18 @@ class GitHubModelsClient:
             return
         
         try:
-            response = requests.get(
-                f"{self.base_url}/catalog/models",
+            # Test with a simple chat completion
+            payload = {
+                "model": "gpt-4o-mini",
+                "messages": [{"role": "user", "content": "test"}],
+                "max_tokens": 10
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/inference/chat/completions",
                 headers=self.headers,
-                timeout=5
+                json=payload,
+                timeout=10
             )
             self.available = response.status_code == 200
         except Exception:
@@ -110,12 +119,11 @@ class GitHubModelsClient:
             return []
         
         try:
-            response = requests.get(
-                f"{self.base_url}/catalog/models",
-                headers=self.headers
-            )
-            response.raise_for_status()
-            return response.json()
+            # For GitHub Models, we'll return some known models
+            return [
+                {"id": "gpt-4o-mini", "name": "GPT-4o Mini"},
+                {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo"}
+            ]
         except Exception:
             return []
     
