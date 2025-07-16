@@ -143,7 +143,8 @@ class GitHubModelsClient:
             response = requests.post(
                 f"{self.base_url}/inference/chat/completions",
                 headers=self.headers,
-                json=payload
+                json=payload,
+                timeout=30
             )
             response.raise_for_status()
             
