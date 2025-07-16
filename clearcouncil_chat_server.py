@@ -336,15 +336,27 @@ class ClearCouncilChatHandler(BaseHTTPRequestHandler):
                 
                 const statusElement = document.getElementById('connectionStatus');
                 if (data.status === 'healthy') {
-                    statusElement.textContent = 'Connected';
-                    statusElement.className = 'status-connected';
+                    if (data.ai_working) {
+                        statusElement.textContent = 'Connected (AI Working)';
+                        statusElement.className = 'status-connected';
+                    } else if (data.github_token_configured) {
+                        statusElement.textContent = 'Connected (AI Limited)';
+                        statusElement.className = 'status-connected';
+                    } else {
+                        statusElement.textContent = 'Connected (No AI Token)';
+                        statusElement.className = 'status-connected';
+                    }
                 } else {
                     statusElement.textContent = 'Connection issues';
                     statusElement.className = 'status-disconnected';
                 }
+                
+                // Log detailed status for debugging
+                console.log('Health check:', data);
             } catch (error) {
                 console.error('Connection check failed:', error);
                 document.getElementById('connectionStatus').textContent = 'Connection failed';
+                document.getElementById('connectionStatus').className = 'status-disconnected';
             }
         }
         
@@ -504,10 +516,39 @@ class ClearCouncilChatHandler(BaseHTTPRequestHandler):
     
     def serve_health_check(self):
         """Serve health check endpoint."""
+        # Load GitHub token to check if it's available
+        env_file = Path(".env")
+        github_token = None
+        
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                for line in f:
+                    if line.startswith('GITHUB_TOKEN='):
+                        github_token = line.split('=', 1)[1].strip()
+                        break
+        
+        # Check if chatbot is working
+        chatbot_working = False
+        if CHATBOT_AVAILABLE and github_token:
+            try:
+                chatbot = self.get_chatbot()
+                if chatbot and hasattr(chatbot, 'github_client'):
+                    chatbot_working = getattr(chatbot.github_client, 'available', False)
+            except Exception as e:
+                print(f"Chatbot check error: {e}")
+        
         health_data = {
             "status": "healthy",
             "chatbot_available": CHATBOT_AVAILABLE,
-            "clearcouncil_available": CLEARCOUNCIL_AVAILABLE
+            "clearcouncil_available": CLEARCOUNCIL_AVAILABLE,
+            "github_token_configured": github_token is not None,
+            "ai_working": chatbot_working,
+            "components": {
+                "chatbot": "✅ Available" if CHATBOT_AVAILABLE else "❌ Not available",
+                "clearcouncil": "✅ Available" if CLEARCOUNCIL_AVAILABLE else "❌ Limited",
+                "github_token": "✅ Configured" if github_token else "❌ Not configured",
+                "ai_api": "✅ Working" if chatbot_working else "❌ Not working"
+            }
         }
         
         self.send_json_response(health_data)
