@@ -51,3 +51,4 @@ results.csv
 !config/**/*.pdf
 !docs/**/*.pdf
 !examples/**/*.pdf
+.env
