@@ -368,14 +368,24 @@ class ClearCouncilChatHandler(BaseHTTPRequestHandler):
                 const select = document.getElementById('councilSelect');
                 select.innerHTML = '<option value="">Select council...</option>';
                 
-                if (data.councils) {
+                if (data.councils && data.councils.length > 0) {
                     data.councils.forEach(council => {
                         const option = document.createElement('option');
                         option.value = council;
-                        option.textContent = council.replace('_', ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+                        option.textContent = council.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
                         select.appendChild(option);
                     });
+                    
+                    // Auto-select the first council if there's only one
+                    if (data.councils.length === 1) {
+                        select.value = data.councils[0];
+                        setCouncil(data.councils[0]);
+                    }
+                } else {
+                    addMessage('system', 'No councils found. Please check the server configuration.');
                 }
+                
+                console.log('Councils loaded:', data.councils);
             } catch (error) {
                 console.error('Error loading councils:', error);
                 addMessage('system', 'Error loading councils. Please refresh the page.');
