@@ -1,0 +1,780 @@
+{% extends "base.html" %}
+
+{% block title %}ClearCouncil - Local Government Transparency{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <!-- Hero Section with Live Data -->
+        <div class="card text-center mb-5 hero-section">
+            <div class="card-body py-5">
+                <i class="fas fa-landmark fa-4x text-primary mb-4"></i>
+                <h1 class="display-4 mb-3">Welcome to ClearCouncil</h1>
+                <p class="lead mb-4">
+                    Making local government transparent and accessible to everyone.<br>
+                    Understand what your representatives are voting on and how they compare to others.
+                </p>
+                
+                <!-- Live Data Stats -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-lg-8">
+                        <div class="row stats-row">
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number">39</div>
+                                    <div class="stat-label">Representatives</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number">3,795</div>
+                                    <div class="stat-label">Votes Tracked</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number">1,899</div>
+                                    <div class="stat-label">Motions Made</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number">8</div>
+                                    <div class="stat-label">Districts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if councils %}
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Select a council below to explore real voting data and representative insights.
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Data Insights Showcase -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card insights-showcase">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            What ClearCouncil Uncovers: Real Insights from York County, SC
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Insight 1: Leadership Activity -->
+                            <div class="col-lg-4 mb-4">
+                                <div class="insight-card h-100">
+                                    <div class="insight-icon bg-primary">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <h5>Leadership Activity</h5>
+                                    <div class="insight-stat">280 motions</div>
+                                    <p class="text-muted">
+                                        <strong>Robert Winkler (At-Large)</strong> leads with the highest number of motions made, 
+                                        showing strong legislative initiative and active participation in council proceedings.
+                                    </p>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-muted">Most active representative</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Insight 2: Consensus Building -->
+                            <div class="col-lg-4 mb-4">
+                                <div class="insight-card h-100">
+                                    <div class="insight-icon bg-success">
+                                        <i class="fas fa-handshake"></i>
+                                    </div>
+                                    <h5>Consensus Building</h5>
+                                    <div class="insight-stat">58.6%</div>
+                                    <p class="text-muted">
+                                        Nearly 6 out of 10 votes are <strong>unanimous</strong>, indicating strong 
+                                        collaboration and consensus-building among council members on most issues.
+                                    </p>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 58.6%"></div>
+                                    </div>
+                                    <small class="text-muted">Unanimous decision rate</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Insight 3: Contentious Issues -->
+                            <div class="col-lg-4 mb-4">
+                                <div class="insight-card h-100">
+                                    <div class="insight-icon bg-warning">
+                                        <i class="fas fa-balance-scale"></i>
+                                    </div>
+                                    <h5>Close Decisions</h5>
+                                    <div class="insight-stat">82 votes</div>
+                                    <p class="text-muted">
+                                        Only <strong>2.2% of votes</strong> are decided by a margin of 1, revealing 
+                                        which issues are truly contentious and require careful deliberation.
+                                    </p>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 22%"></div>
+                                    </div>
+                                    <small class="text-muted">Close vote percentage</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Representatives Chart -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">Top 5 Most Active Representatives by Leadership Actions</h5>
+                                <div class="leadership-chart">
+                                    <div class="rep-bar" data-motions="280" data-seconds="134">
+                                        <div class="rep-info">
+                                            <span class="rep-name">Robert Winkler</span>
+                                            <span class="rep-district">(At-Large)</span>
+                                        </div>
+                                        <div class="bar-container">
+                                            <div class="bar motions-bar" style="width: 100%;">
+                                                <span class="bar-label">280 motions</span>
+                                            </div>
+                                            <div class="bar seconds-bar" style="width: 47.9%;">
+                                                <span class="bar-label">134 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rep-bar" data-motions="200" data-seconds="193">
+                                        <div class="rep-info">
+                                            <span class="rep-name">Allison Love</span>
+                                            <span class="rep-district">(At-Large)</span>
+                                        </div>
+                                        <div class="bar-container">
+                                            <div class="bar motions-bar" style="width: 71.4%;">
+                                                <span class="bar-label">200 motions</span>
+                                            </div>
+                                            <div class="bar seconds-bar" style="width: 68.9%;">
+                                                <span class="bar-label">193 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rep-bar" data-motions="130" data-seconds="189">
+                                        <div class="rep-info">
+                                            <span class="rep-name">Thomas Audette</span>
+                                            <span class="rep-district">(District 3)</span>
+                                        </div>
+                                        <div class="bar-container">
+                                            <div class="bar motions-bar" style="width: 46.4%;">
+                                                <span class="bar-label">130 motions</span>
+                                            </div>
+                                            <div class="bar seconds-bar" style="width: 67.5%;">
+                                                <span class="bar-label">189 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rep-bar" data-motions="106" data-seconds="173">
+                                        <div class="rep-info">
+                                            <span class="rep-name">Joel Hamilton</span>
+                                            <span class="rep-district">(District 1)</span>
+                                        </div>
+                                        <div class="bar-container">
+                                            <div class="bar motions-bar" style="width: 37.9%;">
+                                                <span class="bar-label">106 motions</span>
+                                            </div>
+                                            <div class="bar seconds-bar" style="width: 61.8%;">
+                                                <span class="bar-label">173 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rep-bar" data-motions="110" data-seconds="159">
+                                        <div class="rep-info">
+                                            <span class="rep-name">William "Bump" Roddey</span>
+                                            <span class="rep-district">(At-Large)</span>
+                                        </div>
+                                        <div class="bar-container">
+                                            <div class="bar motions-bar" style="width: 39.3%;">
+                                                <span class="bar-label">110 motions</span>
+                                            </div>
+                                            <div class="bar seconds-bar" style="width: 56.8%;">
+                                                <span class="bar-label">159 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-legend mt-3">
+                                    <span class="legend-item">
+                                        <span class="legend-color motions-color"></span>
+                                        Motions Made
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-color seconds-color"></span>
+                                        Seconds Given
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Call to Action -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <div class="showcase-cta">
+                                    <h5 class="text-primary">This is just a glimpse of what ClearCouncil reveals</h5>
+                                    <p class="text-muted">
+                                        Dive deeper into voting patterns, compare representatives across districts, 
+                                        and discover trends that matter to your community.
+                                    </p>
+                                    <a href="#councils" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-microscope me-2"></i>
+                                        Explore Full Analysis
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Analyze Representatives</h5>
+                        <p class="card-text">
+                            See what your district representative has been voting on with interactive charts and detailed breakdowns.
+                        </p>
+                        <div class="feature-stats">
+                            <small class="text-muted">Track 414+ votes per active rep</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-balance-scale fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Compare Performance</h5>
+                        <p class="card-text">
+                            Compare representatives side-by-side to understand different approaches and activity levels.
+                        </p>
+                        <div class="feature-stats">
+                            <small class="text-muted">Compare across 8 districts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Search & Explore</h5>
+                        <p class="card-text">
+                            Search through meeting documents and get plain English explanations of government terms.
+                        </p>
+                        <div class="feature-stats">
+                            <small class="text-muted">3,795+ voting records searchable</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Council Selection -->
+        {% if councils %}
+        <div class="card mb-5" id="councils">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-building me-2"></i>
+                    Select Your Council
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for council_id in councils %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card council-card" onclick="selectCouncil('{{ council_id }}')">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1">{{ council_id|replace('_', ' ')|title }}</h5>
+                                        <p class="card-text text-muted mb-0">
+                                            <i class="fas fa-users me-1"></i>
+                                            <span id="repCount-{{ council_id }}">Loading...</span> representatives
+                                        </p>
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Live data available
+                                        </small>
+                                    </div>
+                                    <div class="text-primary">
+                                        <i class="fas fa-chevron-right fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-5">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h4>No Councils Configured</h4>
+                <p class="text-muted">
+                    Please check your configuration or contact your administrator.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- How It Works -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    How It Works
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-4">
+                        <div class="text-center">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-download fa-2x"></i>
+                            </div>
+                            <h6>1. Data Collection</h6>
+                            <p class="text-muted">
+                                We automatically download and process council meeting documents and voting records.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="text-center">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-cogs fa-2x"></i>
+                            </div>
+                            <h6>2. Smart Analysis</h6>
+                            <p class="text-muted">
+                                Advanced algorithms extract voting patterns, categorize issues, and identify trends.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="text-center">
+                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                            <h6>3. Visualization</h6>
+                            <p class="text-muted">
+                                Interactive charts and graphs make complex voting data easy to understand.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="text-center">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-share-alt fa-2x"></i>
+                            </div>
+                            <h6>4. Share & Export</h6>
+                            <p class="text-muted">
+                                Export analysis results or share links to discuss with your community.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="card-title">Ready to Get Started?</h4>
+                <p class="card-text">
+                    Choose your council above and start exploring your local government data.
+                </p>
+                <div class="btn-group">
+                    <a href="#councils" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket me-2"></i>
+                        Get Started
+                    </a>
+                    <a href="{{ url_for('main.upload_documents') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-upload me-2"></i>
+                        Upload Documents
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Row */
+.stats-row {
+    margin: 0 -5px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 0 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0d6efd;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Insights Showcase */
+.insights-showcase {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.insight-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.insight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.insight-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.insight-stat {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0d6efd;
+    margin: 10px 0;
+    line-height: 1;
+}
+
+/* Leadership Chart */
+.leadership-chart {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.rep-bar {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.rep-bar:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.rep-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.rep-name {
+    font-weight: bold;
+    color: #212529;
+}
+
+.rep-district {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.bar-container {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.bar {
+    height: 25px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 60px;
+}
+
+.motions-bar {
+    background: linear-gradient(90deg, #0d6efd, #4287f5);
+}
+
+.seconds-bar {
+    background: linear-gradient(90deg, #198754, #43a047);
+}
+
+.bar-label {
+    color: white;
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.legend-color {
+    width: 20px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+.motions-color {
+    background: linear-gradient(90deg, #0d6efd, #4287f5);
+}
+
+.seconds-color {
+    background: linear-gradient(90deg, #198754, #43a047);
+}
+
+/* Showcase CTA */
+.showcase-cta {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #dee2e6;
+}
+
+/* Feature Cards */
+.feature-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.feature-stats {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Council Cards */
+.council-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+}
+
+.council-card:hover {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-left: 4px solid #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .insight-stat {
+        font-size: 2rem;
+    }
+    
+    .rep-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .rep-district {
+        margin-top: 5px;
+    }
+    
+    .chart-legend {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load representative counts for each council
+    {% for council_id in councils %}
+    loadRepresentativeCount('{{ council_id }}');
+    {% endfor %}
+    
+    // Animate stats on scroll
+    animateStatsOnScroll();
+    
+    // Animate insight cards
+    animateInsightCards();
+});
+
+function loadRepresentativeCount(councilId) {
+    fetch(`/api/council/${councilId}/representatives`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`repCount-${councilId}`).textContent = data.representatives.length;
+            } else {
+                document.getElementById(`repCount-${councilId}`).textContent = 'Unknown';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading representative count:', error);
+            document.getElementById(`repCount-${councilId}`).textContent = 'Error';
+        });
+}
+
+function selectCouncil(councilId) {
+    // Add loading state
+    event.target.closest('.council-card').style.opacity = '0.7';
+    window.location.href = `/council/${councilId}`;
+}
+
+function animateStatsOnScroll() {
+    const stats = document.querySelectorAll('.stat-number');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const finalValue = parseInt(target.textContent.replace(/,/g, ''));
+                animateNumber(target, 0, finalValue, 2000);
+                observer.unobserve(target);
+            }
+        });
+    });
+    
+    stats.forEach(stat => observer.observe(stat));
+}
+
+function animateNumber(element, start, end, duration) {
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const current = Math.floor(start + (end - start) * easeOutCubic(progress));
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+
+function animateInsightCards() {
+    const cards = document.querySelectorAll('.insight-card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+                }, index * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        observer.observe(card);
+    });
+}
+
+// Add CSS animation for insight cards
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
