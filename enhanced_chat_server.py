@@ -237,9 +237,19 @@ class GitHubClient:
 class EnhancedChatHandler(BaseHTTPRequestHandler):
     """Enhanced HTTP request handler with real data integration"""
     
+    # Class-level variables to avoid re-initialization
+    _github_client = None
+    _data_manager = None
+    
     def __init__(self, *args, **kwargs):
-        self.github_client = GitHubClient(GITHUB_TOKEN) if GITHUB_TOKEN else None
-        self.data_manager = DataManager()
+        # Initialize class-level variables once
+        if EnhancedChatHandler._github_client is None:
+            EnhancedChatHandler._github_client = GitHubClient(GITHUB_TOKEN) if GITHUB_TOKEN else None
+        if EnhancedChatHandler._data_manager is None:
+            EnhancedChatHandler._data_manager = DataManager()
+        
+        self.github_client = EnhancedChatHandler._github_client
+        self.data_manager = EnhancedChatHandler._data_manager
         super().__init__(*args, **kwargs)
     
     def do_GET(self):
