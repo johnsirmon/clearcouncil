@@ -124,66 +124,78 @@ class DataManager:
     
     def get_context_for_question(self, question: str) -> str:
         """Get relevant context for a user question"""
-        if not self.data:
-            return "No data loaded. Please load data first."
-        
-        question_lower = question.lower()
-        context_parts = []
-        
-        # Add basic stats
-        rep_count = len(self.data.get("representatives", {}))
-        total_votes = sum(len(rep.get("voting_record", [])) for rep in self.data.get("representatives", {}).values())
-        context_parts.append(f"Council data: {rep_count} representatives, {total_votes} total voting records")
-        
-        # If asking about specific representative
-        if "representative" in question_lower or "council member" in question_lower:
-            representatives = self.data.get("representatives", {})
-            rep_list = []
-            for name, data in list(representatives.items())[:10]:  # Limit to first 10
-                district = data.get("district", "Unknown")
-                votes = data.get("total_votes", 0)
-                rep_list.append(f"{name} ({district}): {votes} votes")
+        try:
+            if not self.data:
+                return "No data loaded. Please load data first."
             
-            context_parts.append(f"Representatives: {', '.join(rep_list)}")
-        
-        # If asking about voting records
-        if "voting" in question_lower or "vote" in question_lower:
-            # Get some sample voting records
-            sample_records = []
-            for rep_name, rep_data in list(self.data.get("representatives", {}).items())[:3]:
-                records = rep_data.get("voting_record", [])[:2]  # First 2 records
-                for record in records:
-                    case_num = record.get("case_number", "Unknown")
-                    result = record.get("result", "Unknown")
-                    vote_type = record.get("vote_type", "Unknown")
-                    sample_records.append(f"{rep_name}: {case_num} - {vote_type} - {result}")
+            question_lower = question.lower()
+            context_parts = []
             
-            if sample_records:
-                context_parts.append(f"Sample voting records: {'; '.join(sample_records[:5])}")
-        
-        # If asking about specific person
-        for rep_name in self.data.get("representatives", {}):
-            if rep_name.lower() in question_lower:
-                rep_data = self.data["representatives"][rep_name]
-                district = rep_data.get("district", "Unknown")
-                votes = rep_data.get("total_votes", 0)
-                motions = rep_data.get("motions_made", 0)
-                seconds = rep_data.get("seconds_given", 0)
+            # Add basic stats
+            rep_count = len(self.data.get("representatives", {}))
+            total_votes = sum(len(rep.get("voting_record", [])) for rep in self.data.get("representatives", {}).values())
+            context_parts.append(f"Council data: {rep_count} representatives, {total_votes} total voting records")
+            
+            # If asking about specific representative
+            if "representative" in question_lower or "council member" in question_lower or "who are" in question_lower:
+                representatives = self.data.get("representatives", {})
+                rep_list = []
+                for name, rep_data in list(representatives.items())[:10]:  # Limit to first 10
+                    try:
+                        district = rep_data.get("district", "Unknown")
+                        votes = rep_data.get("total_votes", 0)
+                        rep_list.append(f"{name} ({district}): {votes} votes")
+                    except Exception as e:
+                        rep_list.append(f"{name}: Error getting details")
                 
-                context_parts.append(f"{rep_name} details: District {district}, {votes} votes, {motions} motions, {seconds} seconds")
-                
-                # Add recent voting activity
-                recent_votes = rep_data.get("voting_record", [])[:3]
-                if recent_votes:
-                    vote_details = []
-                    for vote in recent_votes:
-                        case_num = vote.get("case_number", "Unknown")
-                        result = vote.get("result", "Unknown")
-                        vote_details.append(f"{case_num}: {result}")
-                    context_parts.append(f"Recent votes: {'; '.join(vote_details)}")
-                break
-        
-        return "\n".join(context_parts)
+                context_parts.append(f"Representatives: {', '.join(rep_list)}")
+            
+            # If asking about voting records
+            if "voting" in question_lower or "vote" in question_lower:
+                # Get some sample voting records
+                sample_records = []
+                try:
+                    for rep_name, rep_data in list(self.data.get("representatives", {}).items())[:3]:
+                        records = rep_data.get("voting_record", [])[:2]  # First 2 records
+                        for record in records:
+                            case_num = record.get("case_number", "Unknown")
+                            result = record.get("result", "Unknown")
+                            vote_type = record.get("vote_type", "Unknown")
+                            sample_records.append(f"{rep_name}: {case_num} - {vote_type} - {result}")
+                    
+                    if sample_records:
+                        context_parts.append(f"Sample voting records: {'; '.join(sample_records[:5])}")
+                except Exception as e:
+                    context_parts.append(f"Sample voting records: Error loading - {str(e)}")
+            
+            # If asking about specific person
+            try:
+                for rep_name in self.data.get("representatives", {}):
+                    if rep_name.lower() in question_lower:
+                        rep_data = self.data["representatives"][rep_name]
+                        district = rep_data.get("district", "Unknown")
+                        votes = rep_data.get("total_votes", 0)
+                        motions = rep_data.get("motions_made", 0)
+                        seconds = rep_data.get("seconds_given", 0)
+                        
+                        context_parts.append(f"{rep_name} details: District {district}, {votes} votes, {motions} motions, {seconds} seconds")
+                        
+                        # Add recent voting activity
+                        recent_votes = rep_data.get("voting_record", [])[:3]
+                        if recent_votes:
+                            vote_details = []
+                            for vote in recent_votes:
+                                case_num = vote.get("case_number", "Unknown")
+                                result = vote.get("result", "Unknown")
+                                vote_details.append(f"{case_num}: {result}")
+                            context_parts.append(f"Recent votes: {'; '.join(vote_details)}")
+                        break
+            except Exception as e:
+                context_parts.append(f"Error getting specific representative info: {str(e)}")
+            
+            return "\n".join(context_parts)
+        except Exception as e:
+            return f"Error generating context: {str(e)}"
 
 class GitHubClient:
     """GitHub Models API client"""
@@ -287,6 +299,7 @@ class EnhancedChatHandler(BaseHTTPRequestHandler):
         try:
             # Get relevant context from real data
             context = self.data_manager.get_context_for_question(message)
+            print(f"DEBUG: Context generated: {context[:200]}...")  # Debug output
             
             if not self.github_client:
                 response = self.get_enhanced_mock_response(message, context)
@@ -306,17 +319,24 @@ Help users understand local government processes, representative voting patterns
                 ]
                 
                 response = self.github_client.chat_completion(messages)
+                print(f"DEBUG: GitHub API response: {response[:100]}...")  # Debug output
                 
                 # If GitHub API returns an error, fall back to enhanced mock
                 if response.startswith("Error:"):
+                    print("DEBUG: GitHub API error, falling back to mock")
                     response = self.get_enhanced_mock_response(message, context)
             
             self.send_json_response({"response": response})
         except Exception as e:
+            print(f"DEBUG: Exception in handle_chat: {str(e)}")
             # Fallback to enhanced mock response
-            context = self.data_manager.get_context_for_question(message)
-            response = self.get_enhanced_mock_response(message, context)
-            self.send_json_response({"response": response})
+            try:
+                context = self.data_manager.get_context_for_question(message)
+                response = self.get_enhanced_mock_response(message, context)
+                self.send_json_response({"response": response})
+            except Exception as e2:
+                print(f"DEBUG: Exception in fallback: {str(e2)}")
+                self.send_json_response({"response": f"I apologize, but I encountered an error processing your question: {str(e)}. The system is experiencing technical difficulties."})
     
     def get_enhanced_mock_response(self, message: str, context: str) -> str:
         """Generate enhanced mock responses using real data"""
