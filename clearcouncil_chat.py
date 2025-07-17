@@ -249,7 +249,8 @@ User Message: {message}"""
         return self.github_client.chat_completion(messages)
 
 # Flask App Setup
-app = Flask(__name__)
+template_dir = Path(__file__).parent / "src" / "clearcouncil" / "web" / "templates"
+app = Flask(__name__, template_folder=str(template_dir))
 app.secret_key = os.environ.get('SECRET_KEY', 'clearcouncil-chat-secret')
 CORS(app)
 
