@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Accessibility Report - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-universal-access me-2"></i>
+                    Accessibility Report
+                </h1>
+                <div>
+                    <a href="{{ url_for('accessibility.test_accessibility') }}?route=all" 
+                       class="btn btn-primary me-2">
+                        <i class="fas fa-sync me-1"></i>
+                        Run New Test
+                    </a>
+                    <a href="{{ url_for('accessibility.accessibility_guidelines') }}" 
+                       class="btn btn-outline-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Guidelines
+                    </a>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ error }}
+            </div>
+            {% else %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Overall Summary
+                    </h3>
+                    {% if report_file %}
+                    <small class="text-muted">Report: {{ report_file }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% set total_routes = results|length %}
+                        {% set passed_routes = results.values()|selectattr('summary.overall_status', 'equalto', 'pass')|list|length %}
+                        {% set failed_routes = total_routes - passed_routes %}
+                        
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="display-4 {% if passed_routes == total_routes %}text-success{% else %}text-warning{% endif %}">
+                                    {{ passed_routes }}/{{ total_routes }}
+                                </div>
+                                <p class="text-muted">Routes Passed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                {% set total_violations = results.values()|map(attribute='summary.total_axe_violations')|sum %}
+                                <div class="display-4 {% if total_violations == 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ total_violations }}
+                                </div>
+                                <p class="text-muted">Total Violations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                {% set critical_issues = results.values()|map(attribute='summary.critical_issues')|sum %}
+                                <div class="display-4 {% if critical_issues == 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ critical_issues }}
+                                </div>
+                                <p class="text-muted">Critical Issues</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route-specific results -->
+            {% for route, result in results.items() %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-route me-2"></i>
+                            {{ route }}
+                        </h4>
+                        {% if result.error %}
+                        <span class="badge bg-danger">ERROR</span>
+                        {% elif result.summary.overall_status == 'pass' %}
+                        <span class="badge bg-success">PASS</span>
+                        {% else %}
+                        <span class="badge bg-danger">FAIL</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if result.error %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Error:</strong> {{ result.error }}
+                    </div>
+                    {% else %}
+                    
+                    <!-- Summary metrics -->
+                    <div class="row mb-3">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="h5 {% if result.summary.total_axe_violations == 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ result.summary.total_axe_violations }}
+                                </div>
+                                <small class="text-muted">Violations</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="h5 {% if result.summary.critical_issues == 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ result.summary.critical_issues }}
+                                </div>
+                                <small class="text-muted">Critical</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="h5 {% if result.summary.serious_issues == 0 %}text-success{% else %}text-warning{% endif %}">
+                                    {{ result.summary.serious_issues }}
+                                </div>
+                                <small class="text-muted">Serious</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="h5 {% if result.summary.manual_failures == 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ result.summary.manual_failures }}
+                                </div>
+                                <small class="text-muted">Manual Fails</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="h5 {% if result.summary.manual_warnings == 0 %}text-success{% else %}text-warning{% endif %}">
+                                    {{ result.summary.manual_warnings }}
+                                </div>
+                                <small class="text-muted">Warnings</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Axe violations -->
+                    {% if result.axe_results.violations %}
+                    <div class="mb-3">
+                        <h5>
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Axe-core Violations
+                        </h5>
+                        {% for violation in result.axe_results.violations %}
+                        <div class="alert alert-{% if violation.impact == 'critical' %}danger{% elif violation.impact == 'serious' %}warning{% else %}info{% endif %} mb-2">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ violation.id }}</strong>
+                                    <span class="badge bg-{% if violation.impact == 'critical' %}danger{% elif violation.impact == 'serious' %}warning{% else %}info{% endif %} ms-2">
+                                        {{ violation.impact }}
+                                    </span>
+                                </div>
+                                <a href="{{ violation.helpUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    Learn More
+                                </a>
+                            </div>
+                            <p class="mb-0 mt-2">{{ violation.description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Manual checks -->
+                    {% if result.manual_checks %}
+                    <div class="mb-3">
+                        <h5>
+                            <i class="fas fa-hand-paper text-info me-2"></i>
+                            Manual Checks
+                        </h5>
+                        <div class="row">
+                            {% for check_name, check_result in result.manual_checks.items() %}
+                            <div class="col-md-6 mb-2">
+                                <div class="card">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title">{{ check_name.replace('_', ' ').title() }}</h6>
+                                                <p class="card-text small">{{ check_result.message }}</p>
+                                            </div>
+                                            <span class="badge bg-{% if check_result.status == 'pass' %}success{% elif check_result.status == 'fail' %}danger{% else %}warning{% endif %}">
+                                                {{ check_result.status.upper() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.alert {
+    border-left: 4px solid;
+    border-left-color: var(--bs-alert-color);
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+</style>
+{% endblock %}

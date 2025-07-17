@@ -13,6 +13,7 @@ from .database import init_db, get_db_connection
 from .charts import InteractiveChartGenerator
 from .routes import api_bp, main_bp
 from .insights_api import insights_bp
+from .accessibility_integration import init_accessibility_features
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,9 @@ def create_app(config_name='development'):
         if len(text) <= length:
             return text
         return text[:length] + '...'
+    
+    # Initialize accessibility features
+    init_accessibility_features(app)
     
     # Initialize logging
     if not app.debug:

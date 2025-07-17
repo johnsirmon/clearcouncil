@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Accessibility Guidelines - ClearCouncil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-universal-access me-2"></i>
+                    Accessibility Guidelines
+                </h1>
+                <a href="{{ url_for('accessibility.accessibility_report') }}" 
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line me-1"></i>
+                    View Report
+                </a>
+            </div>
+
+            <!-- WCAG Principles -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        WCAG 2.1 Principles
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for principle in guidelines.wcag_principles %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">{{ principle.principle }}</h5>
+                                    <p class="card-text">{{ principle.description }}</p>
+                                    <h6>Examples:</h6>
+                                    <ul class="list-unstyled">
+                                        {% for example in principle.examples %}
+                                        <li><i class="fas fa-check text-success me-2"></i>{{ example }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Government Requirements -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-landmark me-2"></i>
+                        Government Requirements
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important:</strong> Government transparency tools like ClearCouncil must comply with accessibility standards to ensure equal access to public information.
+                    </div>
+                    <div class="row">
+                        {% for requirement in guidelines.government_requirements %}
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-gavel text-primary me-3"></i>
+                                <span>{{ requirement }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testing Checklist -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Testing Checklist
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Use this checklist to ensure your accessibility implementations meet standards:</p>
+                    <div class="row">
+                        {% for item in guidelines.testing_checklist %}
+                        <div class="col-md-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="check-{{ loop.index }}">
+                                <label class="form-check-label" for="check-{{ loop.index }}">
+                                    {{ item }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Best Practices for ClearCouncil
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Navigation & Structure</h5>
+                            <ul>
+                                <li>Provide skip links to main content</li>
+                                <li>Use proper heading hierarchy (h1, h2, h3...)</li>
+                                <li>Ensure keyboard navigation works everywhere</li>
+                                <li>Add breadcrumb navigation</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Content & Media</h5>
+                            <ul>
+                                <li>Alt text for all images and charts</li>
+                                <li>Captions for videos</li>
+                                <li>Transcripts for audio content</li>
+                                <li>Plain language descriptions</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Forms & Interaction</h5>
+                            <ul>
+                                <li>Label all form inputs clearly</li>
+                                <li>Provide error messages and help text</li>
+                                <li>Group related form fields</li>
+                                <li>Ensure sufficient click targets</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Visual Design</h5>
+                            <ul>
+                                <li>Maintain 4.5:1 color contrast ratio</li>
+                                <li>Don't rely solely on color for meaning</li>
+                                <li>Ensure text is resizable to 200%</li>
+                                <li>Provide visible focus indicators</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools & Resources -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Tools & Resources
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Testing Tools</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.deque.com/axe/" target="_blank">axe DevTools</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://wave.webaim.org/" target="_blank">WAVE Web Accessibility Evaluator</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.tpgi.com/color-contrast-checker/" target="_blank">Color Contrast Checker</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.nvaccess.org/" target="_blank">NVDA Screen Reader</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Documentation</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.w3.org/WAI/WCAG21/quickref/" target="_blank">WCAG 2.1 Quick Reference</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.section508.gov/" target="_blank">Section 508 Guidelines</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://webaim.org/" target="_blank">WebAIM Resources</a></li>
+                                <li><i class="fas fa-external-link-alt me-2"></i><a href="https://www.a11yproject.com/" target="_blank">A11Y Project</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-rocket me-2"></i>
+                        Quick Actions
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('accessibility.test_accessibility') }}?route=/" 
+                               class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-home me-2"></i>
+                                Test Home Page
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('accessibility.test_accessibility') }}?route=/dashboard" 
+                               class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Test Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('accessibility.test_accessibility') }}?route=all" 
+                               class="btn btn-success btn-block mb-2">
+                                <i class="fas fa-globe me-2"></i>
+                                Test All Routes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.alert-info {
+    border-left: 4px solid #0dcaf0;
+}
+</style>
+{% endblock %}
