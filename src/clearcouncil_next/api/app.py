@@ -1,5 +1,6 @@
 """FastAPI application for ClearCouncil Next."""
 
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
@@ -11,12 +12,15 @@ from clearcouncil_next.jobs.queue import enqueue_job, get_job
 from clearcouncil_next.mcp.tools import TOOLS
 
 settings = get_settings()
-app = FastAPI(title=settings.app_name, version="0.1.0")
 
 
-@app.on_event("startup")
-def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     init_db()
+    yield
+
+
+app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
 
 
 @app.get("/health", response_model=HealthResponse)
