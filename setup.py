@@ -12,7 +12,7 @@ setup(
     name="clearcouncil",
     version="1.0.0",
     author="ClearCouncil Contributors",
-    author_email="johnsirmon@hotmail.com",
+    author_email="support@clearcouncil.org",
     description="Local Government Transparency Tool using RAG - Dual Licensed",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -49,6 +49,6 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/yourusername/clearcouncil/issues",
         "Documentation": "https://github.com/yourusername/clearcouncil/blob/main/README.md",
-        "Commercial License": "mailto:johnsirmon@hotmail.com",
+        "Commercial License": "mailto:support@clearcouncil.org",
     },
 )

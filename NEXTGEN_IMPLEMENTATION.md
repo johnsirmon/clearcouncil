@@ -67,6 +67,13 @@ Required repository secrets:
 - `CC_NEXT_API_URL`
 - `CC_NEXT_API_TOKEN` (optional if API endpoint is internal and trusted)
 
+## Privacy and PII guardrails
+
+- Secret scanning is enforced in CI with `.github/workflows/security-privacy-scan.yml`.
+- `gitleaks` uses `.gitleaks.toml` with a narrow allowlist for template placeholders.
+- Next-gen worker log payloads are redacted via `src/clearcouncil_next/core/privacy.py`.
+- Job APIs support bearer-token protection via `CC_NEXT_API_TOKEN`.
+
 ## Next implementation targets
 
 1. Implement real ingestion handlers with source connectors and provenance persistence.
