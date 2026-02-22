@@ -38,7 +38,7 @@ cat << 'EOF' > .claude/templates/development-prompt.md
 - [ ] Change existing API contracts
 
 ## Environment Safety
-**Virtual Environment:** /home/johnsirmon/projects/clearcouncil/.venv
+**Virtual Environment:** [workspace-root]/.venv
 **Current Status:** [Run ./check_env.sh to verify]
 **Package Manager:** pip with requirements.txt
 
