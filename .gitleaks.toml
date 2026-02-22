@@ -1,0 +1,13 @@
+title = "ClearCouncil gitleaks config"
+
+[allowlist]
+description = "Allow placeholder values used in templates and docs"
+regexes = [
+  '''your_github_token_here''',
+  '''your_openai_api_key_here''',
+  '''CC_NEXT_API_TOKEN=''',
+]
+paths = [
+  '''^\.venv/''',
+  '''^data/''',
+]
