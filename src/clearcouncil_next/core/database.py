@@ -12,7 +12,13 @@ from clearcouncil_next.core.models import Base
 
 settings = get_settings()
 engine = create_engine(settings.database_url, future=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False,
+    expire_on_commit=False,
+    future=True,
+)
 
 
 def init_db() -> None:
