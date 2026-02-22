@@ -1,370 +1,259 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" x-data="ccApp()" :data-theme="darkMode ? 'dark' : 'light'">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ClearCouncil - Local Government Transparency{% endblock %}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Plotly.js for interactive charts -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    
-    <!-- Custom CSS -->
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --accent-color: #3b82f6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --light-bg: #f8fafc;
-            --dark-text: #1f2937;
-            --border-color: #e5e7eb;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-            color: var(--dark-text);
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            transform: translateY(-2px);
-        }
-        
-        .card {
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border-radius: 15px;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            font-weight: 600;
-        }
-        
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-        
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .table-header {
-            background: linear-gradient(135deg, var(--light-bg), #ffffff);
-            font-weight: 600;
-        }
-        
-        .stats-card {
-            background: linear-gradient(135deg, #ffffff, var(--light-bg));
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .stats-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .stats-label {
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .filter-section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .footer {
-            background: linear-gradient(135deg, var(--dark-text), #374151);
-            color: white;
-            margin-top: 50px;
-        }
-        
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .representative-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .representative-card:hover {
-            background: linear-gradient(135deg, var(--light-bg), #ffffff);
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .badge {
-            border-radius: 10px;
-            font-weight: 500;
-        }
-        
-        .search-highlight {
-            background: linear-gradient(135deg, #fef3c7, #fbbf24);
-            border-radius: 3px;
-            padding: 2px 4px;
-        }
-    </style>
-    
+    <meta name="description" content="ClearCouncil makes local government transparent – explore representative voting records, compare officials, and understand your local council.">
+
+    <!-- Bootstrap CSS (layout utilities) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- ClearCouncil custom stylesheet (lightweight, easily modified) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clearcouncil.css') }}">
+
+    <!-- HTMX – lightweight HTML-over-the-wire library (14 KB) -->
+    <script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js" defer></script>
+
+    <!-- Alpine.js – minimal reactivity for dark mode, menus (15 KB) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
+    <!-- Accessibility: skip to main content -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- ── Top navigation ───────────────────────────────────────── -->
+    <nav class="cc-navbar" role="navigation" aria-label="Main navigation">
+        <div class="container-fluid d-flex align-items-center gap-3">
+
+            <!-- Brand -->
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="fas fa-landmark me-2"></i>ClearCouncil
+                <i class="fas fa-landmark" aria-hidden="true"></i>
+                <span>ClearCouncil</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.index') }}">
-                            <i class="fas fa-home me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.insights') }}">
-                            <i class="fas fa-lightbulb me-1"></i>Insights
-                        </a>
-                    </li>
+
+            <!-- Desktop nav links (hidden on mobile) -->
+            <ul class="navbar-nav flex-row gap-1 me-auto desktop-nav" role="list">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}"
+                       href="{{ url_for('main.index') }}">
+                        <i class="fas fa-home me-1" aria-hidden="true"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'main.insights' %}active{% endif %}"
+                       href="{{ url_for('main.insights') }}">
+                        <i class="fas fa-lightbulb me-1" aria-hidden="true"></i>Insights
+                    </a>
+                </li>
+                {% if councils %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="councilDropdown"
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-building me-1" aria-hidden="true"></i>Councils
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="councilDropdown">
+                        {% for council_id in councils %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('main.council_overview', council_id=council_id) }}">
+                                {{ council_id|replace('_', ' ')|title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'main.data_transparency' %}active{% endif %}"
+                       href="{{ url_for('main.data_transparency') }}">
+                        <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>Transparency
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Right-side controls -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <!-- Global search (desktop) -->
+                <form class="d-none d-md-flex align-items-center gap-1"
+                      action="{{ url_for('main.search') }}" method="get"
+                      role="search" aria-label="Search council documents">
                     {% if councils %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="councilDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-building me-1"></i>Councils
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% for council_id in councils %}
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('main.council_overview', council_id=council_id) }}">
-                                    {{ council_id|replace('_', ' ')|title }}
-                                </a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </li>
+                    <input type="hidden" name="council_id" value="{{ councils[0] }}">
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.compare_representatives') }}">
-                            <i class="fas fa-balance-scale me-1"></i>Compare
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.search') }}">
-                            <i class="fas fa-search me-1"></i>Search
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.data_transparency') }}">
-                            <i class="fas fa-search-plus me-1"></i>Data Sources
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.upload_documents') }}">
-                            <i class="fas fa-upload me-1"></i>Upload
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.settings') }}">
-                            <i class="fas fa-cog me-1"></i>Settings
-                        </a>
-                    </li>
-                </ul>
+                    <input type="search" name="q" placeholder="Search documents…"
+                           class="cc-input" style="width:180px;padding:0.3rem 0.75rem;font-size:0.85rem;"
+                           aria-label="Search documents">
+                    <button type="submit" class="cc-btn cc-btn-primary cc-btn-sm" aria-label="Submit search">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <!-- Dark mode toggle -->
+                <button class="cc-darkmode-btn" @click="toggleDark()"
+                        :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+                        :title="darkMode ? 'Light mode' : 'Dark mode'">
+                    <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'" aria-hidden="true"></i>
+                </button>
+
+                <!-- Upload quick link -->
+                <a href="{{ url_for('main.upload_documents') }}"
+                   class="cc-btn cc-btn-outline cc-btn-sm d-none d-lg-inline-flex"
+                   style="border-color:rgba(255,255,255,0.3);color:#fff;"
+                   aria-label="Upload council documents">
+                    <i class="fas fa-upload" aria-hidden="true"></i>Upload
+                </a>
             </div>
+
         </div>
     </nav>
-    
-    <!-- Main Content -->
-    <main class="container-fluid py-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
+
+    <!-- ── Page wrapper ─────────────────────────────────────────── -->
+    <div class="page-wrapper">
+        <main class="page-content container-fluid py-4" id="main-content">
+
+            <!-- HTMX global loading bar -->
+            <div id="cc-loading-bar" class="htmx-indicator"
+                 style="position:fixed;top:3.5rem;left:0;right:0;height:3px;background:var(--cc-primary);z-index:2000;animation:cc-shimmer 1.4s infinite;background-size:200% 100%;"
+                 aria-hidden="true"></div>
+
+            <!-- Breadcrumb (optional, set by child template) -->
+            {% block breadcrumb %}{% endblock %}
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="row">
-                    <div class="col-12">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }} me-2" aria-hidden="true"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
-    </main>
-    
-    <!-- Footer -->
-    <footer class="footer py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    <h5><i class="fas fa-landmark me-2"></i>ClearCouncil</h5>
-                    <p class="mb-0">Making local government transparent and accessible to everyone.</p>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <p class="mb-0">
-                        <small>
-                            Version {{ app_version }} | 
-                            <a href="#" class="text-light">Documentation</a> | 
-                            <a href="#" class="text-light">Support</a>
-                        </small>
-                    </p>
+                    {% endfor %}
                 </div>
             </div>
-        </div>
-    </footer>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Common JavaScript -->
+            {% endif %}
+            {% endwith %}
+
+            <!-- Page content -->
+            {% block content %}{% endblock %}
+
+        </main>
+
+        <!-- ── Footer ─────────────────────────────────────────── -->
+        <footer style="background:var(--cc-secondary);color:#fff;padding:2rem 0;margin-top:3rem;">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-1 fw-bold"><i class="fas fa-landmark me-2" aria-hidden="true"></i>ClearCouncil</p>
+                        <p class="mb-0" style="font-size:0.85rem;opacity:0.7;">
+                            Making local government transparent and accessible to everyone.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0" style="font-size:0.8rem;opacity:0.6;">
+                        v{{ app_version }} &middot;
+                        <a href="{{ url_for('main.data_transparency') }}" style="color:rgba(255,255,255,0.7);">Data Sources</a> &middot;
+                        <a href="{{ url_for('main.settings') }}" style="color:rgba(255,255,255,0.7);">Settings</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ── Mobile bottom navigation ────────────────────────────── -->
+    <nav class="cc-bottom-nav" role="navigation" aria-label="Mobile navigation">
+        <a href="{{ url_for('main.index') }}"
+           class="{{ 'active' if request.endpoint == 'main.index' else '' }}"
+           aria-label="Home">
+            <i class="fas fa-home" aria-hidden="true"></i>Home
+        </a>
+        {% if councils %}
+        <a href="{{ url_for('main.council_overview', council_id=councils[0]) }}"
+           class="{{ 'active' if request.endpoint == 'main.council_overview' else '' }}"
+           aria-label="Council">
+            <i class="fas fa-building" aria-hidden="true"></i>Council
+        </a>
+        {% endif %}
+        <a href="{{ url_for('main.insights') }}"
+           class="{{ 'active' if request.endpoint == 'main.insights' else '' }}"
+           aria-label="Insights">
+            <i class="fas fa-lightbulb" aria-hidden="true"></i>Insights
+        </a>
+        <a href="{{ url_for('main.search') if councils else '#' }}"
+           class="{{ 'active' if request.endpoint == 'main.search' else '' }}"
+           aria-label="Search">
+            <i class="fas fa-search" aria-hidden="true"></i>Search
+        </a>
+        <a href="{{ url_for('main.data_transparency') }}"
+           class="{{ 'active' if request.endpoint == 'main.data_transparency' else '' }}"
+           aria-label="Transparency">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>Data
+        </a>
+    </nav>
+
+    <!-- Bootstrap JS bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plotly.js (deferred – only loaded when a chart page needs it) -->
+    {% block plotly %}{% endblock %}
+
+    <!-- Alpine.js app component -->
     <script>
-        // Common utility functions
-        function showLoading(containerId) {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading...</div>';
+    function ccApp() {
+        return {
+            darkMode: localStorage.getItem('cc-dark') === 'true',
+            init() {
+                // Apply saved preference immediately
+                document.documentElement.setAttribute(
+                    'data-theme', this.darkMode ? 'dark' : 'light'
+                );
+            },
+            toggleDark() {
+                this.darkMode = !this.darkMode;
+                localStorage.setItem('cc-dark', this.darkMode);
+                document.documentElement.setAttribute(
+                    'data-theme', this.darkMode ? 'dark' : 'light'
+                );
             }
+        };
+    }
+
+    // Utility helpers (available globally)
+    function formatDate(dateString) {
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function updateURL(params) {
+        const url = new URL(window.location);
+        for (const [k, v] of Object.entries(params)) {
+            v ? url.searchParams.set(k, v) : url.searchParams.delete(k);
         }
-        
-        function hideLoading(containerId) {
-            const spinner = document.querySelector(`#${containerId} .loading-spinner`);
-            if (spinner) {
-                spinner.style.display = 'none';
-            }
-        }
-        
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        }
-        
-        function updateURL(params) {
-            const url = new URL(window.location);
-            for (const [key, value] of Object.entries(params)) {
-                if (value) {
-                    url.searchParams.set(key, value);
-                } else {
-                    url.searchParams.delete(key);
-                }
-            }
-            window.history.replaceState({}, '', url);
-        }
-        
-        // Initialize tooltips
-        document.addEventListener('DOMContentLoaded', function() {
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
+        window.history.replaceState({}, '', url);
+    }
+
+    // Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el);
         });
-        
-        // Add fade-in animation to cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.classList.add('fade-in');
-                }, index * 100);
-            });
-        });
+    });
+
+    // HTMX: attach loading bar indicator to all requests
+    document.addEventListener('htmx:configRequest', () => {
+        document.getElementById('cc-loading-bar')?.classList.add('htmx-request');
+    });
+    document.addEventListener('htmx:afterRequest', () => {
+        document.getElementById('cc-loading-bar')?.classList.remove('htmx-request');
+    });
     </script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

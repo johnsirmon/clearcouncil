@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}{{ council.name }} – ClearCouncil{% endblock %}
+
+{% block plotly %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" defer></script>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">{{ council.name }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="cc-fade-in">
+
+  <!-- ── Council header ────────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-body">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <h1 style="font-size:1.75rem;margin-bottom:0.25rem;">
+            <i class="fas fa-building text-primary me-2" aria-hidden="true"></i>
+            {{ council.name }}
+          </h1>
+          {% if council.description %}
+          <p class="text-muted mb-0" style="font-size:.9rem;">{{ council.description }}</p>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('main.compare_representatives', council_id=council.identifier) }}"
+             class="cc-btn cc-btn-outline cc-btn-sm">
+            <i class="fas fa-balance-scale" aria-hidden="true"></i>Compare
+          </a>
+          <a href="{{ url_for('main.search', council_id=council.identifier) }}"
+             class="cc-btn cc-btn-primary cc-btn-sm">
+            <i class="fas fa-search" aria-hidden="true"></i>Search Docs
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Summary stats ─────────────────────────────────────────── -->
+  <div class="row g-3 mb-4 cc-stagger">
+    <div class="col-6 col-md-3">
+      <div class="cc-stat">
+        <span class="cc-stat-number">{{ representatives|length }}</span>
+        <span class="cc-stat-label">Representatives</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="cc-stat">
+        <span class="cc-stat-number">{{ meeting_dates|length }}</span>
+        <span class="cc-stat-label">Meetings</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="cc-stat">
+        <span class="cc-stat-number">{{ categories|length }}</span>
+        <span class="cc-stat-label">Issue Categories</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="cc-stat">
+        <span class="cc-stat-number" id="totalVotes">—</span>
+        <span class="cc-stat-label">Total Votes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ── Representatives list ──────────────────────────────── -->
+    <div class="col-lg-8">
+      <div class="cc-card h-100">
+        <div class="cc-card-header">
+          <i class="fas fa-users text-primary" aria-hidden="true"></i>
+          <span>Representatives</span>
+        </div>
+        <div class="cc-card-body">
+          {% if representatives %}
+          <div class="row g-3 cc-stagger">
+            {% for rep in representatives %}
+            <div class="col-sm-6">
+              <a href="{{ url_for('main.representative_detail', rep_id=rep.id) }}"
+                 class="cc-rep-card">
+                <div class="name">{{ rep.name }}</div>
+                <div class="district">
+                  <i class="fas fa-map-marker-alt me-1" aria-hidden="true"></i>{{ rep.district }}
+                </div>
+                <div class="mt-2 d-flex gap-1 flex-wrap">
+                  <span class="cc-badge cc-badge-primary">{{ rep.total_votes }} votes</span>
+                  <span class="cc-badge cc-badge-success">{{ rep.motions_made }} motions</span>
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-4">No representatives found for this council.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sidebar: recent meetings + actions ────────────────── -->
+    <div class="col-lg-4">
+      <div class="cc-card mb-3">
+        <div class="cc-card-header">
+          <i class="fas fa-bolt text-warning" aria-hidden="true"></i>
+          <span>Quick Actions</span>
+        </div>
+        <div class="cc-card-body d-grid gap-2">
+          <a href="{{ url_for('main.compare_representatives', council_id=council.identifier) }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-balance-scale" aria-hidden="true"></i>Compare Representatives
+          </a>
+          <a href="{{ url_for('main.search', council_id=council.identifier) }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-search" aria-hidden="true"></i>Search Documents
+          </a>
+          <a href="{{ url_for('main.data_transparency') }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>Data Sources
+          </a>
+          <a href="{{ url_for('main.upload_documents') }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-upload" aria-hidden="true"></i>Upload Document
+          </a>
+        </div>
+      </div>
+
+      {% if meeting_dates %}
+      <div class="cc-card">
+        <div class="cc-card-header">
+          <i class="fas fa-calendar-alt text-info" aria-hidden="true"></i>
+          <span>Recent Meetings</span>
+        </div>
+        <div class="cc-card-body p-0">
+          <ul class="list-unstyled mb-0" style="font-size:.88rem;">
+            {% for meeting_date in meeting_dates[:8] %}
+            <li style="padding:.6rem 1.25rem;border-bottom:1px solid var(--cc-border);">
+              <i class="fas fa-circle text-primary me-2" style="font-size:.45rem;vertical-align:middle;" aria-hidden="true"></i>
+              {{ meeting_date|datetime_format('%B %d, %Y') }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ── Council activity chart ────────────────────────────────── -->
+  {% if council_chart %}
+  <div class="cc-card mt-4">
+    <div class="cc-card-header">
+      <i class="fas fa-chart-line text-primary" aria-hidden="true"></i>
+      <span>Council Activity Overview</span>
+    </div>
+    <div class="cc-card-body">
+      <div id="councilChart" style="min-height:350px;"></div>
+    </div>
+  </div>
+  {% endif %}
+
+</div><!-- /.cc-fade-in -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Load total votes stat
+    fetch('/api/council/{{ council.identifier }}/stats')
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                document.getElementById('totalVotes').textContent =
+                    (d.stats.total_votes || 0).toLocaleString();
+            }
+        })
+        .catch(() => {});
+
+    {% if council_chart %}
+    // Render council overview chart
+    try {
+        const chartData = JSON.parse({{ council_chart | safe | tojson }});
+        Plotly.newPlot('councilChart', chartData.data, chartData.layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    } catch (e) {
+        document.getElementById('councilChart').innerHTML =
+            '<p class="text-muted text-center py-3">Chart unavailable</p>';
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}

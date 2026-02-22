@@ -10,7 +10,7 @@ from ..config.settings import load_council_config, list_available_councils
 from ..core.database import VectorDatabase
 from .database import db
 from .charts import InteractiveChartGenerator
-from .data_sources_api import get_data_sources
+from .data_sources_api import get_data_sources as get_data_sources_info
 
 logger = logging.getLogger(__name__)
 
@@ -24,28 +24,8 @@ chart_generator = InteractiveChartGenerator(db)
 
 @main_bp.route('/')
 def index():
-    """Enhanced main page with insights showcase."""
+    """Main landing page with narrative workflow guide."""
     councils = list_available_councils()
-    
-    # Check if we should show enhanced version with insights
-    show_enhanced = request.args.get('enhanced', 'true').lower() == 'true'
-    
-    if show_enhanced:
-        return render_template('index_enhanced.html', councils=councils)
-    
-    # Get default council if only one exists
-    default_council = councils[0] if len(councils) == 1 else None
-    
-    if default_council:
-        representatives = db.get_representatives(default_council)
-        recent_meetings = db.get_meeting_dates(default_council)[:10]
-        
-        return render_template('dashboard.html',
-                             councils=councils,
-                             default_council=default_council,
-                             representatives=representatives,
-                             recent_meetings=recent_meetings)
-    
     return render_template('index.html', councils=councils)
 
 
@@ -247,16 +227,17 @@ def compare_representatives():
 
 @main_bp.route('/search')
 def search():
-    """Search page."""
+    """Search page. council_id is optional; defaults to first available council."""
+    councils = list_available_councils()
     council_id = request.args.get('council_id')
     query = request.args.get('q', '')
-    
-    if not council_id:
-        flash('Please select a council first', 'error')
-        return redirect(url_for('main.index'))
-    
+
+    # Default to first council when none supplied so the search page is reachable
+    if not council_id and councils:
+        council_id = councils[0]
+
     results = []
-    if query:
+    if council_id and query:
         try:
             config = load_council_config(council_id)
             vector_db = VectorDatabase(config)
@@ -264,11 +245,11 @@ def search():
         except Exception as e:
             logger.error(f"Search error: {e}")
             flash(f"Search error: {str(e)}", 'error')
-    
+
     return render_template('search.html',
-                         council_id=council_id,
-                         query=query,
-                         results=results)
+                           council_id=council_id,
+                           query=query,
+                           results=results)
 
 
 @main_bp.route('/upload')
