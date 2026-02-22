@@ -31,6 +31,31 @@ TOOLS: List[Dict[str, Any]] = [
         },
     },
     {
+        "name": "source.audit_article",
+        "description": "Extract factual claims, bias signals, and an objective translation from article text.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "source_name": {"type": "string"},
+                "source_url": {"type": "string"},
+                "article_text": {"type": "string"},
+            },
+            "required": ["article_text"],
+        },
+    },
+    {
+        "name": "source.audit_url",
+        "description": "Fetch an article URL and return factual claims, bias signals, and objective translation.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "source_name": {"type": "string"},
+                "source_url": {"type": "string"},
+            },
+            "required": ["source_url"],
+        },
+    },
+    {
         "name": "jobs.start",
         "description": "Start an unattended ingest/reindex/evaluate job for a council.",
         "input_schema": {

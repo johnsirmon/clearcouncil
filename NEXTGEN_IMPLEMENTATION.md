@@ -12,6 +12,9 @@ This document tracks the first implementation slice of the agent-first rewrite.
 - Worker loop for autonomous processing: `src/clearcouncil_next/jobs/runner.py`
 - Placeholder job handlers for ingest/reindex/evaluate: `src/clearcouncil_next/jobs/tasks.py`
 - Typed MCP-style tool catalog: `src/clearcouncil_next/mcp/tools.py`
+- Source auditing endpoints:
+  - `POST /v1/audit/source` (text input)
+  - `POST /v1/audit/source-url` (URL fetch + text extraction)
 - Local scripts:
   - API: `scripts/run_next_api.py`
   - Worker: `scripts/run_next_worker.py`
