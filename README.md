@@ -4,6 +4,17 @@
 
 ClearCouncil processes PDF documents, extracts voting records, and creates interactive dashboards to help citizens understand what their representatives are voting on and how they compare to others. Features intelligent name matching, automated document processing, and comprehensive voting analysis.
 
+## Next-Gen Rewrite (In Progress)
+
+The repository now includes a parallel, agent-first runtime under `src/clearcouncil_next/`.
+
+- API service (FastAPI): `scripts/run_next_api.py`
+- Autonomous worker loop: `scripts/run_next_worker.py`
+- Local stack (PostgreSQL + API + worker): `docker-compose.next.yml`
+- Unattended cloud workflow (self-hosted runner): `.github/workflows/autonomous-pipeline.yml`
+
+See `NEXTGEN_IMPLEMENTATION.md` for implementation details and migration status.
+
 ## 📸 Screenshots
 
 ![ClearCouncil Dashboard](images/dashboard-transparency.png)

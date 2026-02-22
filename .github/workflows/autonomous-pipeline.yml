@@ -1,0 +1,81 @@
+name: ClearCouncil Autonomous Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      council_key:
+        description: Council key to process
+        required: true
+        default: york_county_sc
+      job_type:
+        description: Job type
+        required: true
+        default: ingest
+        type: choice
+        options:
+          - ingest
+          - reindex
+          - evaluate
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  enqueue-job:
+    runs-on: [self-hosted, clearcouncil]
+    env:
+      CC_NEXT_API_URL: ${{ secrets.CC_NEXT_API_URL }}
+      CC_NEXT_API_TOKEN: ${{ secrets.CC_NEXT_API_TOKEN }}
+      DEFAULT_COUNCIL_KEY: york_county_sc
+      DEFAULT_JOB_TYPE: ingest
+    steps:
+      - name: Resolve parameters
+        id: params
+        shell: bash
+        run: |
+          council_key="${{ github.event.inputs.council_key }}"
+          job_type="${{ github.event.inputs.job_type }}"
+          if [ -z "$council_key" ]; then
+            council_key="$DEFAULT_COUNCIL_KEY"
+          fi
+          if [ -z "$job_type" ]; then
+            job_type="$DEFAULT_JOB_TYPE"
+          fi
+          echo "council_key=$council_key" >> "$GITHUB_OUTPUT"
+          echo "job_type=$job_type" >> "$GITHUB_OUTPUT"
+
+      - name: Enqueue autonomous job
+        shell: bash
+        run: |
+          if [ -z "$CC_NEXT_API_URL" ]; then
+            echo "Missing secret CC_NEXT_API_URL" >&2
+            exit 1
+          fi
+
+          auth_header=()
+          if [ -n "$CC_NEXT_API_TOKEN" ]; then
+            auth_header=(-H "Authorization: Bearer $CC_NEXT_API_TOKEN")
+          fi
+
+          payload=$(cat <<JSON
+          {
+            "council_key": "${{ steps.params.outputs.council_key }}",
+            "job_type": "${{ steps.params.outputs.job_type }}",
+            "payload": {
+              "trigger": "github_actions",
+              "run_id": "${{ github.run_id }}",
+              "repository": "${{ github.repository }}"
+            }
+          }
+JSON
+          )
+
+          curl --fail --show-error --silent \
+            -X POST "$CC_NEXT_API_URL/v1/jobs" \
+            -H "Content-Type: application/json" \
+            "${auth_header[@]}" \
+            -d "$payload"
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "Autonomous job queued for ${{ steps.params.outputs.council_key }} (${{ steps.params.outputs.job_type }})"

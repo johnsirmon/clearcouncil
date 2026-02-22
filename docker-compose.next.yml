@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: clearcouncil-next-postgres
+    environment:
+      POSTGRES_USER: clearcouncil
+      POSTGRES_PASSWORD: clearcouncil
+      POSTGRES_DB: clearcouncil_next
+    ports:
+      - "5432:5432"
+    volumes:
+      - clearcouncil_next_pg:/var/lib/postgresql/data
+
+  api:
+    image: python:3.11-slim
+    container_name: clearcouncil-next-api
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      CC_NEXT_DATABASE_URL: postgresql+psycopg://clearcouncil:clearcouncil@postgres:5432/clearcouncil_next
+      CC_NEXT_ENVIRONMENT: dev
+      PYTHONPATH: /workspace/src
+    command: >
+      sh -c "pip install -r requirements-next.txt && python scripts/run_next_api.py"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  worker:
+    image: python:3.11-slim
+    container_name: clearcouncil-next-worker
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      CC_NEXT_DATABASE_URL: postgresql+psycopg://clearcouncil:clearcouncil@postgres:5432/clearcouncil_next
+      PYTHONPATH: /workspace/src
+      CC_NEXT_WORKER_POLL_SECONDS: 3
+    command: >
+      sh -c "pip install -r requirements-next.txt && python scripts/run_next_worker.py"
+    depends_on:
+      - postgres
+
+volumes:
+  clearcouncil_next_pg:
