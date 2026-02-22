@@ -1,0 +1,77 @@
+name: "Spartanburg County South Carolina"
+identifier: "spartanburg_county_sc"
+description: "Spartanburg County South Carolina Council"
+
+# Website configuration
+website:
+  base_url: "https://www.spartanburgcounty.org"
+  document_url_template: "{base_url}/gov/council/agendas.asp"
+  id_ranges:
+    - start: 1
+      end: 100
+      description: "Placeholder - Spartanburg uses a web portal"
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%Y-%m-%d"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  voting_fields:
+    - "Council District"
+    - "Agenda Item"
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Result"
+
+# Representatives (current as of Jan 2025)
+representatives:
+  - name: "David Britt"
+    district: "1"
+    party: null
+  - name: "Manning Lynch"
+    district: "2"
+    party: null
+  - name: "Roger Nutt"
+    district: "3"
+    party: null
+  - name: "Ryan Coker"
+    district: "4"
+    party: null
+  - name: "Daniel Farrow"
+    district: "5"
+    party: null
+  - name: "Nickol Mace"
+    district: "6"
+    party: null
+  - name: "Michael Brown"
+    district: "7"
+    party: null
+
+# Data sources
+data_sources:
+  county_website:
+    name: "Spartanburg County Council"
+    url: "https://www.spartanburgcounty.org/gov/council/"
+    description: "Official Spartanburg County Council website with agendas, minutes, and member info"
+    access_method: "direct"
+    authentication_required: false
