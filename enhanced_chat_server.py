@@ -712,7 +712,7 @@ def main():
     
     # Check GitHub token
     if GITHUB_TOKEN:
-        print(f"✅ GitHub Token: Found (ghp_...{GITHUB_TOKEN[-4:]})")
+        print("✅ GitHub Token: Configured")
     else:
         print("⚠️  GitHub Token: Not found - using enhanced mock responses")
     

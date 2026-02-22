@@ -490,7 +490,7 @@ We welcome contributions! Whether you're:
 - Consulting firms or contractors providing services
 - Integration into commercial products or services
 
-**For commercial licensing inquiries, contact:** johnsirmon@hotmail.com
+**For commercial licensing inquiries, contact:** support@clearcouncil.org
 
 See the [LICENSE](LICENSE) file for complete terms and conditions.
 

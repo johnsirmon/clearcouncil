@@ -17,7 +17,7 @@ import re
 class ClearCouncilDataPreloader:
     """Preloads voting data from the database for chat interface."""
     
-    def __init__(self, db_path: str = "/home/johnsirmon/projects/clearcouncil/clearcouncil.db"):
+    def __init__(self, db_path: str = "clearcouncil.db"):
         self.db_path = db_path
         self.conn = None
         self.data = {

@@ -254,8 +254,6 @@ def test_chat_functionality():
                     break
     
     print(f"🔑 GitHub Token: {'✅ Found' if github_token else '❌ Not found'}")
-    if github_token:
-        print(f"   Token: {github_token[:12]}...")  # Show first 12 chars
     
     # Initialize chatbot
     chatbot = ClearCouncilChatBot(github_token)
