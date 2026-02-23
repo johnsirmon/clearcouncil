@@ -1,0 +1,92 @@
+name: "Greenville County South Carolina"
+identifier: "greenville_county_sc"
+description: "Greenville County South Carolina Council"
+
+# Website configuration
+website:
+  base_url: "https://www.greenvillecounty.org"
+  document_url_template: "{base_url}/CountyCouncil/Agendas.aspx"
+  id_ranges:
+    - start: 1
+      end: 100
+      description: "Placeholder - Greenville uses a web portal"
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%Y-%m-%d"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  voting_fields:
+    - "Council District"
+    - "Agenda Item"
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Result"
+
+# Representatives (current as of Jan 2025)
+representatives:
+  - name: "Joe Dill"
+    district: "18"
+    party: null
+  - name: "Willis Meadows"
+    district: "19"
+    party: null
+  - name: "Ennis Fant"
+    district: "20"
+    party: null
+  - name: "Lynn Ballard"
+    district: "21"
+    party: null
+  - name: "Sid Cates"
+    district: "22"
+    party: null
+  - name: "Stan Tzouvelekas"
+    district: "23"
+    party: null
+  - name: "Fred Payne"
+    district: "24"
+    party: null
+  - name: "Langston McEntyre"
+    district: "25"
+    party: null
+  - name: "Dan Tripp"
+    district: "26"
+    party: null
+  - name: "Mike Barnes"
+    district: "27"
+    party: null
+  - name: "Bob Taylor"
+    district: "28"
+    party: null
+  - name: "Dave Vandermosten"
+    district: "29"
+    party: null
+
+# Data sources
+data_sources:
+  county_website:
+    name: "Greenville County Council"
+    url: "https://www.greenvillecounty.org/CountyCouncil/"
+    description: "Official Greenville County Council website with agendas, minutes, and member info"
+    access_method: "direct"
+    authentication_required: false

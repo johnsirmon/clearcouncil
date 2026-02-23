@@ -117,6 +117,57 @@ def add_voting_analysis_commands(subparsers):
     )
     glossary_parser.set_defaults(func=explain_terms_command)
 
+    # SC representative lookup command
+    lookup_parser = subparsers.add_parser(
+        "lookup-representative",
+        help="Look up South Carolina representatives by name, district, or county",
+    )
+    lookup_parser.add_argument(
+        "query",
+        help="Name, district number, or county to search for",
+    )
+    lookup_parser.add_argument(
+        "--chamber",
+        choices=["house", "senate", "county_council"],
+        default=None,
+        help="Limit search to a specific chamber",
+    )
+    lookup_parser.add_argument(
+        "--county",
+        default=None,
+        help="Limit search to a specific SC county",
+    )
+    lookup_parser.add_argument(
+        "--threshold",
+        type=int,
+        default=60,
+        help="Minimum fuzzy-match score (0-100) for name searches (default: 60)",
+    )
+    lookup_parser.set_defaults(func=lookup_representative_command)
+
+    # SC representative list command
+    list_sc_parser = subparsers.add_parser(
+        "list-sc-representatives",
+        help="List South Carolina state and county representatives",
+    )
+    list_sc_parser.add_argument(
+        "--chamber",
+        choices=["house", "senate", "county_council"],
+        default=None,
+        help="Filter by chamber (default: all)",
+    )
+    list_sc_parser.add_argument(
+        "--county",
+        default=None,
+        help="Filter by county name",
+    )
+    list_sc_parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Re-fetch data from the SC Legislature website",
+    )
+    list_sc_parser.set_defaults(func=list_sc_representatives_command)
+
 
 async def analyze_voting_command(args):
     """Execute voting analysis for a representative."""
@@ -498,3 +549,104 @@ def _generate_html_report(analysis: dict, tooltip_generator: TooltipGenerator) -
     """
     
     return html
+
+
+# ---------------------------------------------------------------------------
+# SC Representative lookup commands
+# ---------------------------------------------------------------------------
+
+def lookup_representative_command(args):
+    """Look up SC representatives by name, district number, or county."""
+    from ..representatives.lookup import SCRepresentativeLookup
+    from ..representatives.models import Chamber
+
+    lookup = SCRepresentativeLookup()
+    query = args.query.strip()
+    chamber_filter = Chamber(args.chamber) if args.chamber else None
+
+    # Try district lookup first (pure digit string)
+    if query.isdigit() or query.lower() in ("at-large", "at large"):
+        results = lookup.find_by_district(query, chamber=chamber_filter, county=args.county)
+        if results:
+            _print_representatives(results, f"District {query}")
+            return
+
+    # Try county lookup
+    if args.county:
+        results = lookup.find_by_county(args.county, chamber=chamber_filter)
+        if results:
+            _print_representatives(results, f"{args.county} County")
+            return
+        print(f"❌ No representatives found for county: {args.county}")
+        return
+
+    # Fall back to name fuzzy search
+    matches = lookup.find_by_name(query, threshold=args.threshold)
+    if chamber_filter:
+        matches = [(r, s) for r, s in matches if r.chamber == chamber_filter]
+
+    if not matches:
+        print(f"❌ No representatives found matching '{query}'")
+        print("   Try lowering --threshold or searching by county with --county")
+        return
+
+    print(f"\n🔍 Representatives matching '{query}':")
+    print("=" * 60)
+    for rep, score in matches:
+        party = f" ({rep.party})" if rep.party else ""
+        county_str = rep.county or (", ".join(rep.counties) if rep.counties else "")
+        county_display = f" | {county_str}" if county_str else ""
+        print(
+            f"  {rep.name}{party} — {rep.chamber.value.replace('_', ' ').title()} "
+            f"District {rep.district}{county_display}  [match: {score}%]"
+        )
+
+
+def list_sc_representatives_command(args):
+    """List SC representatives, optionally filtered by chamber or county."""
+    from ..representatives.lookup import SCRepresentativeLookup
+    from ..representatives.models import Chamber
+    from ..representatives.county_councils import list_supported_counties
+
+    lookup = SCRepresentativeLookup(force_refresh=args.refresh)
+    chamber_filter = Chamber(args.chamber) if args.chamber else None
+
+    if args.county:
+        results = lookup.find_by_county(args.county, chamber=chamber_filter)
+        title = f"{args.county} County"
+    elif chamber_filter:
+        results = lookup.find_by_chamber(chamber_filter)
+        title = chamber_filter.value.replace("_", " ").title()
+    else:
+        # Show summary instead of all ~300 representatives
+        summary = lookup.get_summary()
+        print("\n📊 South Carolina Representative Data Summary")
+        print("=" * 50)
+        print(f"  SC House members:        {summary['sc_house_members']}")
+        print(f"  SC Senate members:       {summary['sc_senate_members']}")
+        print(f"  County council members:  {summary['total_county_council_members']}")
+        print(f"\n  Supported counties ({len(summary['supported_counties'])}):")
+        for county in summary["supported_counties"]:
+            count = summary["county_councils"][county]
+            print(f"    • {county}: {count} members")
+        print(
+            "\nUse --chamber <house|senate|county_council> or --county <name> to list members."
+        )
+        return
+
+    _print_representatives(results, title)
+
+
+def _print_representatives(reps, title: str) -> None:
+    """Pretty-print a list of representatives."""
+    print(f"\n👥 {title} Representatives ({len(reps)} total)")
+    print("=" * 60)
+    for rep in sorted(reps, key=lambda r: r.district):
+        party = f" ({rep.party})" if rep.party else ""
+        county_str = rep.county or (", ".join(rep.counties) if rep.counties else "")
+        county_display = f" | {county_str}" if county_str else ""
+        chamber_label = rep.chamber.value.replace("_", " ").title()
+        print(
+            f"  District {rep.district:10s}  {rep.name}{party}"
+            f"  [{chamber_label}{county_display}]"
+        )

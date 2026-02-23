@@ -47,9 +47,11 @@ def ensure_environment(command: str = None):
     
     # Commands that don't require OpenAI API key
     commands_without_openai = {
-        "list-councils", 
+        "list-councils",
         "explain-terms",
-        "download-pdfs"
+        "download-pdfs",
+        "lookup-representative",
+        "list-sc-representatives",
     }
     
     if command not in commands_without_openai and not os.getenv("OPENAI_API_KEY"):
@@ -286,7 +288,10 @@ def main():
             parse_voting_command(args)
         elif args.command == "search":
             search_command(args)
-        elif args.command in ["analyze-voting", "analyze-district", "update-documents", "explain-terms"]:
+        elif args.command in [
+            "analyze-voting", "analyze-district", "update-documents", "explain-terms",
+            "lookup-representative", "list-sc-representatives",
+        ]:
             # Handle async voting analysis commands
             if hasattr(args, 'func'):
                 if asyncio.iscoroutinefunction(args.func):

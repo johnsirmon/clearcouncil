@@ -1,0 +1,89 @@
+name: "Richland County South Carolina"
+identifier: "richland_county_sc"
+description: "Richland County South Carolina Council (Columbia area)"
+
+# Website configuration
+website:
+  base_url: "https://www.richlandcountysc.gov"
+  document_url_template: "{base_url}/Government/County-Council/Council-Agendas-Minutes"
+  id_ranges:
+    - start: 1
+      end: 100
+      description: "Placeholder - Richland uses a web portal"
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%Y-%m-%d"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  voting_fields:
+    - "Council District"
+    - "Agenda Item"
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Result"
+
+# Representatives (current as of Jan 2025)
+representatives:
+  - name: "Yvonne McBride"
+    district: "1"
+    party: null
+  - name: "Dalhi Myers"
+    district: "2"
+    party: null
+  - name: "Gretchen Barron"
+    district: "3"
+    party: null
+  - name: "Tish Hall"
+    district: "4"
+    party: null
+  - name: "Chakisse Newton"
+    district: "5"
+    party: null
+  - name: "Derrek Pugh"
+    district: "6"
+    party: null
+  - name: "Jesica Mackey"
+    district: "7"
+    party: null
+  - name: "Bill Malinowski"
+    district: "8"
+    party: null
+  - name: "Joyce Dickerson"
+    district: "9"
+    party: null
+  - name: "Manning Brown"
+    district: "10"
+    party: null
+  - name: "Jim Manning"
+    district: "11"
+    party: null
+
+# Data sources
+data_sources:
+  county_website:
+    name: "Richland County Council"
+    url: "https://www.richlandcountysc.gov/Government/County-Council/"
+    description: "Official Richland County Council website with agendas, minutes, and member info"
+    access_method: "direct"
+    authentication_required: false
