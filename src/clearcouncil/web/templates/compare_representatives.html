@@ -385,12 +385,15 @@ function updateDetailedComparison(details) {
     const container = document.getElementById('detailsContainer');
     container.innerHTML = '';
 
+    const ACTIVITY_STYLE = {
+        'High':   'cc-badge-success',
+        'Medium': 'cc-badge-warning',
+    };
+
     details.forEach(detail => {
         const col = document.createElement('div');
         col.className = 'col-md-6';
-        const actColor = detail.activity_level === 'High' ? 'cc-badge-success'
-                       : detail.activity_level === 'Medium' ? 'cc-badge-warning'
-                       : 'cc-badge-primary';
+        const actClass = ACTIVITY_STYLE[detail.activity_level] || 'cc-badge-primary';
         col.innerHTML = `
             <div class="cc-card h-100">
                 <div class="cc-card-header">
@@ -401,7 +404,7 @@ function updateDetailedComparison(details) {
                     <div class="d-flex flex-wrap gap-3 mb-3">
                         <div>
                             <div style="font-size:.78rem;color:var(--cc-text-muted);margin-bottom:.2rem;">Activity Level</div>
-                            <span class="cc-badge ${actColor}">${detail.activity_level}</span>
+                            <span class="cc-badge ${actClass}">${detail.activity_level}</span>
                         </div>
                         <div>
                             <div style="font-size:.78rem;color:var(--cc-text-muted);margin-bottom:.2rem;">Focus Areas</div>
@@ -445,18 +448,18 @@ function updateInsights(insights) {
     const container = document.getElementById('insightsContainer');
     container.innerHTML = '';
 
-    const colorMap = { positive: 'cc-badge-success', negative: 'cc-badge-warning', neutral: 'cc-badge-info' };
-    const iconMap  = { positive: 'check-circle', negative: 'exclamation-triangle', neutral: 'info-circle' };
+    const INSIGHT_TYPE = {
+        positive: { borderColor: 'var(--cc-success)', icon: 'check-circle'        },
+        negative: { borderColor: 'var(--cc-warning)', icon: 'exclamation-triangle' },
+        neutral:  { borderColor: 'var(--cc-info)',    icon: 'info-circle'          },
+    };
 
     insights.forEach(insight => {
+        const { borderColor, icon } = INSIGHT_TYPE[insight.type] || INSIGHT_TYPE.neutral;
         const div = document.createElement('div');
-        div.style.cssText = 'padding:.75rem 1rem;border-left:3px solid var(--cc-border);margin-bottom:.75rem;';
-        const borderColor = insight.type === 'positive' ? 'var(--cc-success)'
-                          : insight.type === 'negative' ? 'var(--cc-warning)'
-                          : 'var(--cc-info)';
-        div.style.borderLeftColor = borderColor;
+        div.style.cssText = `padding:.75rem 1rem;border-left:3px solid ${borderColor};margin-bottom:.75rem;`;
         div.innerHTML = `
-            <i class="fas fa-${iconMap[insight.type] || 'info-circle'} me-2" style="color:${borderColor};"></i>
+            <i class="fas fa-${icon} me-2" style="color:${borderColor};"></i>
             <strong>${insight.title}:</strong> ${insight.description}
         `;
         container.appendChild(div);

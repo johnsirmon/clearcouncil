@@ -258,22 +258,28 @@ function loadInsightsGrid() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const colors = ['primary', 'success', 'warning', 'info', 'accent', 'danger'];
-                const icons  = ['crown', 'handshake', 'balance-scale', 'chart-line', 'users', 'lightbulb'];
-                const colorVars = ['--cc-primary','--cc-success','--cc-warning','--cc-info','--cc-accent','--cc-danger'];
+                const INSIGHT_STYLES = [
+                    { colorVar: '--cc-primary',  icon: 'crown'         },
+                    { colorVar: '--cc-success',  icon: 'handshake'     },
+                    { colorVar: '--cc-warning',  icon: 'balance-scale' },
+                    { colorVar: '--cc-info',     icon: 'chart-line'    },
+                    { colorVar: '--cc-accent',   icon: 'users'         },
+                    { colorVar: '--cc-danger',   icon: 'lightbulb'     },
+                ];
 
                 let gridHtml = '';
                 data.patterns.slice(0, 6).forEach((pattern, index) => {
+                    const style = INSIGHT_STYLES[index % INSIGHT_STYLES.length];
                     gridHtml += `
                         <div class="cc-card cc-feature-card">
                             <div class="cc-card-body text-center">
-                                <div style="width:56px;height:56px;border-radius:50%;background:var(${colorVars[index]});
+                                <div style="width:56px;height:56px;border-radius:50%;background:var(${style.colorVar});
                                             display:flex;align-items:center;justify-content:center;
                                             margin:0 auto 1rem;color:#fff;font-size:1.4rem;">
-                                    <i class="fas fa-${icons[index]}" aria-hidden="true"></i>
+                                    <i class="fas fa-${style.icon}" aria-hidden="true"></i>
                                 </div>
                                 <h5 style="font-size:.95rem;">${pattern.title}</h5>
-                                <div style="font-size:2rem;font-weight:800;color:var(${colorVars[index]});line-height:1;margin:.5rem 0;">
+                                <div style="font-size:2rem;font-weight:800;color:var(${style.colorVar});line-height:1;margin:.5rem 0;">
                                     ${formatValue(pattern.value, pattern.type)}
                                 </div>
                                 <p class="text-muted" style="font-size:.82rem;margin:0;">${pattern.description}</p>
