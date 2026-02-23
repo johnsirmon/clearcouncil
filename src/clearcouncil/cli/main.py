@@ -52,6 +52,9 @@ def ensure_environment(command: str = None):
         "download-pdfs",
         "lookup-representative",
         "list-sc-representatives",
+        "lookup-nc-representative",
+        "list-nc-representatives",
+        "discover-data-sources",
     }
     
     if command not in commands_without_openai and not os.getenv("OPENAI_API_KEY"):
@@ -291,6 +294,8 @@ def main():
         elif args.command in [
             "analyze-voting", "analyze-district", "update-documents", "explain-terms",
             "lookup-representative", "list-sc-representatives",
+            "lookup-nc-representative", "list-nc-representatives",
+            "discover-data-sources", "parse-minutes-agentic",
         ]:
             # Handle async voting analysis commands
             if hasattr(args, 'func'):

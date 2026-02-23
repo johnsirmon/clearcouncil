@@ -1,0 +1,65 @@
+name: "Wake County North Carolina"
+identifier: "wake_county_nc"
+description: "Wake County (Raleigh area) NC Board of County Commissioners"
+state: "NC"
+
+# Website configuration
+# Wake County provides PDFs directly at wake.gov - no login required
+website:
+  base_url: "https://www.wake.gov"
+  minutes_direct_url: "https://www.wake.gov/departments-government/elected-officials/wake-county-board-of-commissioners/agenda-minutes"
+  portal_type: "custom_pdf"
+  access_notes: >
+    Wake County publishes meeting minutes and agendas as PDFs on the official
+    wake.gov website. No authentication required. Documents are publicly available
+    for direct download.
+  id_ranges: []
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{1,2}-\\d{1,2}-\\d{4}|\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%m-%d-%Y"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+  channel_url: "https://www.youtube.com/@WakeCountyGov"
+
+# Parsing rules for voting data
+# Wake County uses standard commissioner meeting minutes format
+parsing:
+  document_format: "standard_minutes"
+  voting_fields:
+    - "Motion"
+    - "Second"
+    - "Ayes"
+    - "Nays"
+    - "Abstain"
+    - "Absent"
+    - "Vote"
+    - "Carried"
+    - "Failed"
+  vote_result_keywords:
+    - "APPROVED"
+    - "DENIED"
+    - "FAILED"
+    - "PASSED"
+    - "TABLED"
+    - "MOTION CARRIED"
+    - "MOTION FAILED"
+  motion_patterns:
+    - "(?:Motion|Moved)\\s+(?:by|BY)\\s+Commissioner\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"
+    - "MOVED\\s+BY:\\s*([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"

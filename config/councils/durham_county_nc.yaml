@@ -1,0 +1,60 @@
+name: "Durham County North Carolina"
+identifier: "durham_county_nc"
+description: "Durham County NC Board of County Commissioners"
+state: "NC"
+
+# Website configuration
+# Durham County provides PDFs directly - no login required
+website:
+  base_url: "https://www.dconc.gov"
+  minutes_direct_url: "https://www.dconc.gov/county-departments/county-departments-f-z/manager-s-office-a-k-a-county-manager/board-of-county-commissioners/minutes-agendas-and-videos"
+  portal_type: "custom_pdf"
+  access_notes: >
+    Durham County (DCONC) publishes meeting minutes and agendas as PDFs on the
+    official county website. No authentication required for accessing meeting
+    records, agendas, and minutes. Video recordings also available.
+  id_ranges: []
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{1,2}-\\d{1,2}-\\d{4}|\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%m-%d-%Y"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  document_format: "standard_minutes"
+  voting_fields:
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Ayes"
+    - "Nays"
+    - "Abstain"
+    - "Absent"
+  vote_result_keywords:
+    - "APPROVED"
+    - "DENIED"
+    - "PASSED"
+    - "FAILED"
+    - "CARRIED"
+    - "MOTION CARRIED"
+  motion_patterns:
+    - "(?:Motion|Moved)\\s+(?:by|BY)\\s+(?:Commissioner\\s+)?([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"
+    - "Commissioner\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)\\s+moved"

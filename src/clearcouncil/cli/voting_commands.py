@@ -168,6 +168,102 @@ def add_voting_analysis_commands(subparsers):
     )
     list_sc_parser.set_defaults(func=list_sc_representatives_command)
 
+    # NC representative lookup command
+    nc_lookup_parser = subparsers.add_parser(
+        "lookup-nc-representative",
+        help="Look up North Carolina representatives by name, district, or county",
+    )
+    nc_lookup_parser.add_argument(
+        "query",
+        help="Name, district number, or county to search for",
+    )
+    nc_lookup_parser.add_argument(
+        "--chamber",
+        choices=["house", "senate", "county_council"],
+        default=None,
+        help="Limit search to a specific chamber",
+    )
+    nc_lookup_parser.add_argument(
+        "--county",
+        default=None,
+        help="Limit search to a specific NC county",
+    )
+    nc_lookup_parser.add_argument(
+        "--threshold",
+        type=int,
+        default=60,
+        help="Minimum fuzzy-match score (0-100) for name searches (default: 60)",
+    )
+    nc_lookup_parser.set_defaults(func=lookup_nc_representative_command)
+
+    # NC representative list command
+    list_nc_parser = subparsers.add_parser(
+        "list-nc-representatives",
+        help="List North Carolina state and county representatives",
+    )
+    list_nc_parser.add_argument(
+        "--chamber",
+        choices=["house", "senate", "county_council"],
+        default=None,
+        help="Filter by chamber (default: all)",
+    )
+    list_nc_parser.add_argument(
+        "--county",
+        default=None,
+        help="Filter by NC county name",
+    )
+    list_nc_parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Re-fetch data from the NC General Assembly website",
+    )
+    list_nc_parser.set_defaults(func=list_nc_representatives_command)
+
+    # Data source catalog command
+    catalog_parser = subparsers.add_parser(
+        "discover-data-sources",
+        help="Show catalog of SC/NC public data sources, access blockers, and workarounds",
+    )
+    catalog_parser.add_argument(
+        "--state",
+        choices=["SC", "NC"],
+        default=None,
+        help="Filter by state (default: both SC and NC)",
+    )
+    catalog_parser.add_argument(
+        "--blocked-only",
+        action="store_true",
+        help="Show only sources with known access blockers",
+    )
+    catalog_parser.add_argument(
+        "--api-only",
+        action="store_true",
+        help="Show only sources with programmatic API access",
+    )
+    catalog_parser.set_defaults(func=discover_data_sources_command)
+
+    # Agentic minutes parser command
+    agentic_parser = subparsers.add_parser(
+        "parse-minutes-agentic",
+        help="Parse meeting minutes using AI reasoning to handle inconsistent formats",
+    )
+    agentic_parser.add_argument(
+        "file_path",
+        help="Path to the meeting minutes file (PDF or text)",
+    )
+    agentic_parser.add_argument(
+        "--output-format",
+        choices=["json", "csv", "plain"],
+        default="plain",
+        help="Output format for extracted voting records",
+    )
+    agentic_parser.add_argument(
+        "--no-ai",
+        action="store_true",
+        help="Disable AI extraction, use regex only",
+    )
+    agentic_parser.set_defaults(func=parse_minutes_agentic_command)
+
 
 async def analyze_voting_command(args):
     """Execute voting analysis for a representative."""
@@ -650,3 +746,267 @@ def _print_representatives(reps, title: str) -> None:
             f"  District {rep.district:10s}  {rep.name}{party}"
             f"  [{chamber_label}{county_display}]"
         )
+
+# ---------------------------------------------------------------------------
+# NC Representative commands
+# ---------------------------------------------------------------------------
+
+def lookup_nc_representative_command(args):
+    """Look up NC representatives by name, district number, or county."""
+    from ..representatives.nc_legislature import get_nc_legislators, NCRepresentative
+    from ..representatives.nc_county_councils import (
+        get_nc_county_commissioners,
+        list_supported_nc_counties,
+    )
+    from ..representatives.models import Chamber
+
+    query = args.query.strip()
+    chamber_filter = Chamber(args.chamber) if args.chamber else None
+
+    # Collect all reps to search
+    all_reps: list = []
+    if chamber_filter in (None, Chamber.HOUSE, Chamber.SENATE):
+        all_reps.extend(get_nc_legislators(chamber=chamber_filter))
+    if chamber_filter in (None, Chamber.COUNTY_COUNCIL):
+        if args.county:
+            all_reps.extend(get_nc_county_commissioners(args.county))
+        else:
+            for county in list_supported_nc_counties():
+                all_reps.extend(get_nc_county_commissioners(county))
+
+    if args.county and chamber_filter != Chamber.COUNTY_COUNCIL:
+        county_lower = args.county.strip().lower()
+        all_reps = [
+            r for r in all_reps
+            if any(c.lower() == county_lower for c in r.counties)
+            or (r.county and r.county.lower() == county_lower)
+        ]
+
+    # District lookup
+    if query.isdigit() or query.lower() in ("at-large", "at large"):
+        results = [r for r in all_reps if r.district.lstrip("0") == query.lstrip("0")
+                   or r.district.lower() == query.lower()]
+        if results:
+            _print_representatives(results, f"NC District {query}")
+            return
+        print(f"❌ No NC representatives found for district: {query}")
+        return
+
+    # Name fuzzy search
+    try:
+        from fuzzywuzzy import fuzz as _fuzz
+        def score_fn(a, b): return _fuzz.token_sort_ratio(a, b)
+    except ImportError:
+        def score_fn(a, b):
+            a, b = a.lower(), b.lower()
+            return 100 if a == b else (70 if a in b or b in a else 0)
+
+    matches = [(r, score_fn(query, r.name)) for r in all_reps]
+    matches = [(r, s) for r, s in matches if s >= args.threshold]
+    matches.sort(key=lambda x: x[1], reverse=True)
+
+    if not matches:
+        print(f"❌ No NC representatives found matching '{query}'")
+        return
+
+    print(f"\n🔍 NC Representatives matching '{query}':")
+    print("=" * 60)
+    for rep, score in matches:
+        party = f" ({rep.party})" if rep.party else ""
+        county_str = rep.county or (", ".join(rep.counties) if rep.counties else "")
+        county_display = f" | {county_str}" if county_str else ""
+        print(
+            f"  {rep.name}{party} — {rep.chamber.value.replace('_', ' ').title()} "
+            f"District {rep.district}{county_display}  [match: {score}%]"
+        )
+
+
+def list_nc_representatives_command(args):
+    """List NC representatives, optionally filtered by chamber or county."""
+    from ..representatives.nc_legislature import get_nc_legislators
+    from ..representatives.nc_county_councils import (
+        get_nc_county_commissioners,
+        list_supported_nc_counties,
+        NC_COUNTY_COMMISSIONERS,
+    )
+    from ..representatives.models import Chamber
+
+    chamber_filter = Chamber(args.chamber) if args.chamber else None
+
+    if args.county:
+        results = []
+        if chamber_filter in (None, Chamber.HOUSE, Chamber.SENATE):
+            all_state = get_nc_legislators(chamber=chamber_filter)
+            county_lower = args.county.strip().lower()
+            results.extend(
+                r for r in all_state
+                if any(c.lower() == county_lower for c in r.counties)
+            )
+        if chamber_filter in (None, Chamber.COUNTY_COUNCIL):
+            results.extend(get_nc_county_commissioners(args.county))
+        _print_representatives(results, f"NC {args.county} County")
+        return
+
+    if chamber_filter:
+        if chamber_filter == Chamber.COUNTY_COUNCIL:
+            results = []
+            for county in list_supported_nc_counties():
+                results.extend(get_nc_county_commissioners(county))
+        else:
+            results = get_nc_legislators(chamber=chamber_filter, force_refresh=args.refresh)
+        _print_representatives(results, f"NC {chamber_filter.value.replace('_', ' ').title()}")
+        return
+
+    # Show summary
+    state_members = get_nc_legislators(force_refresh=args.refresh)
+    house_count = sum(1 for r in state_members if r.chamber == Chamber.HOUSE)
+    senate_count = sum(1 for r in state_members if r.chamber == Chamber.SENATE)
+    county_total = sum(len(v) for v in NC_COUNTY_COMMISSIONERS.values())
+
+    print("\n📊 North Carolina Representative Data Summary")
+    print("=" * 50)
+    print(f"  NC House members:        {house_count}")
+    print(f"  NC Senate members:       {senate_count}")
+    print(f"  County commissioners:    {county_total}")
+    print(f"\n  Supported counties ({len(NC_COUNTY_COMMISSIONERS)}):")
+    for county, members in sorted(NC_COUNTY_COMMISSIONERS.items()):
+        print(f"    • {county}: {len(members)} members")
+    print(
+        "\nUse --chamber <house|senate|county_council> or --county <name> to list members."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Data source catalog command
+# ---------------------------------------------------------------------------
+
+def discover_data_sources_command(args):
+    """Display the catalog of SC/NC public data sources."""
+    from ..core.state_data_catalog import (
+        get_data_sources,
+        get_blocked_sources,
+        get_api_sources,
+        print_catalog_summary,
+        PORTAL_TYPES,
+    )
+
+    state = args.state if hasattr(args, "state") else None
+    blocked_only = getattr(args, "blocked_only", False)
+    api_only = getattr(args, "api_only", False)
+
+    if blocked_only:
+        sources = get_blocked_sources(state)
+        print(f"\n⚠️  Sources with access blockers ({len(sources)} total):")
+        print("=" * 70)
+        for src in sorted(sources, key=lambda s: (s.state, s.county)):
+            print(f"\n  {src.state} – {src.county} County  [{src.portal_type}]")
+            print(f"  URL: {src.minutes_url}")
+            for b in src.known_blockers:
+                print(f"  ⛔ Blocker:    {b}")
+            for w in src.workarounds:
+                print(f"  ✅ Workaround: {w}")
+        return
+
+    if api_only:
+        sources = get_api_sources(state)
+        print(f"\n🔌 Sources with API access ({len(sources)} total):")
+        print("=" * 70)
+        for src in sorted(sources, key=lambda s: (s.state, s.county)):
+            print(f"\n  {src.state} – {src.county} County  [{src.portal_type}]")
+            print(f"  API URL: {src.api_url}")
+            print(f"  Notes: {src.access_notes}")
+        return
+
+    print_catalog_summary(state)
+
+    # Print portal type legend
+    print("\n📖 Portal Type Legend:")
+    for key, desc in PORTAL_TYPES.items():
+        print(f"  {key:30s}  {desc}")
+
+
+# ---------------------------------------------------------------------------
+# Agentic minutes parser command
+# ---------------------------------------------------------------------------
+
+def parse_minutes_agentic_command(args):
+    """Parse meeting minutes using AI reasoning to handle inconsistent formats."""
+    import csv
+    import io
+    from pathlib import Path
+    from ..parsers.agentic_minutes_parser import AgenticMinutesParser
+
+    file_path = Path(args.file_path)
+    if not file_path.exists():
+        print(f"❌ File not found: {file_path}")
+        sys.exit(1)
+
+    use_ai = not getattr(args, "no_ai", False)
+    parser = AgenticMinutesParser(use_ai=use_ai)
+
+    print(f"🔍 Parsing: {file_path.name}")
+    print(f"   AI extraction: {'enabled' if use_ai else 'disabled (regex only)'}")
+
+    result = parser.parse_file(file_path)
+
+    print(f"\n✅ Detection: {result.document_format.value} format")
+    print(f"   Method: {result.method_used}")
+    print(f"   Records found: {len(result.records)}")
+
+    if result.warnings:
+        for w in result.warnings:
+            print(f"   ⚠️  {w}")
+
+    if not result.records:
+        print("\nNo voting records extracted.")
+        return
+
+    output_format = getattr(args, "output_format", "plain")
+
+    if output_format == "json":
+        import json
+        records_data = []
+        for r in result.records:
+            records_data.append({
+                "movant": r.movant or "",
+                "second": r.second or "",
+                "result": r.result or "",
+                "ayes": r.ayes or "",
+                "nays": r.nays or "",
+                "representative": r.representative or "",
+            })
+        print(json.dumps({"records": records_data, "method": result.method_used}, indent=2))
+
+    elif output_format == "csv":
+        output = io.StringIO()
+        writer = csv.DictWriter(
+            output,
+            fieldnames=["movant", "second", "result", "ayes", "nays", "representative"],
+        )
+        writer.writeheader()
+        for r in result.records:
+            writer.writerow({
+                "movant": r.movant or "",
+                "second": r.second or "",
+                "result": r.result or "",
+                "ayes": r.ayes or "",
+                "nays": r.nays or "",
+                "representative": r.representative or "",
+            })
+        print(output.getvalue())
+
+    else:
+        print("\n📋 Extracted Voting Records:")
+        print("=" * 60)
+        for i, record in enumerate(result.records, 1):
+            print(f"\n  Vote #{i}:")
+            if record.result:
+                print(f"    Result:   {record.result}")
+            if record.movant:
+                print(f"    Movant:   {record.movant}")
+            if record.second:
+                print(f"    Second:   {record.second}")
+            if record.ayes:
+                print(f"    Ayes:     {record.ayes}")
+            if record.nays:
+                print(f"    Nays:     {record.nays}")
