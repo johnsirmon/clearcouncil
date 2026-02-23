@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Settings – ClearCouncil{% endblock %}
+
+{% block plotly %}{# no charts needed #}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">Settings</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="cc-fade-in row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- ── Appearance ───────────────────────────────────────── -->
+    <div class="cc-card mb-4">
+      <div class="cc-card-header">
+        <i class="fas fa-palette text-primary" aria-hidden="true"></i>
+        <h2 style="font-size:1.05rem;margin:0;">Appearance</h2>
+      </div>
+      <div class="cc-card-body" x-data="{ dark: localStorage.getItem('cc-dark') === 'true' }">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="fw-semibold">Dark Mode</div>
+            <div class="text-muted" style="font-size:.85rem;">Switch between light and dark themes.</div>
+          </div>
+          <!-- Toggle switch using Alpine.js -->
+          <button class="cc-btn cc-btn-outline cc-btn-sm"
+                  @click="dark = !dark; localStorage.setItem('cc-dark', dark);
+                          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');"
+                  :aria-pressed="dark.toString()"
+                  aria-label="Toggle dark mode">
+            <i :class="dark ? 'fas fa-sun' : 'fas fa-moon'" aria-hidden="true"></i>
+            <span x-text="dark ? 'Light mode' : 'Dark mode'"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Default council ──────────────────────────────────── -->
+    <div class="cc-card mb-4">
+      <div class="cc-card-header">
+        <i class="fas fa-building text-primary" aria-hidden="true"></i>
+        <h2 style="font-size:1.05rem;margin:0;">Default Council</h2>
+      </div>
+      <div class="cc-card-body">
+        <p class="text-muted mb-3" style="font-size:.9rem;">
+          Choose which council to show by default when you open the app.
+        </p>
+        <form id="defaultCouncilForm">
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <select id="defaultCouncilSelect" class="cc-input" style="max-width:300px;"
+                    aria-label="Default council">
+              <option value="">-- None --</option>
+              {% for council_id in councils %}
+              <option value="{{ council_id }}"
+                      {% if council_id == session.get('default_council') %}selected{% endif %}>
+                {{ council_id|replace('_', ' ')|title }}
+              </option>
+              {% endfor %}
+            </select>
+            <button type="button" class="cc-btn cc-btn-primary cc-btn-sm" id="saveDefaultCouncil">
+              <i class="fas fa-save" aria-hidden="true"></i>Save
+            </button>
+          </div>
+        </form>
+        <div id="defaultCouncilStatus" class="mt-2" role="alert" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <!-- ── Data & cache ─────────────────────────────────────── -->
+    <div class="cc-card mb-4">
+      <div class="cc-card-header">
+        <i class="fas fa-database text-primary" aria-hidden="true"></i>
+        <h2 style="font-size:1.05rem;margin:0;">Data &amp; Cache</h2>
+      </div>
+      <div class="cc-card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div>
+            <div class="fw-semibold">Clear local preferences</div>
+            <div class="text-muted" style="font-size:.85rem;">
+              Resets dark mode, default council, and other browser-stored settings.
+            </div>
+          </div>
+          <button class="cc-btn cc-btn-outline cc-btn-sm" id="clearPrefsBtn"
+                  style="color:var(--cc-danger);border-color:var(--cc-danger);">
+            <i class="fas fa-trash-alt" aria-hidden="true"></i>Clear preferences
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── About ────────────────────────────────────────────── -->
+    <div class="cc-card">
+      <div class="cc-card-header">
+        <i class="fas fa-info-circle text-primary" aria-hidden="true"></i>
+        <h2 style="font-size:1.05rem;margin:0;">About</h2>
+      </div>
+      <div class="cc-card-body" style="font-size:.9rem;">
+        <dl class="row mb-0">
+          <dt class="col-5 text-muted">Version</dt>
+          <dd class="col-7">{{ app_version }}</dd>
+          <dt class="col-5 text-muted">UI libraries</dt>
+          <dd class="col-7">Bootstrap 5.3 · Alpine.js 3 · HTMX 1.9 · Plotly 2</dd>
+          <dt class="col-5 text-muted">Data source</dt>
+          <dd class="col-7">
+            <a href="{{ url_for('main.data_transparency') }}">View transparency report</a>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Save default council to session via simple API call
+document.getElementById('saveDefaultCouncil').addEventListener('click', () => {
+    const val    = document.getElementById('defaultCouncilSelect').value;
+    const status = document.getElementById('defaultCouncilStatus');
+    // Store in localStorage as a lightweight client-side preference
+    if (val) {
+        localStorage.setItem('cc-default-council', val);
+        status.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Saved</span>';
+    } else {
+        localStorage.removeItem('cc-default-council');
+        status.innerHTML = '<span class="text-muted">Default cleared.</span>';
+    }
+    setTimeout(() => { status.innerHTML = ''; }, 2000);
+});
+
+// Clear all preferences
+document.getElementById('clearPrefsBtn').addEventListener('click', () => {
+    ['cc-dark', 'cc-default-council'].forEach(k => localStorage.removeItem(k));
+    document.documentElement.setAttribute('data-theme', 'light');
+    alert('Preferences cleared. The page will reload.');
+    location.reload();
+});
+</script>
+{% endblock %}

@@ -1,321 +1,261 @@
 {% extends "base.html" %}
 
-{% block title %}ClearCouncil - Local Government Transparency{% endblock %}
+{% block title %}ClearCouncil – Explore Your Local Government{% endblock %}
+
+{% block plotly %}{# Plotly not needed on landing page #}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <!-- Hero Section -->
-        <div class="card text-center mb-5">
-            <div class="card-body py-5">
-                <i class="fas fa-landmark fa-4x text-primary mb-4"></i>
-                <h1 class="display-4 mb-3">Welcome to ClearCouncil</h1>
-                <p class="lead mb-4">
-                    Making local government transparent and accessible to everyone.<br>
-                    Understand what your representatives are voting on and how they compare to others.
-                </p>
-                
-                {% if councils %}
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Select a council below to get started with voting analysis and representative comparison.
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Features Section -->
-        <div class="row mb-5">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Analyze Representatives</h5>
-                        <p class="card-text">
-                            See what your district representative has been voting on with interactive charts and detailed breakdowns.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-balance-scale fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Compare Performance</h5>
-                        <p class="card-text">
-                            Compare representatives side-by-side to understand different approaches and activity levels.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-search fa-3x text-info mb-3"></i>
-                        <h5 class="card-title">Search & Explore</h5>
-                        <p class="card-text">
-                            Search through meeting documents and get plain English explanations of government terms.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Council Selection -->
+<div class="cc-fade-in">
+
+  <!-- ── Hero ─────────────────────────────────────────────────── -->
+  <div class="cc-hero mb-4">
+    <i class="fas fa-landmark fa-3x mb-3" aria-hidden="true" style="opacity:.8;"></i>
+    <h1>Understand Your Local Government</h1>
+    <p class="lead">
+      ClearCouncil turns dry council minutes into clear, searchable voting records.<br>
+      See what your representatives vote on, how often they lead, and how they compare.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+      {% if councils %}
+      <a href="{{ url_for('main.council_overview', council_id=councils[0]) }}"
+         class="cc-btn cc-btn-primary cc-btn-lg">
+        <i class="fas fa-rocket" aria-hidden="true"></i>Start Exploring
+      </a>
+      {% endif %}
+      <a href="{{ url_for('main.insights') }}" class="cc-btn cc-btn-lg"
+         style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.4);">
+        <i class="fas fa-lightbulb" aria-hidden="true"></i>See Insights
+      </a>
+    </div>
+  </div>
+
+  <!-- ── 4-step narrative journey ─────────────────────────────── -->
+  <section aria-labelledby="how-it-works" class="mb-5">
+    <h2 id="how-it-works" class="text-center mb-4" style="font-size:1.4rem;">
+      <i class="fas fa-route text-primary me-2" aria-hidden="true"></i>
+      Your journey to government transparency
+    </h2>
+
+    <div class="cc-journey cc-stagger">
+
+      <div class="cc-step">
+        <div class="cc-step-num">1</div>
+        <h5>Pick Your Council</h5>
+        <p>Select the local council you want to explore from the list below.</p>
+      </div>
+
+      <div class="cc-step">
+        <div class="cc-step-num">2</div>
+        <h5>Find Your Representative</h5>
+        <p>Browse your district's representative and see their voting history.</p>
+      </div>
+
+      <div class="cc-step">
+        <div class="cc-step-num">3</div>
+        <h5>Explore Their Votes</h5>
+        <p>Filter by date, topic, or outcome. Charts make patterns instantly visible.</p>
+      </div>
+
+      <div class="cc-step">
+        <div class="cc-step-num">4</div>
+        <h5>Compare &amp; Share</h5>
+        <p>Side-by-side comparisons and shareable links for community discussion.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Council selection ─────────────────────────────────────── -->
+  <section id="councils" aria-labelledby="council-heading" class="mb-5">
+    <div class="cc-card">
+      <div class="cc-card-header">
+        <i class="fas fa-building text-primary" aria-hidden="true"></i>
+        <h2 id="council-heading" style="font-size:1.1rem;margin:0;">Step 1 – Select Your Council</h2>
+      </div>
+      <div class="cc-card-body">
+
         {% if councils %}
-        <div class="card mb-5">
-            <div class="card-header">
-                <h3 class="mb-0">
-                    <i class="fas fa-building me-2"></i>
-                    Select Your Council
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for council_id in councils %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card council-card" onclick="selectCouncil('{{ council_id }}')">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="card-title mb-1">{{ council_id|replace('_', ' ')|title }}</h5>
-                                        <p class="card-text text-muted mb-0">
-                                            <i class="fas fa-users me-1"></i>
-                                            <span id="repCount-{{ council_id }}">Loading...</span> representatives
-                                        </p>
-                                    </div>
-                                    <div class="text-primary">
-                                        <i class="fas fa-chevron-right fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+        <div class="row g-3 cc-stagger">
+          {% for council_id in councils %}
+          <div class="col-md-6">
+            <a href="{{ url_for('main.council_overview', council_id=council_id) }}"
+               class="cc-council-card" aria-label="Explore {{ council_id|replace('_', ' ')|title }}">
+              <div>
+                <div style="font-weight:700;font-size:1rem;">
+                  {{ council_id|replace('_', ' ')|title }}
                 </div>
-            </div>
+                <div style="font-size:0.82rem;color:var(--cc-text-muted);margin-top:0.2rem;">
+                  <i class="fas fa-users me-1" aria-hidden="true"></i>
+                  <span id="repCount-{{ council_id }}" aria-live="polite">Loading…</span> representatives
+                </div>
+              </div>
+              <i class="fas fa-chevron-right text-primary" aria-hidden="true"></i>
+            </a>
+          </div>
+          {% endfor %}
         </div>
+
         {% else %}
-        <div class="card mb-5">
-            <div class="card-body text-center">
-                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                <h4>No Councils Configured</h4>
-                <p class="text-muted">
-                    Please check your configuration or contact your administrator.
-                </p>
-            </div>
+        <div class="text-center py-4">
+          <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3" aria-hidden="true"></i>
+          <h4>No Councils Configured</h4>
+          <p class="text-muted">Check your configuration or contact your administrator.</p>
         </div>
         {% endif %}
-        
-        <!-- How It Works -->
-        <div class="card mb-5">
-            <div class="card-header">
-                <h3 class="mb-0">
-                    <i class="fas fa-question-circle me-2"></i>
-                    How It Works
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-4">
-                        <div class="text-center">
-                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                <i class="fas fa-download fa-2x"></i>
-                            </div>
-                            <h6>1. Data Collection</h6>
-                            <p class="text-muted">
-                                We automatically download and process council meeting documents and voting records.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3 mb-4">
-                        <div class="text-center">
-                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                <i class="fas fa-cogs fa-2x"></i>
-                            </div>
-                            <h6>2. Smart Analysis</h6>
-                            <p class="text-muted">
-                                Advanced algorithms extract voting patterns, categorize issues, and identify trends.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3 mb-4">
-                        <div class="text-center">
-                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                <i class="fas fa-chart-line fa-2x"></i>
-                            </div>
-                            <h6>3. Visualization</h6>
-                            <p class="text-muted">
-                                Interactive charts and graphs make complex voting data easy to understand.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3 mb-4">
-                        <div class="text-center">
-                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                <i class="fas fa-share-alt fa-2x"></i>
-                            </div>
-                            <h6>4. Share & Export</h6>
-                            <p class="text-muted">
-                                Export analysis results or share links to discuss with your community.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Key Features -->
-        <div class="card mb-5">
-            <div class="card-header">
-                <h3 class="mb-0">
-                    <i class="fas fa-star me-2"></i>
-                    Key Features
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Interactive Dashboards</strong> - Dynamic charts with filtering and drill-down capabilities
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Time-Based Analysis</strong> - View activity over any time period
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Representative Comparison</strong> - Side-by-side analysis of multiple representatives
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Document Search</strong> - Full-text search through meeting documents
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Plain English Explanations</strong> - Municipal terms explained simply
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Multiple Export Formats</strong> - CSV, PDF, HTML reports
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Mobile Responsive</strong> - Works on all devices
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <strong>Shareable Links</strong> - Easy sharing of analysis results
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Call to Action -->
-        <div class="card text-center">
-            <div class="card-body">
-                <h4 class="card-title">Ready to Get Started?</h4>
-                <p class="card-text">
-                    Choose your council above and start exploring your local government data.
-                </p>
-                <div class="btn-group">
-                    <a href="#" class="btn btn-primary btn-lg" onclick="scrollToCouncils()">
-                        <i class="fas fa-rocket me-2"></i>
-                        Get Started
-                    </a>
-                    <a href="{{ url_for('main.upload_documents') }}" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-upload me-2"></i>
-                        Upload Documents
-                    </a>
-                </div>
-            </div>
-        </div>
+
+      </div>
     </div>
-</div>
-{% endblock %}
+  </section>
 
-{% block extra_css %}
-<style>
-.council-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
+  <!-- ── Feature highlights ────────────────────────────────────── -->
+  <section aria-labelledby="features-heading" class="mb-5">
+    <h2 id="features-heading" class="text-center mb-4" style="font-size:1.4rem;">
+      <i class="fas fa-star text-warning me-2" aria-hidden="true"></i>What you can do
+    </h2>
 
-.council-card:hover {
-    background: linear-gradient(135deg, var(--light-bg), #ffffff);
-    border-left: 4px solid var(--primary-color);
-    transform: translateY(-2px);
-}
+    <div class="row g-3 cc-stagger">
 
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
+      <div class="col-sm-6 col-lg-3">
+        <div class="cc-card h-100">
+          <div class="cc-card-body text-center">
+            <i class="fas fa-chart-bar fa-2x text-primary mb-3" aria-hidden="true"></i>
+            <h5 style="font-size:.95rem;">Interactive Charts</h5>
+            <p class="text-muted" style="font-size:.82rem;">
+              Drill-down Plotly charts show voting patterns over any time range.
+            </p>
+          </div>
+        </div>
+      </div>
 
-.step-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 1.5rem;
-}
-</style>
+      <div class="col-sm-6 col-lg-3">
+        <div class="cc-card h-100">
+          <div class="cc-card-body text-center">
+            <i class="fas fa-balance-scale fa-2x text-success mb-3" aria-hidden="true"></i>
+            <h5 style="font-size:.95rem;">Compare Representatives</h5>
+            <p class="text-muted" style="font-size:.82rem;">
+              Side-by-side analysis of motions, votes, and leadership activity.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="cc-card h-100">
+          <div class="cc-card-body text-center">
+            <i class="fas fa-search fa-2x text-info mb-3" aria-hidden="true"></i>
+            <h5 style="font-size:.95rem;">Full-Text Search</h5>
+            <p class="text-muted" style="font-size:.82rem;">
+              Search through all meeting documents and get plain-English explanations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="cc-card h-100">
+          <div class="cc-card-body text-center">
+            <i class="fas fa-shield-alt fa-2x text-warning mb-3" aria-hidden="true"></i>
+            <h5 style="font-size:.95rem;">Full Transparency</h5>
+            <p class="text-muted" style="font-size:.82rem;">
+              Every data point links back to its official source document.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Quick stats ───────────────────────────────────────────── -->
+  <section aria-labelledby="stats-heading" class="mb-5">
+    <div class="cc-card">
+      <div class="cc-card-header">
+        <i class="fas fa-database text-primary" aria-hidden="true"></i>
+        <h2 id="stats-heading" style="font-size:1.1rem;margin:0;">What's in the database</h2>
+      </div>
+      <div class="cc-card-body">
+        <div class="row g-3 text-center cc-stagger" id="globalStats">
+          <div class="col-6 col-md-3">
+            <div class="cc-stat">
+              <span class="cc-stat-number" id="stat-reps">—</span>
+              <span class="cc-stat-label">Representatives</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="cc-stat">
+              <span class="cc-stat-number" id="stat-votes">—</span>
+              <span class="cc-stat-label">Votes Tracked</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="cc-stat">
+              <span class="cc-stat-number" id="stat-docs">—</span>
+              <span class="cc-stat-label">Documents Processed</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="cc-stat">
+              <span class="cc-stat-number" id="stat-districts">—</span>
+              <span class="cc-stat-label">Districts Covered</span>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('main.data_transparency') }}" class="cc-btn cc-btn-outline cc-btn-sm">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>View data sources &amp; methodology
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.cc-fade-in -->
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Load representative counts for each council
+document.addEventListener('DOMContentLoaded', () => {
+    // Load live representative counts via lightweight fetch
     {% for council_id in councils %}
-    loadRepresentativeCount('{{ council_id }}');
-    {% endfor %}
-});
-
-function loadRepresentativeCount(councilId) {
-    fetch(`/api/council/${councilId}/representatives`)
-        .then(response => response.json())
+    fetch('/api/council/{{ council_id }}/representatives')
+        .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                document.getElementById(`repCount-${councilId}`).textContent = data.representatives.length;
-            } else {
-                document.getElementById(`repCount-${councilId}`).textContent = 'Unknown';
-            }
+            const el = document.getElementById('repCount-{{ council_id }}');
+            if (el) el.textContent = data.success ? data.representatives.length : 'Unknown';
         })
-        .catch(error => {
-            console.error('Error loading representative count:', error);
-            document.getElementById(`repCount-${councilId}`).textContent = 'Error';
+        .catch(() => {
+            const el = document.getElementById('repCount-{{ council_id }}');
+            if (el) el.textContent = 'Unknown';
         });
-}
+    {% endfor %}
 
-function selectCouncil(councilId) {
-    window.location.href = `/council/${councilId}`;
-}
+    // Load live global stats
+    {% if councils %}
+    const councilId = {{ councils[0] | tojson }};
+    Promise.all([
+        fetch(`/api/council/${councilId}/representatives`).then(r => r.json()),
+        fetch(`/api/council/${councilId}/stats`).then(r => r.json()),
+        fetch('/api/insights/summary').then(r => r.json()).catch(() => ({ success: false }))
+    ]).then(([repsData, statsData, insightsData]) => {
+        const repCount = repsData.success ? repsData.representatives.length : null;
+        const totalVotes = statsData.success ? statsData.stats.total_votes : null;
+        const districts = insightsData.success ? insightsData.stats?.districts : null;
 
-function scrollToCouncils() {
-    const councilsSection = document.querySelector('.card-header h3');
-    if (councilsSection) {
-        councilsSection.scrollIntoView({ behavior: 'smooth' });
+        if (repCount !== null)   setStatEl('stat-reps',      repCount.toLocaleString());
+        if (totalVotes !== null) setStatEl('stat-votes',     totalVotes.toLocaleString());
+        if (districts !== null)  setStatEl('stat-districts', Array.isArray(districts) ? districts.length : districts);
+
+        // Documents stat from insights if available
+        if (insightsData.success && insightsData.stats?.documents_processed) {
+            setStatEl('stat-docs', insightsData.stats.documents_processed.toLocaleString());
+        }
+    }).catch(() => {});
+
+    function setStatEl(id, value) {
+        const el = document.getElementById(id);
+        if (el && value !== undefined && value !== null) el.textContent = value;
     }
-}
+    {% endif %}
+});
 </script>
 {% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Documents – ClearCouncil{% endblock %}
+
+{% block plotly %}{# no charts needed #}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">Upload Documents</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="cc-fade-in row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="cc-card mb-4">
+      <div class="cc-card-header">
+        <i class="fas fa-upload text-primary" aria-hidden="true"></i>
+        <h1 style="font-size:1.1rem;margin:0;">Upload Council Documents</h1>
+      </div>
+      <div class="cc-card-body">
+
+        <p class="text-muted mb-4">
+          Upload PDF meeting minutes or agenda documents to add them to the search index.
+          ClearCouncil will automatically extract voting records and representative information.
+        </p>
+
+        <!-- Upload form -->
+        <form id="uploadForm" enctype="multipart/form-data" novalidate>
+          <div class="mb-3">
+            <label for="councilSelect" class="form-label fw-semibold">Council</label>
+            <select id="councilSelect" name="council_id" class="cc-input" required aria-required="true">
+              <option value="">-- Select a council --</option>
+              {% for council_id in councils %}
+              <option value="{{ council_id }}">{{ council_id|replace('_', ' ')|title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="fileInput" class="form-label fw-semibold">Document (PDF)</label>
+            <input type="file" id="fileInput" name="document" accept=".pdf"
+                   class="cc-input" required aria-required="true"
+                   aria-describedby="fileHint">
+            <div id="fileHint" class="text-muted mt-1" style="font-size:.82rem;">
+              Maximum file size: 16 MB. Only PDF files are accepted.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="docType" class="form-label fw-semibold">Document type</label>
+            <select id="docType" name="document_type" class="cc-input">
+              <option value="minutes">Meeting Minutes</option>
+              <option value="agenda">Agenda</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <button type="submit" class="cc-btn cc-btn-primary" id="uploadBtn">
+            <i class="fas fa-upload" aria-hidden="true"></i>Upload &amp; Process
+            <span id="uploadSpinner" style="display:none;">
+              <i class="fas fa-spinner fa-spin ms-1" aria-hidden="true"></i>
+            </span>
+          </button>
+        </form>
+
+        <!-- Status message -->
+        <div id="uploadStatus" class="mt-3" role="alert" aria-live="polite"></div>
+
+      </div>
+    </div>
+
+    <!-- Info card -->
+    <div class="cc-card">
+      <div class="cc-card-header">
+        <i class="fas fa-info-circle text-info" aria-hidden="true"></i>
+        <span>What happens after upload?</span>
+      </div>
+      <div class="cc-card-body">
+        <ol style="font-size:.9rem;padding-left:1.2rem;" class="mb-0">
+          <li class="mb-2">The PDF is parsed and text is extracted.</li>
+          <li class="mb-2">Voting records and representative names are identified automatically.</li>
+          <li class="mb-2">The document is indexed for full-text search.</li>
+          <li>Charts and statistics update to include the new data.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn    = document.getElementById('uploadBtn');
+    const spin   = document.getElementById('uploadSpinner');
+    const status = document.getElementById('uploadStatus');
+
+    btn.disabled = true;
+    spin.style.display = 'inline';
+    status.innerHTML = '';
+
+    const formData = new FormData(e.target);
+
+    try {
+        const res  = await fetch('/api/upload-document', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+            status.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Document uploaded and processing started. It will appear in search shortly.
+                </div>`;
+        } else {
+            status.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || 'Upload not yet available. Use the CLI to process documents.'}
+                </div>`;
+        }
+    } catch (err) {
+        status.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-times-circle me-2"></i>
+                Upload failed: ${err.message}
+            </div>`;
+    } finally {
+        btn.disabled = false;
+        spin.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

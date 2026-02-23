@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Search Documents – ClearCouncil{% endblock %}
+
+{% block plotly %}{# no charts on search page #}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">Search</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="cc-fade-in">
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <!-- ── Search form ─────────────────────────────────────── -->
+      <div class="cc-card mb-4">
+        <div class="cc-card-header">
+          <i class="fas fa-search text-primary" aria-hidden="true"></i>
+          <h1 style="font-size:1.1rem;margin:0;">Search Council Documents</h1>
+        </div>
+        <div class="cc-card-body">
+          <form method="get" role="search" aria-label="Search council documents">
+            {% if council_id %}
+            <input type="hidden" name="council_id" value="{{ council_id }}">
+            {% endif %}
+            <div class="d-flex gap-2">
+              <input type="search" name="q" value="{{ query }}"
+                     placeholder="e.g. rezoning District 2, budget amendment…"
+                     class="cc-input" style="flex:1;"
+                     aria-label="Search query" autofocus>
+              <button type="submit" class="cc-btn cc-btn-primary">
+                <i class="fas fa-search" aria-hidden="true"></i>Search
+              </button>
+            </div>
+          </form>
+
+          <!-- Term glossary hint -->
+          <details class="mt-3" style="font-size:.85rem;color:var(--cc-text-muted);">
+            <summary style="cursor:pointer;">
+              <i class="fas fa-question-circle me-1" aria-hidden="true"></i>
+              Unfamiliar with government terms? Click for a quick glossary
+            </summary>
+            <div class="row mt-2 g-2">
+              {% set terms = {
+                'Movant': 'The person who formally proposes an action in a meeting.',
+                'Second': 'A member who supports a motion so it can be discussed.',
+                'Rezoning': 'Changing the designated land-use type of a property.',
+                'Ordinance': 'A local law passed by the city or county council.',
+                'Variance': 'Permission to deviate from standard zoning rules.',
+                'Conditional Use': 'A special approval for a use in a zoning district.'
+              } %}
+              {% for term, definition in terms.items() %}
+              <div class="col-sm-6">
+                <div style="padding:.4rem .75rem;background:var(--cc-bg);border-radius:var(--cc-radius-sm);">
+                  <strong>{{ term }}</strong> – {{ definition }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ── Search results ─────────────────────────────────── -->
+      {% if query %}
+        {% if results %}
+        <p class="text-muted mb-3" style="font-size:.88rem;">
+          Found <strong>{{ results|length }}</strong> result{{ 's' if results|length != 1 }} for
+          "<strong>{{ query }}</strong>"
+        </p>
+        <div class="cc-stagger">
+          {% for result in results %}
+          <div class="cc-card mb-3">
+            <div class="cc-card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
+                <h3 style="font-size:.95rem;margin:0;">
+                  {% if result.metadata %}
+                    {{ result.metadata.get('title', 'Council Document') }}
+                  {% else %}
+                    Council Document
+                  {% endif %}
+                </h3>
+                {% if result.metadata and result.metadata.get('meeting_date') %}
+                <span class="cc-badge cc-badge-info">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  {{ result.metadata.meeting_date }}
+                </span>
+                {% endif %}
+              </div>
+
+              {% if result.metadata and result.metadata.get('document_type') %}
+              <span class="cc-badge cc-badge-warning mb-2">{{ result.metadata.document_type }}</span>
+              {% endif %}
+
+              <p style="font-size:.88rem;margin-bottom:0;color:var(--cc-text-muted);">
+                {{ result.text[:300] }}{% if result.text|length > 300 %}…{% endif %}
+              </p>
+
+              {% if result.metadata and result.metadata.get('source_url') %}
+              <div class="mt-2">
+                <a href="{{ result.metadata.source_url }}" target="_blank" rel="noopener"
+                   class="cc-btn cc-btn-outline cc-btn-sm">
+                  <i class="fas fa-external-link-alt" aria-hidden="true"></i>View Source
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="cc-card">
+          <div class="cc-card-body text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3" aria-hidden="true"></i>
+            <h4>No results found</h4>
+            <p class="text-muted">
+              Try different keywords, or
+              <a href="{{ url_for('main.upload_documents') }}">upload new documents</a>
+              to expand the search index.
+            </p>
+          </div>
+        </div>
+        {% endif %}
+
+      {% else %}
+      <!-- Empty state: no query yet -->
+      <div class="cc-card">
+        <div class="cc-card-body text-center py-5">
+          <i class="fas fa-file-search fa-3x text-muted mb-3" aria-hidden="true"></i>
+          <h4>Enter a search term above</h4>
+          <p class="text-muted">
+            Search through all council meeting minutes and documents.<br>
+            Try terms like "budget", "rezoning", or a representative's name.
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
