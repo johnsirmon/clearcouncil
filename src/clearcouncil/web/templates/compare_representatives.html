@@ -1,254 +1,219 @@
 {% extends "base.html" %}
 
-{% block title %}Compare Representatives - ClearCouncil{% endblock %}
+{% block title %}Compare Representatives – ClearCouncil{% endblock %}
+
+{% block plotly %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" defer></script>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  {% if council %}
+  <a href="{{ url_for('main.council_overview', council_id=council.identifier) }}">{{ council.name }}</a>
+  <span class="sep" aria-hidden="true">/</span>
+  {% endif %}
+  <span aria-current="page">Compare</span>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Header -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h1 class="display-5 mb-3">
-                    <i class="fas fa-balance-scale text-primary me-3"></i>
-                    Compare Representatives
-                </h1>
-                <p class="lead">
-                    Compare voting patterns and activity levels between different representatives
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="cc-fade-in">
 
-<!-- Selection Controls -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="filter-section">
-            <h5 class="mb-3">
-                <i class="fas fa-users me-2"></i>
-                Select Representatives to Compare
-            </h5>
-            
-            <form id="comparisonForm" class="row g-3">
-                <div class="col-md-6">
-                    <label for="representativeSelect" class="form-label">Choose Representatives (2-4)</label>
-                    <select multiple class="form-select" id="representativeSelect" name="representatives" 
-                            style="height: 150px;" required>
-                        {% for rep in representatives %}
-                        <option value="{{ rep.id }}" 
-                                {% if rep.id in selected_rep_ids %}selected{% endif %}>
-                            {{ rep.name }} ({{ rep.district }}) - {{ rep.total_votes }} votes
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <div class="form-text">
-                        Hold Ctrl/Cmd to select multiple representatives
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="startDate" name="start_date" 
-                                   min="{{ min_date }}" max="{{ max_date }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="endDate" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="endDate" name="end_date" 
-                                   min="{{ min_date }}" max="{{ max_date }}">
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <label for="quickFilter" class="form-label">Quick Filter</label>
-                            <select class="form-select" id="quickFilter">
-                                <option value="">All Time</option>
-                                <option value="last_month">Last Month</option>
-                                <option value="last_3_months">Last 3 Months</option>
-                                <option value="last_6_months">Last 6 Months</option>
-                                <option value="last_year">Last Year</option>
-                                <option value="this_year">This Year</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-chart-bar me-2"></i>Compare
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="clearComparison()">
-                                <i class="fas fa-times me-2"></i>Clear
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+  <!-- ── Page header ───────────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-body">
+      <h1 style="font-size:1.75rem;margin-bottom:0.25rem;">
+        <i class="fas fa-balance-scale text-primary me-2" aria-hidden="true"></i>
+        Compare Representatives
+      </h1>
+      <p class="text-muted mb-0" style="font-size:.92rem;">
+        Compare voting patterns and activity levels between different representatives.
+      </p>
     </div>
-</div>
+  </div>
 
-<!-- Quick Stats -->
-{% if selected_rep_ids|length >= 2 %}
-<div class="row" id="quickStatsRow">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-tachometer-alt me-2"></i>
-                    Quick Comparison
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row" id="quickStatsContainer">
-                    <!-- Quick stats will be populated here -->
-                </div>
-            </div>
-        </div>
+  <!-- ── Selection controls ────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-users text-primary" aria-hidden="true"></i>
+      <span>Select Representatives to Compare</span>
     </div>
-</div>
-{% endif %}
+    <div class="cc-card-body">
+      <form id="comparisonForm">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="representativeSelect"
+                   style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">
+              Choose Representatives (2–4)
+            </label>
+            <select multiple class="cc-input mt-1" id="representativeSelect" name="representatives"
+                    style="height:150px;" required aria-label="Select representatives">
+              {% for rep in representatives %}
+              <option value="{{ rep.id }}" {% if rep.id in selected_rep_ids %}selected{% endif %}>
+                {{ rep.name }} ({{ rep.district }}) – {{ rep.total_votes }} votes
+              </option>
+              {% endfor %}
+            </select>
+            <p style="font-size:.78rem;color:var(--cc-text-muted);margin-top:.35rem;margin-bottom:0;">
+              Hold Ctrl/Cmd to select multiple representatives
+            </p>
+          </div>
+          <div class="col-md-6">
+            <div class="row g-2">
+              <div class="col-6">
+                <label for="startDate" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">Start Date</label>
+                <input type="date" class="cc-input mt-1" id="startDate" name="start_date"
+                       min="{{ min_date }}" max="{{ max_date }}">
+              </div>
+              <div class="col-6">
+                <label for="endDate" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">End Date</label>
+                <input type="date" class="cc-input mt-1" id="endDate" name="end_date"
+                       min="{{ min_date }}" max="{{ max_date }}">
+              </div>
+              <div class="col-12">
+                <label for="quickFilter" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">Quick Filter</label>
+                <select class="cc-input mt-1" id="quickFilter" aria-label="Quick date filter">
+                  <option value="">All Time</option>
+                  <option value="last_month">Last Month</option>
+                  <option value="last_3_months">Last 3 Months</option>
+                  <option value="last_6_months">Last 6 Months</option>
+                  <option value="last_year">Last Year</option>
+                  <option value="this_year">This Year</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex gap-2 align-items-end mt-1">
+                <button type="submit" class="cc-btn cc-btn-primary cc-btn-sm">
+                  <i class="fas fa-chart-bar" aria-hidden="true"></i>Compare
+                </button>
+                <button type="button" class="cc-btn cc-btn-outline cc-btn-sm" onclick="clearComparison()">
+                  <i class="fas fa-times" aria-hidden="true"></i>Clear
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
-<!-- Comparison Charts -->
-{% if comparison_chart %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>
-                    Detailed Comparison
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="comparisonChart" class="chart-container"></div>
-            </div>
-        </div>
+  <!-- ── Quick stats ───────────────────────────────────────────── -->
+  {% if selected_rep_ids|length >= 2 %}
+  <div class="cc-card mb-4" id="quickStatsRow">
+    <div class="cc-card-header">
+      <i class="fas fa-tachometer-alt text-primary" aria-hidden="true"></i>
+      <span>Quick Comparison</span>
     </div>
-</div>
-{% endif %}
+    <div class="cc-card-body">
+      <div class="cc-stats-grid" id="quickStatsContainer"></div>
+    </div>
+  </div>
+  {% endif %}
 
-<!-- Side-by-Side Details -->
-<div class="row" id="detailsRow" style="display: none;">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>
-                    Side-by-Side Details
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row" id="detailsContainer">
-                    <!-- Details will be populated here -->
-                </div>
-            </div>
-        </div>
+  <!-- ── Comparison chart ──────────────────────────────────────── -->
+  {% if comparison_chart %}
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-chart-bar text-primary" aria-hidden="true"></i>
+      <span>Detailed Comparison</span>
     </div>
-</div>
+    <div class="cc-card-body">
+      <div id="comparisonChart" style="min-height:320px;"></div>
+    </div>
+  </div>
+  {% endif %}
 
-<!-- Analysis Insights -->
-<div class="row" id="insightsRow" style="display: none;">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightbulb me-2"></i>
-                    Analysis Insights
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="insightsContainer">
-                    <!-- Insights will be populated here -->
-                </div>
-            </div>
-        </div>
+  <!-- ── Side-by-side details (shown after compare) ────────────── -->
+  <div class="cc-card mb-4" id="detailsRow" style="display:none;">
+    <div class="cc-card-header">
+      <i class="fas fa-list text-primary" aria-hidden="true"></i>
+      <span>Side-by-Side Details</span>
     </div>
-</div>
+    <div class="cc-card-body">
+      <div class="row g-3" id="detailsContainer"></div>
+    </div>
+  </div>
 
-<!-- Individual Representative Cards -->
-{% if selected_rep_ids|length >= 2 %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-user-friends me-2"></i>
-                    Individual Representative Profiles
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row" id="representativeProfiles">
-                    <!-- Individual profiles will be populated here -->
-                </div>
-            </div>
-        </div>
+  <!-- ── Analysis insights ─────────────────────────────────────── -->
+  <div class="cc-card mb-4" id="insightsRow" style="display:none;">
+    <div class="cc-card-header">
+      <i class="fas fa-lightbulb text-warning" aria-hidden="true"></i>
+      <span>Analysis Insights</span>
     </div>
-</div>
-{% endif %}
+    <div class="cc-card-body" id="insightsContainer"></div>
+  </div>
 
-<!-- Export Options -->
-{% if selected_rep_ids|length >= 2 %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-download me-2"></i>
-                    Export Comparison
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="btn-group">
-                    <button class="btn btn-outline-primary" onclick="exportComparison('pdf')">
-                        <i class="fas fa-file-pdf me-2"></i>Export as PDF
-                    </button>
-                    <button class="btn btn-outline-primary" onclick="exportComparison('csv')">
-                        <i class="fas fa-file-csv me-2"></i>Export as CSV
-                    </button>
-                    <button class="btn btn-outline-primary" onclick="exportComparison('html')">
-                        <i class="fas fa-file-code me-2"></i>Export as HTML
-                    </button>
-                    <button class="btn btn-outline-primary" onclick="shareComparison()">
-                        <i class="fas fa-share me-2"></i>Share Link
-                    </button>
-                </div>
-            </div>
-        </div>
+  <!-- ── Individual profiles ───────────────────────────────────── -->
+  {% if selected_rep_ids|length >= 2 %}
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-user-friends text-primary" aria-hidden="true"></i>
+      <span>Individual Representative Profiles</span>
     </div>
-</div>
-{% endif %}
+    <div class="cc-card-body">
+      <div class="row g-3" id="representativeProfiles"></div>
+    </div>
+  </div>
+  {% endif %}
 
-<!-- Help Section -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-question-circle me-2"></i>
-                    How to Use This Tool
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-1 me-2"></i>Select Representatives</h6>
-                        <p>Choose 2-4 representatives from the list to compare their voting patterns and activity levels.</p>
-                        
-                        <h6><i class="fas fa-2 me-2"></i>Set Time Period</h6>
-                        <p>Use the date filters or quick filter options to focus on specific time periods.</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-3 me-2"></i>Analyze Results</h6>
-                        <p>Review the comparison charts and insights to understand differences in voting behavior.</p>
-                        
-                        <h6><i class="fas fa-4 me-2"></i>Export & Share</h6>
-                        <p>Export your comparison results or share a link to discuss with others.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- ── Export options ────────────────────────────────────────── -->
+  {% if selected_rep_ids|length >= 2 %}
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-download text-primary" aria-hidden="true"></i>
+      <span>Export Comparison</span>
     </div>
-</div>
+    <div class="cc-card-body d-flex flex-wrap gap-2">
+      <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="exportComparison('pdf')">
+        <i class="fas fa-file-pdf" aria-hidden="true"></i>PDF
+      </button>
+      <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="exportComparison('csv')">
+        <i class="fas fa-file-csv" aria-hidden="true"></i>CSV
+      </button>
+      <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="exportComparison('html')">
+        <i class="fas fa-file-code" aria-hidden="true"></i>HTML
+      </button>
+      <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="shareComparison()">
+        <i class="fas fa-share" aria-hidden="true"></i>Share Link
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Help ──────────────────────────────────────────────────── -->
+  <div class="cc-card">
+    <div class="cc-card-header">
+      <i class="fas fa-question-circle text-primary" aria-hidden="true"></i>
+      <span>How to Use This Tool</span>
+    </div>
+    <div class="cc-card-body">
+      <div class="cc-journey" style="margin:0;">
+        <div class="cc-step">
+          <div class="cc-step-num">1</div>
+          <h5>Select Representatives</h5>
+          <p>Choose 2–4 representatives from the list above.</p>
+        </div>
+        <div class="cc-step">
+          <div class="cc-step-num">2</div>
+          <h5>Set Time Period</h5>
+          <p>Use date filters or quick presets to narrow results.</p>
+        </div>
+        <div class="cc-step">
+          <div class="cc-step-num">3</div>
+          <h5>Analyze Results</h5>
+          <p>Review charts and insights to understand voting differences.</p>
+        </div>
+        <div class="cc-step">
+          <div class="cc-step-num">4</div>
+          <h5>Export &amp; Share</h5>
+          <p>Download or share a direct link to this comparison.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.cc-fade-in -->
 {% endblock %}
 
 {% block extra_js %}
@@ -380,21 +345,17 @@ function loadQuickStats(repIds, startDate = null, endDate = null) {
 function updateQuickStats(stats) {
     const container = document.getElementById('quickStatsContainer');
     container.innerHTML = '';
-    
+
     stats.forEach(stat => {
         const col = document.createElement('div');
-        col.className = 'col-md-3 mb-3';
+        col.className = 'cc-stat';
         col.innerHTML = `
-            <div class="card stats-card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">${stat.name}</h5>
-                    <div class="stats-number">${stat.total_votes}</div>
-                    <div class="stats-label">Total Votes</div>
-                    <div class="mt-2">
-                        <small class="text-success">${stat.motions_made} motions</small> |
-                        <small class="text-info">${stat.seconds_given} seconds</small>
-                    </div>
-                </div>
+            <span class="cc-stat-number">${stat.total_votes}</span>
+            <span class="cc-stat-label">${stat.name}</span>
+            <div style="font-size:.75rem;color:var(--cc-text-muted);margin-top:.25rem;">
+                <span style="color:var(--cc-success);">${stat.motions_made} motions</span>
+                &middot;
+                <span style="color:var(--cc-info);">${stat.seconds_given} seconds</span>
             </div>
         `;
         container.appendChild(col);
@@ -423,34 +384,36 @@ function loadDetailedComparison(repIds, startDate = null, endDate = null) {
 function updateDetailedComparison(details) {
     const container = document.getElementById('detailsContainer');
     container.innerHTML = '';
-    
+
     details.forEach(detail => {
         const col = document.createElement('div');
-        col.className = 'col-md-6 mb-4';
+        col.className = 'col-md-6';
+        const actColor = detail.activity_level === 'High' ? 'cc-badge-success'
+                       : detail.activity_level === 'Medium' ? 'cc-badge-warning'
+                       : 'cc-badge-primary';
         col.innerHTML = `
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">${detail.name} (${detail.district})</h6>
+            <div class="cc-card h-100">
+                <div class="cc-card-header">
+                    <span style="font-weight:700;">${detail.name}</span>
+                    <span style="font-size:.8rem;color:var(--cc-text-muted);margin-left:.5rem;">${detail.district}</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6">
-                            <strong>Activity Level:</strong><br>
-                            <span class="badge bg-${detail.activity_level === 'High' ? 'success' : detail.activity_level === 'Medium' ? 'warning' : 'secondary'}">${detail.activity_level}</span>
+                <div class="cc-card-body">
+                    <div class="d-flex flex-wrap gap-3 mb-3">
+                        <div>
+                            <div style="font-size:.78rem;color:var(--cc-text-muted);margin-bottom:.2rem;">Activity Level</div>
+                            <span class="cc-badge ${actColor}">${detail.activity_level}</span>
                         </div>
-                        <div class="col-6">
-                            <strong>Focus Areas:</strong><br>
+                        <div>
+                            <div style="font-size:.78rem;color:var(--cc-text-muted);margin-bottom:.2rem;">Focus Areas</div>
                             <small>${detail.focus_areas.join(', ')}</small>
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <strong>Recent Votes:</strong><br>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-success" style="width: ${detail.approval_rate}%"></div>
-                            </div>
-                            <small>${detail.approval_rate}% approval rate</small>
+                    <div>
+                        <div style="font-size:.78rem;color:var(--cc-text-muted);margin-bottom:.3rem;">Approval Rate</div>
+                        <div style="background:var(--cc-border);border-radius:999px;height:8px;">
+                            <div style="background:var(--cc-success);border-radius:999px;height:8px;width:${detail.approval_rate}%;"></div>
                         </div>
+                        <small style="color:var(--cc-text-muted);">${detail.approval_rate}%</small>
                     </div>
                 </div>
             </div>
@@ -481,15 +444,22 @@ function loadInsights(repIds, startDate = null, endDate = null) {
 function updateInsights(insights) {
     const container = document.getElementById('insightsContainer');
     container.innerHTML = '';
-    
+
+    const colorMap = { positive: 'cc-badge-success', negative: 'cc-badge-warning', neutral: 'cc-badge-info' };
+    const iconMap  = { positive: 'check-circle', negative: 'exclamation-triangle', neutral: 'info-circle' };
+
     insights.forEach(insight => {
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${insight.type === 'positive' ? 'success' : insight.type === 'negative' ? 'warning' : 'info'}`;
-        alert.innerHTML = `
-            <i class="fas fa-${insight.type === 'positive' ? 'check-circle' : insight.type === 'negative' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:.75rem 1rem;border-left:3px solid var(--cc-border);margin-bottom:.75rem;';
+        const borderColor = insight.type === 'positive' ? 'var(--cc-success)'
+                          : insight.type === 'negative' ? 'var(--cc-warning)'
+                          : 'var(--cc-info)';
+        div.style.borderLeftColor = borderColor;
+        div.innerHTML = `
+            <i class="fas fa-${iconMap[insight.type] || 'info-circle'} me-2" style="color:${borderColor};"></i>
             <strong>${insight.title}:</strong> ${insight.description}
         `;
-        container.appendChild(alert);
+        container.appendChild(div);
     });
 }
 
@@ -506,19 +476,17 @@ function loadRepresentativeProfiles(repIds) {
                     const col = document.createElement('div');
                     col.className = 'col-md-4 mb-3';
                     col.innerHTML = `
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title">${profile.name}</h6>
-                                <p class="card-text">
-                                    <i class="fas fa-map-marker-alt me-1"></i>${profile.district}<br>
-                                    <small class="text-muted">Active since ${profile.first_seen}</small>
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <a href="/representative/${repId}" class="btn btn-sm btn-outline-primary">View Details</a>
-                                    <div class="text-end">
-                                        <small class="text-muted">${profile.total_votes} votes</small>
-                                    </div>
-                                </div>
+                        <div class="cc-rep-card" style="display:block;">
+                            <div class="name">${profile.name}</div>
+                            <div class="district">
+                                <i class="fas fa-map-marker-alt me-1" aria-hidden="true"></i>${profile.district}
+                            </div>
+                            <div style="font-size:.78rem;color:var(--cc-text-muted);margin:.3rem 0 .6rem;">
+                                Active since ${profile.first_seen}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="/representative/${repId}" class="cc-btn cc-btn-outline cc-btn-sm">View Details</a>
+                                <span class="cc-badge cc-badge-primary">${profile.total_votes} votes</span>
                             </div>
                         </div>
                     `;

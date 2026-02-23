@@ -1,290 +1,268 @@
 {% extends "base.html" %}
 
-{% block title %}{{ representative.name }} - ClearCouncil{% endblock %}
+{% block title %}{{ representative.name }} – ClearCouncil{% endblock %}
+
+{% block plotly %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" defer></script>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav class="cc-breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('main.index') }}">Home</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <a href="{{ url_for('main.council_overview', council_id=representative.council_id) }}">
+    {{ representative.council_id|council_title }}
+  </a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">{{ representative.name }}</span>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Header -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1 class="display-5 mb-2">
-                            <i class="fas fa-user-tie text-primary me-3"></i>
-                            {{ representative.name }}
-                        </h1>
-                        <p class="lead mb-3">
-                            <i class="fas fa-map-marker-alt me-2"></i>
-                            {{ representative.district }} | 
-                            <i class="fas fa-building me-2"></i>
-                            {{ representative.council_id|council_title }}
-                        </p>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-primary fs-6">{{ representative.total_votes }} Total Votes</span>
-                            <span class="badge bg-success fs-6">{{ representative.motions_made }} Motions</span>
-                            <span class="badge bg-info fs-6">{{ representative.seconds_given }} Seconds</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-md-end">
-                        <div class="btn-group">
-                            <a href="{{ url_for('main.council_overview', council_id=representative.council_id) }}" 
-                               class="btn btn-outline-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Council
-                            </a>
-                            <a href="{{ url_for('main.compare_representatives', council_id=representative.council_id, representatives=representative.id) }}" 
-                               class="btn btn-primary">
-                                <i class="fas fa-balance-scale me-2"></i>Compare
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="cc-fade-in">
 
-<!-- Filters -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="filter-section">
-            <h5 class="mb-3">
-                <i class="fas fa-filter me-2"></i>
-                Filter Data
-            </h5>
-            <form id="filterForm" class="row g-3">
-                <div class="col-md-4">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="startDate" name="start_date" 
-                           value="{{ start_date.strftime('%Y-%m-%d') if start_date else '' }}"
-                           min="{{ min_date }}" max="{{ max_date }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="endDate" name="end_date" 
-                           value="{{ end_date.strftime('%Y-%m-%d') if end_date else '' }}"
-                           min="{{ min_date }}" max="{{ max_date }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="quickFilter" class="form-label">Quick Filter</label>
-                    <select class="form-select" id="quickFilter">
-                        <option value="">All Time</option>
-                        <option value="last_month">Last Month</option>
-                        <option value="last_3_months">Last 3 Months</option>
-                        <option value="last_6_months">Last 6 Months</option>
-                        <option value="last_year">Last Year</option>
-                        <option value="this_year">This Year</option>
-                    </select>
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-sync me-2"></i>Update
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
-                        <i class="fas fa-times me-2"></i>Clear
-                    </button>
-                </div>
-            </form>
+  <!-- ── Representative header ─────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-body">
+      <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+        <div>
+          <h1 style="font-size:1.75rem;margin-bottom:0.4rem;">
+            <i class="fas fa-user-tie text-primary me-2" aria-hidden="true"></i>
+            {{ representative.name }}
+          </h1>
+          <p class="text-muted mb-2" style="font-size:.92rem;">
+            <i class="fas fa-map-marker-alt me-1" aria-hidden="true"></i>{{ representative.district }}
+            &nbsp;&middot;&nbsp;
+            <i class="fas fa-building me-1" aria-hidden="true"></i>{{ representative.council_id|council_title }}
+          </p>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="cc-badge cc-badge-primary">{{ representative.total_votes }} Total Votes</span>
+            <span class="cc-badge cc-badge-success">{{ representative.motions_made }} Motions</span>
+            <span class="cc-badge cc-badge-info">{{ representative.seconds_given }} Seconds</span>
+          </div>
         </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('main.council_overview', council_id=representative.council_id) }}"
+             class="cc-btn cc-btn-outline cc-btn-sm">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>Back to Council
+          </a>
+          <a href="{{ url_for('main.compare_representatives', council_id=representative.council_id, representatives=representative.id) }}"
+             class="cc-btn cc-btn-primary cc-btn-sm">
+            <i class="fas fa-balance-scale" aria-hidden="true"></i>Compare
+          </a>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Dashboard Charts -->
-<div class="row">
-    <!-- Voting Overview -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>
-                    Voting Overview
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="votingOverviewChart" class="chart-container"></div>
-            </div>
-        </div>
+  <!-- ── Filters ───────────────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-filter text-primary" aria-hidden="true"></i>
+      <span>Filter Data</span>
     </div>
-    
-    <!-- Category Breakdown -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>
-                    Votes by Category
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="categoryBreakdownChart" class="chart-container"></div>
-            </div>
+    <div class="cc-card-body">
+      <form id="filterForm">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="startDate" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">Start Date</label>
+            <input type="date" class="cc-input mt-1" id="startDate" name="start_date"
+                   value="{{ start_date.strftime('%Y-%m-%d') if start_date else '' }}"
+                   min="{{ min_date }}" max="{{ max_date }}">
+          </div>
+          <div class="col-md-4">
+            <label for="endDate" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">End Date</label>
+            <input type="date" class="cc-input mt-1" id="endDate" name="end_date"
+                   value="{{ end_date.strftime('%Y-%m-%d') if end_date else '' }}"
+                   min="{{ min_date }}" max="{{ max_date }}">
+          </div>
+          <div class="col-md-4">
+            <label for="quickFilter" style="font-size:.85rem;font-weight:600;color:var(--cc-text-muted);">Quick Filter</label>
+            <select class="cc-input mt-1" id="quickFilter" aria-label="Quick date filter">
+              <option value="">All Time</option>
+              <option value="last_month">Last Month</option>
+              <option value="last_3_months">Last 3 Months</option>
+              <option value="last_6_months">Last 6 Months</option>
+              <option value="last_year">Last Year</option>
+              <option value="this_year">This Year</option>
+            </select>
+          </div>
         </div>
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="cc-btn cc-btn-primary cc-btn-sm">
+            <i class="fas fa-sync" aria-hidden="true"></i>Update
+          </button>
+          <button type="button" class="cc-btn cc-btn-outline cc-btn-sm" onclick="clearFilters()">
+            <i class="fas fa-times" aria-hidden="true"></i>Clear
+          </button>
+        </div>
+      </form>
     </div>
-</div>
+  </div>
 
-<div class="row">
-    <!-- Monthly Activity -->
-    <div class="col-md-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Monthly Activity
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="monthlyActivityChart" class="chart-container"></div>
-            </div>
+  <!-- ── Charts row 1 ──────────────────────────────────────────── -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <div class="cc-card h-100">
+        <div class="cc-card-header">
+          <i class="fas fa-chart-pie text-primary" aria-hidden="true"></i>
+          <span>Voting Overview</span>
         </div>
-    </div>
-    
-    <!-- Key Metrics -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-tachometer-alt me-2"></i>
-                    Key Metrics
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-12 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-number" id="totalVotesMetric">{{ dashboard.stats.total_votes or 0 }}</div>
-                            <div class="stats-label">Total Votes</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-number text-success" id="motionsMetric">{{ dashboard.stats.motions_made or 0 }}</div>
-                            <div class="stats-label">Motions</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-number text-info" id="secondsMetric">{{ dashboard.stats.seconds_given or 0 }}</div>
-                            <div class="stats-label">Seconds</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-number text-warning" id="residentialMetric">{{ dashboard.stats.residential_votes or 0 }}</div>
-                            <div class="stats-label">Residential</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="stats-card">
-                            <div class="stats-number text-danger" id="commercialMetric">{{ dashboard.stats.commercial_votes or 0 }}</div>
-                            <div class="stats-label">Commercial</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="cc-card-body">
+          <div id="votingOverviewChart" style="min-height:280px;"></div>
         </div>
+      </div>
     </div>
-</div>
+    <div class="col-md-6">
+      <div class="cc-card h-100">
+        <div class="cc-card-header">
+          <i class="fas fa-chart-bar text-primary" aria-hidden="true"></i>
+          <span>Votes by Category</span>
+        </div>
+        <div class="cc-card-body">
+          <div id="categoryBreakdownChart" style="min-height:280px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- Voting Timeline -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-timeline me-2"></i>
-                    Voting Timeline
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="votingTimelineChart" class="chart-container"></div>
-            </div>
+  <!-- ── Charts row 2 ──────────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-8">
+      <div class="cc-card h-100">
+        <div class="cc-card-header">
+          <i class="fas fa-chart-line text-primary" aria-hidden="true"></i>
+          <span>Monthly Activity</span>
         </div>
+        <div class="cc-card-body">
+          <div id="monthlyActivityChart" style="min-height:280px;"></div>
+        </div>
+      </div>
     </div>
-</div>
+    <div class="col-md-4">
+      <div class="cc-card h-100">
+        <div class="cc-card-header">
+          <i class="fas fa-tachometer-alt text-primary" aria-hidden="true"></i>
+          <span>Key Metrics</span>
+        </div>
+        <div class="cc-card-body">
+          <div class="cc-stats-grid" style="grid-template-columns:repeat(2,1fr);gap:.75rem;">
+            <div class="cc-stat" style="grid-column:1/-1;">
+              <span class="cc-stat-number" id="totalVotesMetric">{{ dashboard.stats.total_votes or 0 }}</span>
+              <span class="cc-stat-label">Total Votes</span>
+            </div>
+            <div class="cc-stat">
+              <span class="cc-stat-number" style="color:var(--cc-success);" id="motionsMetric">{{ dashboard.stats.motions_made or 0 }}</span>
+              <span class="cc-stat-label">Motions</span>
+            </div>
+            <div class="cc-stat">
+              <span class="cc-stat-number" style="color:var(--cc-info);" id="secondsMetric">{{ dashboard.stats.seconds_given or 0 }}</span>
+              <span class="cc-stat-label">Seconds</span>
+            </div>
+            <div class="cc-stat">
+              <span class="cc-stat-number" style="color:var(--cc-warning);" id="residentialMetric">{{ dashboard.stats.residential_votes or 0 }}</span>
+              <span class="cc-stat-label">Residential</span>
+            </div>
+            <div class="cc-stat">
+              <span class="cc-stat-number" style="color:var(--cc-danger);" id="commercialMetric">{{ dashboard.stats.commercial_votes or 0 }}</span>
+              <span class="cc-stat-label">Commercial</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- Voting Records Table -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-table me-2"></i>
-                    Voting Records
-                </h5>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV()">
-                        <i class="fas fa-download me-1"></i>Export CSV
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary" onclick="exportToHTML()">
-                        <i class="fas fa-code me-1"></i>Export HTML
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="votingRecordsTable">
-                        <thead class="table-header">
-                            <tr>
-                                <th>Date</th>
-                                <th>Case Number</th>
-                                <th>Category</th>
-                                <th>Location</th>
-                                <th>Action</th>
-                                <th>Role</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in voting_records %}
-                            <tr>
-                                <td>{{ record.meeting_date|datetime_format if record.meeting_date else 'N/A' }}</td>
-                                <td>
-                                    {% if record.case_number %}
-                                        <span class="badge bg-secondary">{{ record.case_number }}</span>
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if record.case_category %}
-                                        <span class="badge bg-info">{{ record.case_category }}</span>
-                                    {% else %}
-                                        <span class="text-muted">Other</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ record.location|truncate_text(30) if record.location else 'N/A' }}</td>
-                                <td>{{ record.zoning_request|truncate_text(40) if record.zoning_request else 'N/A' }}</td>
-                                <td>
-                                    {% if record.movant == representative.name %}
-                                        <span class="badge bg-success">Movant</span>
-                                    {% elif record.second == representative.name %}
-                                        <span class="badge bg-primary">Second</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-dark">Voter</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if record.vote_result %}
-                                        {% if 'approve' in record.vote_result.lower() or 'pass' in record.vote_result.lower() %}
-                                            <span class="badge bg-success">{{ record.vote_result }}</span>
-                                        {% elif 'deny' in record.vote_result.lower() or 'fail' in record.vote_result.lower() %}
-                                            <span class="badge bg-danger">{{ record.vote_result }}</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ record.vote_result }}</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <!-- ── Voting timeline ───────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-stream text-primary" aria-hidden="true"></i>
+      <span>Voting Timeline</span>
     </div>
-</div>
+    <div class="cc-card-body">
+      <div id="votingTimelineChart" style="min-height:280px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Voting records table ──────────────────────────────────── -->
+  <div class="cc-card">
+    <div class="cc-card-header">
+      <i class="fas fa-table text-primary" aria-hidden="true"></i>
+      <span>Voting Records</span>
+      <div class="d-flex gap-2 ms-auto">
+        <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="exportToCSV()">
+          <i class="fas fa-download" aria-hidden="true"></i>CSV
+        </button>
+        <button class="cc-btn cc-btn-outline cc-btn-sm" onclick="exportToHTML()">
+          <i class="fas fa-code" aria-hidden="true"></i>HTML
+        </button>
+      </div>
+    </div>
+    <div class="cc-card-body" style="padding:0;">
+      <div class="cc-table-wrapper">
+        <table class="cc-table" id="votingRecordsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Case #</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Action</th>
+              <th>Role</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in voting_records %}
+            <tr>
+              <td>{{ record.meeting_date|datetime_format if record.meeting_date else 'N/A' }}</td>
+              <td>
+                {% if record.case_number %}
+                  <span class="cc-badge cc-badge-primary">{{ record.case_number }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if record.case_category %}
+                  <span class="cc-badge cc-badge-info">{{ record.case_category }}</span>
+                {% else %}
+                  <span class="text-muted">Other</span>
+                {% endif %}
+              </td>
+              <td>{{ record.location|truncate_text(30) if record.location else '—' }}</td>
+              <td>{{ record.zoning_request|truncate_text(40) if record.zoning_request else '—' }}</td>
+              <td>
+                {% if record.movant == representative.name %}
+                  <span class="cc-badge cc-badge-success">Movant</span>
+                {% elif record.second == representative.name %}
+                  <span class="cc-badge cc-badge-primary">Second</span>
+                {% else %}
+                  <span class="cc-badge" style="background:var(--cc-bg);color:var(--cc-text-muted);">Voter</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if record.vote_result %}
+                  {% if 'approve' in record.vote_result.lower() or 'pass' in record.vote_result.lower() %}
+                    <span class="cc-badge cc-badge-success">{{ record.vote_result }}</span>
+                  {% elif 'deny' in record.vote_result.lower() or 'fail' in record.vote_result.lower() %}
+                    <span class="cc-badge" style="background:#fee2e2;color:#991b1b;">{{ record.vote_result }}</span>
+                  {% else %}
+                    <span class="cc-badge" style="background:var(--cc-bg);color:var(--cc-text-muted);">{{ record.vote_result }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.cc-fade-in -->
 {% endblock %}
 
 {% block extra_js %}
