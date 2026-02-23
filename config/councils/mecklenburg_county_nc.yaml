@@ -1,0 +1,68 @@
+name: "Mecklenburg County North Carolina"
+identifier: "mecklenburg_county_nc"
+description: "Mecklenburg County (Charlotte area) NC Board of County Commissioners"
+state: "NC"
+
+# Website configuration
+# Mecklenburg uses Granicus/Legistar - publicly accessible, no login required
+website:
+  base_url: "https://mecknc.legistar.com"
+  document_url_template: "{base_url}/MeetingDetail.aspx?ID={id}&GUID=&Options=&Search="
+  minutes_direct_url: "https://mecknc.legistar.com/Calendar.aspx"
+  portal_type: "granicus_legistar"
+  # Legistar API endpoint for programmatic access (no auth required)
+  api_url: "https://webapi.legistar.com/v1/mecknc"
+  access_notes: >
+    Public access via Legistar portal. No authentication required for meeting minutes,
+    agendas, and voting records. Legistar REST API available for structured data access.
+  id_ranges:
+    - start: 1000
+      end: 9999
+      description: "Legistar meeting IDs"
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%Y-%m-%d"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+  channel_url: "https://www.youtube.com/@MecklenburgCountyGov"
+
+# Parsing rules for voting data
+# Legistar/Granicus uses consistent Action/Vote table format
+parsing:
+  document_format: "legistar"
+  voting_fields:
+    - "Motion By"
+    - "Seconded By"
+    - "Action"
+    - "Ayes"
+    - "Nays"
+    - "Abstain"
+    - "Absent"
+    - "Result"
+  vote_result_keywords:
+    - "APPROVED"
+    - "DENIED"
+    - "FAILED"
+    - "PASSED"
+    - "TABLED"
+    - "WITHDRAWN"
+  motion_patterns:
+    - "MOTION\\s+(?:BY|TO)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"
+    - "Moved\\s+by\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"

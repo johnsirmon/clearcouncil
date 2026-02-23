@@ -1,0 +1,59 @@
+name: "Guilford County North Carolina"
+identifier: "guilford_county_nc"
+description: "Guilford County (Greensboro/High Point area) NC Board of County Commissioners"
+state: "NC"
+
+# Website configuration
+# Guilford County uses a custom document management system
+website:
+  base_url: "https://www.guilfordcountync.gov"
+  minutes_direct_url: "https://www.guilfordcountync.gov/our-county/county-government/board-of-county-commissioners/board-meetings-agendas-minutes"
+  portal_type: "custom_pdf"
+  access_notes: >
+    Guilford County publishes meeting minutes and agendas as PDFs on the official
+    county website. No authentication required. Some older records may require
+    contacting the Clerk to the Board.
+  id_ranges: []
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{1,2}-\\d{1,2}-\\d{4}|\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%m-%d-%Y"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  document_format: "standard_minutes"
+  voting_fields:
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Ayes"
+    - "Nays"
+    - "Abstain"
+  vote_result_keywords:
+    - "APPROVED"
+    - "DENIED"
+    - "PASSED"
+    - "FAILED"
+    - "MOTION CARRIED"
+    - "MOTION FAILED"
+    - "UNANIMOUS"
+  motion_patterns:
+    - "(?:Motion|Moved)\\s+(?:by|BY)\\s+(?:Commissioner\\s+)?([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"

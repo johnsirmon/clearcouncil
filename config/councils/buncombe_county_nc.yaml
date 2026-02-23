@@ -1,0 +1,59 @@
+name: "Buncombe County North Carolina"
+identifier: "buncombe_county_nc"
+description: "Buncombe County (Asheville area) NC Board of County Commissioners"
+state: "NC"
+
+# Website configuration
+# Buncombe County uses a custom portal - publicly accessible
+website:
+  base_url: "https://www.buncombecounty.org"
+  minutes_direct_url: "https://www.buncombecounty.org/governing/commissioners/meetings.aspx"
+  portal_type: "custom_pdf"
+  access_notes: >
+    Buncombe County meeting minutes and agendas are publicly accessible on the
+    official county website. No authentication required. Note: Buncombe County
+    was severely impacted by Hurricane Helene in 2024; some recent records may
+    have gaps. Physical records may need to be requested via public records request.
+  id_ranges: []
+
+# File naming patterns
+file_patterns:
+  pdf_pattern: "(?P<date>\\d{1,2}-\\d{1,2}-\\d{4}|\\d{4}-\\d{2}-\\d{2}).*\\.pdf"
+  date_format: "%m-%d-%Y"
+
+# Data storage
+storage:
+  pdf_directory: "data/PDFs"
+  transcript_directory: "data/transcripts"
+  index_directory: "data/faiss_indexes"
+  results_directory: "data/results"
+
+# Processing configuration
+processing:
+  chunk_size: 10000
+  max_workers: 10
+  embedding_model: "text-embedding-ada-002"
+
+# YouTube configuration
+youtube:
+  default_video_ids: []
+
+# Parsing rules for voting data
+parsing:
+  document_format: "standard_minutes"
+  voting_fields:
+    - "Motion"
+    - "Second"
+    - "Vote"
+    - "Ayes"
+    - "Nays"
+    - "Abstain"
+  vote_result_keywords:
+    - "APPROVED"
+    - "DENIED"
+    - "PASSED"
+    - "FAILED"
+    - "UNANIMOUS"
+    - "MOTION CARRIED"
+  motion_patterns:
+    - "(?:Motion|Moved)\\s+(?:by|BY)\\s+(?:Commissioner\\s+)?([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)"
