@@ -38,29 +38,41 @@
 
     <div class="cc-journey cc-stagger">
 
-      <div class="cc-step">
+      <a href="#councils" class="cc-step text-decoration-none">
         <div class="cc-step-num">1</div>
         <h5>Pick Your Council</h5>
         <p>Select the local council you want to explore from the list below.</p>
-      </div>
+      </a>
 
+      {% if councils %}
+      <a href="{{ url_for('main.council_overview', council_id=councils[0]) }}" class="cc-step text-decoration-none">
+      {% else %}
       <div class="cc-step">
+      {% endif %}
         <div class="cc-step-num">2</div>
         <h5>Find Your Representative</h5>
         <p>Browse your district's representative and see their voting history.</p>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
+      {% if councils %}
+      <a href="{{ url_for('main.council_overview', council_id=councils[0]) }}" class="cc-step text-decoration-none">
+      {% else %}
       <div class="cc-step">
+      {% endif %}
         <div class="cc-step-num">3</div>
         <h5>Explore Their Votes</h5>
         <p>Filter by date, topic, or outcome. Charts make patterns instantly visible.</p>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
+      {% if councils %}
+      <a href="{{ url_for('main.compare_representatives', council_id=councils[0]) }}" class="cc-step text-decoration-none">
+      {% else %}
       <div class="cc-step">
+      {% endif %}
         <div class="cc-step-num">4</div>
         <h5>Compare &amp; Share</h5>
         <p>Side-by-side comparisons and shareable links for community discussion.</p>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
     </div>
   </section>
@@ -79,10 +91,10 @@
           {% for council_id in councils %}
           <div class="col-md-6">
             <a href="{{ url_for('main.council_overview', council_id=council_id) }}"
-               class="cc-council-card" aria-label="Explore {{ council_id|replace('_', ' ')|title }}">
+               class="cc-council-card" aria-label="Explore {{ council_id|council_title }}">
               <div>
                 <div style="font-weight:700;font-size:1rem;">
-                  {{ council_id|replace('_', ' ')|title }}
+                  {{ council_id|council_title }}
                 </div>
                 <div style="font-size:0.82rem;color:var(--cc-text-muted);margin-top:0.2rem;">
                   <i class="fas fa-users me-1" aria-hidden="true"></i>
@@ -113,55 +125,67 @@
       <i class="fas fa-star text-warning me-2" aria-hidden="true"></i>What you can do
     </h2>
 
-    <div class="row g-3 cc-stagger">
+    <div class="cc-features-grid cc-stagger">
 
-      <div class="col-sm-6 col-lg-3">
-        <div class="cc-card h-100">
-          <div class="cc-card-body text-center">
-            <i class="fas fa-chart-bar fa-2x text-primary mb-3" aria-hidden="true"></i>
-            <h5 style="font-size:.95rem;">Interactive Charts</h5>
-            <p class="text-muted" style="font-size:.82rem;">
-              Drill-down Plotly charts show voting patterns over any time range.
-            </p>
-          </div>
+      {% if councils %}
+      <a href="{{ url_for('main.council_overview', council_id=councils[0]) }}"
+         class="cc-card cc-feature-card text-decoration-none">
+      {% else %}
+      <div class="cc-card cc-feature-card">
+      {% endif %}
+        <div class="cc-card-body text-center">
+          <i class="fas fa-chart-bar fa-2x text-primary mb-3" aria-hidden="true"></i>
+          <h5 style="font-size:.95rem;">Interactive Charts</h5>
+          <p class="text-muted" style="font-size:.82rem;">
+            Drill-down charts show voting patterns over any time range.
+          </p>
+          <span class="cc-feature-arrow" aria-hidden="true">→</span>
         </div>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
-      <div class="col-sm-6 col-lg-3">
-        <div class="cc-card h-100">
-          <div class="cc-card-body text-center">
-            <i class="fas fa-balance-scale fa-2x text-success mb-3" aria-hidden="true"></i>
-            <h5 style="font-size:.95rem;">Compare Representatives</h5>
-            <p class="text-muted" style="font-size:.82rem;">
-              Side-by-side analysis of motions, votes, and leadership activity.
-            </p>
-          </div>
+      {% if councils %}
+      <a href="{{ url_for('main.compare_representatives', council_id=councils[0]) }}"
+         class="cc-card cc-feature-card text-decoration-none">
+      {% else %}
+      <div class="cc-card cc-feature-card">
+      {% endif %}
+        <div class="cc-card-body text-center">
+          <i class="fas fa-balance-scale fa-2x text-success mb-3" aria-hidden="true"></i>
+          <h5 style="font-size:.95rem;">Compare Representatives</h5>
+          <p class="text-muted" style="font-size:.82rem;">
+            Side-by-side analysis of motions, votes, and leadership activity.
+          </p>
+          <span class="cc-feature-arrow" aria-hidden="true">→</span>
         </div>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
-      <div class="col-sm-6 col-lg-3">
-        <div class="cc-card h-100">
-          <div class="cc-card-body text-center">
-            <i class="fas fa-search fa-2x text-info mb-3" aria-hidden="true"></i>
-            <h5 style="font-size:.95rem;">Full-Text Search</h5>
-            <p class="text-muted" style="font-size:.82rem;">
-              Search through all meeting documents and get plain-English explanations.
-            </p>
-          </div>
+      {% if councils %}
+      <a href="{{ url_for('main.search', council_id=councils[0]) }}"
+         class="cc-card cc-feature-card text-decoration-none">
+      {% else %}
+      <div class="cc-card cc-feature-card">
+      {% endif %}
+        <div class="cc-card-body text-center">
+          <i class="fas fa-search fa-2x text-info mb-3" aria-hidden="true"></i>
+          <h5 style="font-size:.95rem;">Full-Text Search</h5>
+          <p class="text-muted" style="font-size:.82rem;">
+            Search all meeting documents and get plain-English explanations.
+          </p>
+          <span class="cc-feature-arrow" aria-hidden="true">→</span>
         </div>
-      </div>
+      {% if councils %}</a>{% else %}</div>{% endif %}
 
-      <div class="col-sm-6 col-lg-3">
-        <div class="cc-card h-100">
-          <div class="cc-card-body text-center">
-            <i class="fas fa-shield-alt fa-2x text-warning mb-3" aria-hidden="true"></i>
-            <h5 style="font-size:.95rem;">Full Transparency</h5>
-            <p class="text-muted" style="font-size:.82rem;">
-              Every data point links back to its official source document.
-            </p>
-          </div>
+      <a href="{{ url_for('main.data_transparency') }}"
+         class="cc-card cc-feature-card text-decoration-none">
+        <div class="cc-card-body text-center">
+          <i class="fas fa-shield-alt fa-2x text-warning mb-3" aria-hidden="true"></i>
+          <h5 style="font-size:.95rem;">Full Transparency</h5>
+          <p class="text-muted" style="font-size:.82rem;">
+            Every data point links back to its official source document.
+          </p>
+          <span class="cc-feature-arrow" aria-hidden="true">→</span>
         </div>
-      </div>
+      </a>
 
     </div>
   </section>
@@ -174,30 +198,22 @@
         <h2 id="stats-heading" style="font-size:1.1rem;margin:0;">What's in the database</h2>
       </div>
       <div class="cc-card-body">
-        <div class="row g-3 text-center cc-stagger" id="globalStats">
-          <div class="col-6 col-md-3">
-            <div class="cc-stat">
-              <span class="cc-stat-number" id="stat-reps">—</span>
-              <span class="cc-stat-label">Representatives</span>
-            </div>
+        <div class="cc-stats-grid cc-stagger" id="globalStats">
+          <div class="cc-stat">
+            <span class="cc-stat-number" id="stat-reps">—</span>
+            <span class="cc-stat-label">Representatives</span>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="cc-stat">
-              <span class="cc-stat-number" id="stat-votes">—</span>
-              <span class="cc-stat-label">Votes Tracked</span>
-            </div>
+          <div class="cc-stat">
+            <span class="cc-stat-number" id="stat-votes">—</span>
+            <span class="cc-stat-label">Votes Tracked</span>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="cc-stat">
-              <span class="cc-stat-number" id="stat-docs">—</span>
-              <span class="cc-stat-label">Documents Processed</span>
-            </div>
+          <div class="cc-stat">
+            <span class="cc-stat-number" id="stat-docs">—</span>
+            <span class="cc-stat-label">Documents Processed</span>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="cc-stat">
-              <span class="cc-stat-number" id="stat-districts">—</span>
-              <span class="cc-stat-label">Districts Covered</span>
-            </div>
+          <div class="cc-stat">
+            <span class="cc-stat-number" id="stat-districts">—</span>
+            <span class="cc-stat-label">Districts Covered</span>
           </div>
         </div>
         <div class="text-center mt-3">

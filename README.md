@@ -4,6 +4,26 @@ ClearCouncil helps people understand what government is doing, why it matters, a
 
 Most local and state decisions are public, but not accessible. Meeting packets are long. Procurement records are scattered. Campaign finance and lobbying data are fragmented across portals. ClearCouncil turns that complexity into plain language without hiding the sources.
 
+## Screenshots
+
+### Home Page
+
+The landing page guides users through a 4-step journey to government transparency, with clickable feature cards linking directly to each capability.
+
+![ClearCouncil Home Page](images/screenshots/home_page.png)
+
+### Council Overview
+
+Browse all representatives for a council, view summary stats, and quickly access key actions from a clean two-column layout.
+
+![Council Overview](images/screenshots/council_overview.png)
+
+### Mobile View
+
+Fully responsive design with a bottom navigation bar for fast access on phones and tablets.
+
+![Mobile View](images/screenshots/mobile_view.png)
+
 ## Why this exists
 
 A healthy democracy depends on shared facts.

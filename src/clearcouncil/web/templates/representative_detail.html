@@ -18,7 +18,7 @@
                             <i class="fas fa-map-marker-alt me-2"></i>
                             {{ representative.district }} | 
                             <i class="fas fa-building me-2"></i>
-                            {{ representative.council_id|replace('_', ' ')|title }}
+                            {{ representative.council_id|council_title }}
                         </p>
                         <div class="d-flex gap-2">
                             <span class="badge bg-primary fs-6">{{ representative.total_votes }} Total Votes</span>

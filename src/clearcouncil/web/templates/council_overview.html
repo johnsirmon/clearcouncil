@@ -45,37 +45,29 @@
   </div>
 
   <!-- ── Summary stats ─────────────────────────────────────────── -->
-  <div class="row g-3 mb-4 cc-stagger">
-    <div class="col-6 col-md-3">
-      <div class="cc-stat">
-        <span class="cc-stat-number">{{ representatives|length }}</span>
-        <span class="cc-stat-label">Representatives</span>
-      </div>
+  <div class="cc-stats-grid mb-4 cc-stagger">
+    <div class="cc-stat">
+      <span class="cc-stat-number">{{ representatives|length }}</span>
+      <span class="cc-stat-label">Representatives</span>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="cc-stat">
-        <span class="cc-stat-number">{{ meeting_dates|length }}</span>
-        <span class="cc-stat-label">Meetings</span>
-      </div>
+    <div class="cc-stat">
+      <span class="cc-stat-number">{{ meeting_dates|length }}</span>
+      <span class="cc-stat-label">Meetings</span>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="cc-stat">
-        <span class="cc-stat-number">{{ categories|length }}</span>
-        <span class="cc-stat-label">Issue Categories</span>
-      </div>
+    <div class="cc-stat">
+      <span class="cc-stat-number">{{ categories|length }}</span>
+      <span class="cc-stat-label">Issue Categories</span>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="cc-stat">
-        <span class="cc-stat-number" id="totalVotes">—</span>
-        <span class="cc-stat-label">Total Votes</span>
-      </div>
+    <div class="cc-stat">
+      <span class="cc-stat-number" id="totalVotes">—</span>
+      <span class="cc-stat-label">Total Votes</span>
     </div>
   </div>
 
-  <div class="row g-4">
+  <div class="cc-overview-grid">
 
     <!-- ── Representatives list ──────────────────────────────── -->
-    <div class="col-lg-8">
+    <div class="cc-overview-main">
       <div class="cc-card h-100">
         <div class="cc-card-header">
           <i class="fas fa-users text-primary" aria-hidden="true"></i>
@@ -83,9 +75,8 @@
         </div>
         <div class="cc-card-body">
           {% if representatives %}
-          <div class="row g-3 cc-stagger">
+          <div class="cc-reps-grid cc-stagger">
             {% for rep in representatives %}
-            <div class="col-sm-6">
               <a href="{{ url_for('main.representative_detail', rep_id=rep.id) }}"
                  class="cc-rep-card">
                 <div class="name">{{ rep.name }}</div>
@@ -97,7 +88,6 @@
                   <span class="cc-badge cc-badge-success">{{ rep.motions_made }} motions</span>
                 </div>
               </a>
-            </div>
             {% endfor %}
           </div>
           {% else %}
@@ -108,13 +98,13 @@
     </div>
 
     <!-- ── Sidebar: recent meetings + actions ────────────────── -->
-    <div class="col-lg-4">
+    <div class="cc-overview-sidebar">
       <div class="cc-card mb-3">
         <div class="cc-card-header">
           <i class="fas fa-bolt text-warning" aria-hidden="true"></i>
           <span>Quick Actions</span>
         </div>
-        <div class="cc-card-body d-grid gap-2">
+        <div class="cc-card-body" style="display:flex;flex-direction:column;gap:0.5rem;">
           <a href="{{ url_for('main.compare_representatives', council_id=council.identifier) }}"
              class="cc-btn cc-btn-outline">
             <i class="fas fa-balance-scale" aria-hidden="true"></i>Compare Representatives

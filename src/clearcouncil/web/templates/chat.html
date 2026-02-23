@@ -154,7 +154,7 @@
                     <select id="councilSelect" class="form-select mb-3">
                         <option value="">Select a council...</option>
                         {% for council in councils %}
-                        <option value="{{ council }}">{{ council.replace('_', ' ').title() }}</option>
+                        <option value="{{ council }}">{{ council|council_title }}</option>
                         {% endfor %}
                     </select>
                     <div id="councilStatus" class="small text-muted">

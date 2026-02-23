@@ -83,6 +83,22 @@ def create_app(config_name='development'):
         if len(text) <= length:
             return text
         return text[:length] + '...'
+
+    @app.template_filter('council_title')
+    def council_title(council_id):
+        """Format a council ID as a human-readable title.
+
+        Examples:
+          york_county_sc  → York County, SC
+          portland_or     → Portland, OR
+          my_council      → My Council
+        """
+        parts = council_id.split('_')
+        if len(parts) >= 2 and len(parts[-1]) == 2 and parts[-1].isalpha():
+            state = parts[-1].upper()
+            name = ' '.join(p.capitalize() for p in parts[:-1])
+            return f"{name}, {state}"
+        return ' '.join(p.capitalize() for p in parts)
     
     # Initialize accessibility features
     init_accessibility_features(app)
