@@ -112,13 +112,22 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; }
 .cc-navbar {
   background: var(--cc-secondary);
   padding: 0 1rem;
-  height: 3.5rem;
+  min-height: 3.5rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   box-shadow: var(--cc-shadow);
   position: sticky;
   top: 0;
   z-index: 1030;
+}
+
+/* Inner row (brand + nav + controls) */
+.cc-navbar > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  height: 3.5rem;
 }
 
 .cc-navbar .navbar-brand {
@@ -177,7 +186,28 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; }
 .cc-bottom-nav a.active,
 .cc-bottom-nav a:hover { color: var(--cc-primary); }
 
-/* Breadcrumb trail */
+/* Mobile menu (slide-down panel activated by hamburger button) */
+.cc-mobile-menu {
+  display: none;
+  background: var(--cc-secondary);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 0;
+}
+.cc-mobile-menu.open { display: block; }
+.cc-mobile-menu-item {
+  display: block;
+  padding: 0.7rem 1.25rem;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background var(--cc-transition), color var(--cc-transition);
+}
+.cc-mobile-menu-item:hover,
+.cc-mobile-menu-item.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
 .cc-breadcrumb {
   display: flex;
   align-items: center;
@@ -342,12 +372,16 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; }
   padding: 1.5rem 1rem;
   text-align: center;
   position: relative;
-  transition: transform var(--cc-transition), box-shadow var(--cc-transition);
+  transition: transform var(--cc-transition), box-shadow var(--cc-transition), border-color var(--cc-transition);
+  color: var(--cc-text);
 }
 .cc-step:hover {
   transform: translateY(-3px);
   box-shadow: var(--cc-shadow-lg);
+  border-color: var(--cc-primary);
+  color: var(--cc-text);
 }
+a.cc-step { cursor: pointer; }
 
 .cc-step-num {
   width: 2.5rem;
@@ -435,7 +469,40 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; }
   color: var(--cc-text);
 }
 
-/* Representative card */
+/* Feature card (clickable feature highlight) */
+.cc-feature-card {
+  color: var(--cc-text);
+  transition: all var(--cc-transition);
+}
+.cc-feature-card:hover {
+  border-color: var(--cc-primary);
+  box-shadow: var(--cc-shadow-lg);
+  transform: translateY(-3px);
+  color: var(--cc-text);
+}
+.cc-feature-card .cc-feature-arrow {
+  display: inline-block;
+  font-size: 1.1rem;
+  color: var(--cc-primary);
+  opacity: 0;
+  transition: opacity var(--cc-transition), transform var(--cc-transition);
+  transform: translateX(-4px);
+}
+.cc-feature-card:hover .cc-feature-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Council overview two-column layout */
+.cc-overview-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 992px) {
+  .cc-overview-grid { grid-template-columns: 1fr; }
+}
 .cc-rep-card {
   border: 1px solid var(--cc-border);
   border-radius: var(--cc-radius);
@@ -584,4 +651,81 @@ html { scroll-behavior: smooth; }
 :focus-visible {
   outline: 3px solid var(--cc-primary);
   outline-offset: 2px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+  13. Bootstrap-independent layout fallbacks
+      These rules ensure critical layout works even when
+      Bootstrap CSS fails to load (CDN outage, offline, etc.)
+   ────────────────────────────────────────────────────────────── */
+
+/* Navbar nav list */
+.cc-navbar .navbar-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 0 0;
+  flex-shrink: 0;
+}
+
+/* Navbar right-side controls */
+.cc-navbar .navbar-nav ~ div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Feature cards: 4-column grid on large, 2-column on medium, 1-column on small */
+.cc-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 992px) {
+  .cc-features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+  .cc-features-grid { grid-template-columns: 1fr; }
+}
+
+/* Stats: 4-column grid on medium+, 2-column on small */
+.cc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .cc-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 400px) {
+  .cc-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Representative cards: 2-column on medium+ */
+.cc-reps-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 576px) {
+  .cc-reps-grid { grid-template-columns: 1fr; }
+}
+
+/* Utility: hide on large screens (used by mobile menu button) */
+@media (min-width: 768px) {
+  .d-md-none { display: none !important; }
+  .d-none.d-md-flex { display: flex !important; }
+  .d-none.d-lg-inline-flex { display: none !important; }
+}
+@media (min-width: 992px) {
+  .d-none.d-lg-inline-flex { display: inline-flex !important; }
+}
+@media (max-width: 767px) {
+  .d-flex.d-md-none { display: flex !important; }
+  .d-none.d-md-flex { display: none !important; }
 }

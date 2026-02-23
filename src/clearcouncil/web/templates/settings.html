@@ -59,7 +59,7 @@
               {% for council_id in councils %}
               <option value="{{ council_id }}"
                       {% if council_id == session.get('default_council') %}selected{% endif %}>
-                {{ council_id|replace('_', ' ')|title }}
+                {{ council_id|council_title }}
               </option>
               {% endfor %}
             </select>

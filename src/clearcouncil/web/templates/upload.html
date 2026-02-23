@@ -35,7 +35,7 @@
             <select id="councilSelect" name="council_id" class="cc-input" required aria-required="true">
               <option value="">-- Select a council --</option>
               {% for council_id in councils %}
-              <option value="{{ council_id }}">{{ council_id|replace('_', ' ')|title }}</option>
+              <option value="{{ council_id }}">{{ council_id|council_title }}</option>
               {% endfor %}
             </select>
           </div>

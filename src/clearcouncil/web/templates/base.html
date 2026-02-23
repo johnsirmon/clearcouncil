@@ -61,7 +61,7 @@
                         {% for council_id in councils %}
                         <li>
                             <a class="dropdown-item" href="{{ url_for('main.council_overview', council_id=council_id) }}">
-                                {{ council_id|replace('_', ' ')|title }}
+                                {{ council_id|council_title }}
                             </a>
                         </li>
                         {% endfor %}
@@ -100,6 +100,13 @@
                     <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'" aria-hidden="true"></i>
                 </button>
 
+                <!-- Mobile menu button (visible on mobile only) -->
+                <button class="cc-darkmode-btn d-flex d-md-none" id="cc-mobile-menu-btn"
+                        aria-label="Open navigation menu" aria-expanded="false"
+                        aria-controls="cc-mobile-menu">
+                    <i class="fas fa-bars" aria-hidden="true"></i>
+                </button>
+
                 <!-- Upload quick link -->
                 <a href="{{ url_for('main.upload_documents') }}"
                    class="cc-btn cc-btn-outline cc-btn-sm d-none d-lg-inline-flex"
@@ -109,6 +116,53 @@
                 </a>
             </div>
 
+        </div>
+
+        <!-- Mobile slide-down menu -->
+        <div id="cc-mobile-menu" class="cc-mobile-menu" aria-hidden="true">
+            <ul role="list" style="list-style:none;margin:0;padding:0.5rem 0;">
+                <li>
+                    <a href="{{ url_for('main.index') }}" class="cc-mobile-menu-item
+                       {% if request.endpoint == 'main.index' %}active{% endif %}">
+                        <i class="fas fa-home me-2" aria-hidden="true"></i>Home
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('main.insights') }}" class="cc-mobile-menu-item
+                       {% if request.endpoint == 'main.insights' %}active{% endif %}">
+                        <i class="fas fa-lightbulb me-2" aria-hidden="true"></i>Insights
+                    </a>
+                </li>
+                {% for council_id in councils %}
+                <li>
+                    <a href="{{ url_for('main.council_overview', council_id=council_id) }}"
+                       class="cc-mobile-menu-item">
+                        <i class="fas fa-building me-2" aria-hidden="true"></i>{{ council_id|council_title }}
+                    </a>
+                </li>
+                {% endfor %}
+                <li>
+                    <a href="{{ url_for('main.data_transparency') }}" class="cc-mobile-menu-item
+                       {% if request.endpoint == 'main.data_transparency' %}active{% endif %}">
+                        <i class="fas fa-shield-alt me-2" aria-hidden="true"></i>Transparency
+                    </a>
+                </li>
+                {% if councils %}
+                <li>
+                    <form action="{{ url_for('main.search') }}" method="get"
+                          role="search" style="padding:0.5rem 1rem;">
+                        <input type="hidden" name="council_id" value="{{ councils[0] }}">
+                        <div class="d-flex gap-1">
+                            <input type="search" name="q" placeholder="Search documents…"
+                                   class="cc-input" aria-label="Search documents">
+                            <button type="submit" class="cc-btn cc-btn-primary cc-btn-sm" aria-label="Search">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
         </div>
     </nav>
 
@@ -240,9 +294,37 @@
 
     // Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-            new bootstrap.Tooltip(el);
-        });
+        if (typeof bootstrap !== 'undefined') {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                new bootstrap.Tooltip(el);
+            });
+        }
+
+        // Mobile hamburger menu toggle
+        const menuBtn = document.getElementById('cc-mobile-menu-btn');
+        const mobileMenu = document.getElementById('cc-mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.toggle('open');
+                menuBtn.setAttribute('aria-expanded', isOpen);
+                mobileMenu.setAttribute('aria-hidden', !isOpen);
+                // Swap icon between bars and X
+                const icon = menuBtn.querySelector('i');
+                if (icon) {
+                    icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+                }
+            });
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (!menuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.remove('open');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    const icon = menuBtn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
+            });
+        }
     });
 
     // HTMX: attach loading bar indicator to all requests
