@@ -8,7 +8,7 @@ Most local and state decisions are public, but not accessible. Meeting packets a
 
 ### Home Page
 
-The landing page guides users through a 4-step journey to government transparency, with clickable feature cards linking directly to each capability.
+The landing page guides users through a 4-step journey to government transparency, with live stats and clickable feature cards that link directly to each capability.
 
 ![ClearCouncil Home Page](images/screenshots/home_page.png)
 
@@ -23,6 +23,45 @@ Browse all representatives for a council, view summary stats, and quickly access
 Fully responsive design with a bottom navigation bar for fast access on phones and tablets.
 
 ![Mobile View](images/screenshots/mobile_view.png)
+
+## Web Interface
+
+Start the web interface with:
+
+```bash
+pip install -r requirements.txt
+python clearcouncil_web.py serve --host 0.0.0.0 --port 5000
+```
+
+### Key pages
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Home | `/` | 4-step journey, live stats, feature cards |
+| Council Overview | `/council/<id>` | Representatives list, recent meetings, activity chart |
+| Representative Detail | `/representative/<id>` | Voting records, charts, date filters, CSV/HTML export |
+| Compare | `/compare?council_id=<id>` | Side-by-side analysis of 2–4 representatives |
+| Insights | `/insights` | Leadership rankings, consensus analysis, district breakdown |
+| Transparency | `/transparency` | Data sources, processing stats, methodology |
+| Search | `/search?council_id=<id>&q=…` | Full-text search of council documents |
+| Upload | `/upload` | Add new PDF documents for processing |
+
+### UI design system
+
+All pages share a single custom CSS design system (`clearcouncil.css`) using CSS custom properties for easy theming. Dark mode is supported via Alpine.js with preference saved to `localStorage`.
+
+Key design tokens:
+
+```css
+--cc-primary      /* brand blue #2563eb */
+--cc-secondary    /* dark navy #0f172a  */
+--cc-success      /* green #10b981      */
+--cc-warning      /* amber #f59e0b      */
+--cc-danger       /* red #ef4444        */
+--cc-radius       /* 0.75rem            */
+```
+
+HTMX provides lightweight HTML-over-the-wire updates; Bootstrap 5 supplies layout utilities.
 
 ## Why this exists
 

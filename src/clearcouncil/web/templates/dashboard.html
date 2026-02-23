@@ -1,258 +1,185 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - ClearCouncil{% endblock %}
+{% block title %}Dashboard – ClearCouncil{% endblock %}
+
+{% block plotly %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" defer></script>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Header Section -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <h1 class="display-4 mb-3">
-                    <i class="fas fa-landmark text-primary me-3"></i>
-                    Local Government Transparency
-                </h1>
-                <p class="lead mb-4">
-                    Understand what your representatives are voting on and how they compare to others
-                </p>
-                
-                {% if default_council %}
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Currently viewing: <strong>{{ default_council|council_title }}</strong>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+<div class="cc-fade-in">
+
+  <!-- ── Header ────────────────────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-body text-center">
+      <h1 style="font-size:1.75rem;margin-bottom:.4rem;">
+        <i class="fas fa-landmark text-primary me-2" aria-hidden="true"></i>
+        Local Government Transparency
+      </h1>
+      <p class="text-muted" style="margin-bottom:.5rem;">
+        Understand what your representatives are voting on and how they compare to others.
+      </p>
+      {% if default_council %}
+      <span class="cc-badge cc-badge-info">
+        <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
+        Currently viewing: <strong>{{ default_council|council_title }}</strong>
+      </span>
+      {% endif %}
     </div>
-</div>
+  </div>
 
 {% if default_council %}
-<!-- Main Dashboard Content -->
-<div class="row">
-    <!-- Quick Stats -->
-    <div class="col-12 mb-4">
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <div class="stats-number">{{ representatives|length }}</div>
-                        <div class="stats-label">Representatives</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <div class="stats-number">{{ recent_meetings|length }}</div>
-                        <div class="stats-label">Recent Meetings</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <div class="stats-number" id="totalVotes">-</div>
-                        <div class="stats-label">Total Votes</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <div class="stats-number" id="activePeriod">-</div>
-                        <div class="stats-label">Active Period</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row">
-    <!-- Representatives Section -->
-    <div class="col-md-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-users me-2"></i>
-                    Your Representatives
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for rep in representatives %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card representative-card" 
-                             onclick="window.location.href='{{ url_for('main.representative_detail', rep_id=rep.id) }}'">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="card-title mb-1">{{ rep.name }}</h6>
-                                        <p class="card-text text-muted mb-2">
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ rep.district }}
-                                        </p>
-                                        <div class="d-flex gap-2">
-                                            <span class="badge bg-primary">{{ rep.total_votes }} votes</span>
-                                            <span class="badge bg-success">{{ rep.motions_made }} motions</span>
-                                        </div>
-                                    </div>
-                                    <div class="text-muted">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('main.compare_representatives', council_id=default_council) }}" 
-                       class="btn btn-primary">
-                        <i class="fas fa-balance-scale me-2"></i>
-                        Compare Representatives
-                    </a>
-                </div>
-            </div>
-        </div>
+  <!-- ── Quick stats ───────────────────────────────────────────── -->
+  <div class="cc-stats-grid mb-4 cc-stagger">
+    <div class="cc-stat">
+      <span class="cc-stat-number">{{ representatives|length }}</span>
+      <span class="cc-stat-label">Representatives</span>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-bolt me-2"></i>
-                    Quick Actions
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-3">
-                    <a href="{{ url_for('main.search', council_id=default_council) }}" 
-                       class="btn btn-outline-primary">
-                        <i class="fas fa-search me-2"></i>
-                        Search Documents
-                    </a>
-                    
-                    <a href="{{ url_for('main.council_overview', council_id=default_council) }}" 
-                       class="btn btn-outline-primary">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Council Overview
-                    </a>
-                    
-                    <a href="{{ url_for('main.upload_documents') }}" 
-                       class="btn btn-outline-primary">
-                        <i class="fas fa-upload me-2"></i>
-                        Upload Documents
-                    </a>
-                    
-                    <button class="btn btn-outline-primary" onclick="explainTerms()">
-                        <i class="fas fa-question-circle me-2"></i>
-                        Explain Terms
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Activity -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-clock me-2"></i>
-                    Recent Meetings
-                </h5>
-            </div>
-            <div class="card-body">
-                {% if recent_meetings %}
-                <div class="list-group list-group-flush">
-                    {% for meeting_date in recent_meetings[:5] %}
-                    <div class="list-group-item border-0 px-0">
-                        <div class="d-flex justify-content-between">
-                            <span>{{ meeting_date|datetime_format('%B %d, %Y') }}</span>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar-alt"></i>
-                            </small>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-muted mb-0">No recent meetings found.</p>
-                {% endif %}
-            </div>
-        </div>
+    <div class="cc-stat">
+      <span class="cc-stat-number">{{ recent_meetings|length }}</span>
+      <span class="cc-stat-label">Recent Meetings</span>
     </div>
-</div>
+    <div class="cc-stat">
+      <span class="cc-stat-number" id="totalVotes">—</span>
+      <span class="cc-stat-label">Total Votes</span>
+    </div>
+    <div class="cc-stat">
+      <span class="cc-stat-number" id="activePeriod">—</span>
+      <span class="cc-stat-label">Active Period</span>
+    </div>
+  </div>
 
-<!-- Council Overview Chart -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Council Activity Overview
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="councilOverviewChart" class="chart-container"></div>
-            </div>
-        </div>
-    </div>
-</div>
+  <!-- ── Representatives + sidebar ────────────────────────────── -->
+  <div class="cc-overview-grid mb-4">
 
-<!-- Data Sources & Transparency Section -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div id="dataSourcesSection"></div>
+    <!-- Representatives list -->
+    <div class="cc-card">
+      <div class="cc-card-header">
+        <i class="fas fa-users text-primary" aria-hidden="true"></i>
+        <span>Your Representatives</span>
+      </div>
+      <div class="cc-card-body">
+        <div class="cc-reps-grid cc-stagger">
+          {% for rep in representatives %}
+          <a href="{{ url_for('main.representative_detail', rep_id=rep.id) }}" class="cc-rep-card">
+            <div class="name">{{ rep.name }}</div>
+            <div class="district">
+              <i class="fas fa-map-marker-alt me-1" aria-hidden="true"></i>{{ rep.district }}
+            </div>
+            <div class="mt-2 d-flex gap-1 flex-wrap">
+              <span class="cc-badge cc-badge-primary">{{ rep.total_votes }} votes</span>
+              <span class="cc-badge cc-badge-success">{{ rep.motions_made }} motions</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('main.compare_representatives', council_id=default_council) }}"
+             class="cc-btn cc-btn-primary cc-btn-sm">
+            <i class="fas fa-balance-scale" aria-hidden="true"></i>Compare Representatives
+          </a>
+        </div>
+      </div>
     </div>
-</div>
+
+    <!-- Sidebar: quick actions + recent meetings -->
+    <div>
+      <div class="cc-card mb-3">
+        <div class="cc-card-header">
+          <i class="fas fa-bolt text-warning" aria-hidden="true"></i>
+          <span>Quick Actions</span>
+        </div>
+        <div class="cc-card-body" style="display:flex;flex-direction:column;gap:.5rem;">
+          <a href="{{ url_for('main.search', council_id=default_council) }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-search" aria-hidden="true"></i>Search Documents
+          </a>
+          <a href="{{ url_for('main.council_overview', council_id=default_council) }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-chart-bar" aria-hidden="true"></i>Council Overview
+          </a>
+          <a href="{{ url_for('main.upload_documents') }}"
+             class="cc-btn cc-btn-outline">
+            <i class="fas fa-upload" aria-hidden="true"></i>Upload Documents
+          </a>
+          <button class="cc-btn cc-btn-outline" onclick="explainTerms()">
+            <i class="fas fa-question-circle" aria-hidden="true"></i>Explain Terms
+          </button>
+        </div>
+      </div>
+
+      {% if recent_meetings %}
+      <div class="cc-card">
+        <div class="cc-card-header">
+          <i class="fas fa-calendar-alt text-info" aria-hidden="true"></i>
+          <span>Recent Meetings</span>
+        </div>
+        <div class="cc-card-body p-0">
+          <ul class="list-unstyled mb-0" style="font-size:.88rem;">
+            {% for meeting_date in recent_meetings[:5] %}
+            <li style="padding:.6rem 1.25rem;border-bottom:1px solid var(--cc-border);">
+              <i class="fas fa-circle text-primary me-2"
+                 style="font-size:.45rem;vertical-align:middle;" aria-hidden="true"></i>
+              {{ meeting_date|datetime_format('%B %d, %Y') }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ── Council activity chart ────────────────────────────────── -->
+  <div class="cc-card mb-4">
+    <div class="cc-card-header">
+      <i class="fas fa-chart-line text-primary" aria-hidden="true"></i>
+      <span>Council Activity Overview</span>
+    </div>
+    <div class="cc-card-body">
+      <div id="councilOverviewChart" style="min-height:320px;"></div>
+    </div>
+  </div>
+
+  <!-- ── Data sources section ──────────────────────────────────── -->
+  <div id="dataSourcesSection"></div>
 
 {% else %}
-<!-- No Council Selected -->
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="fas fa-building fa-4x text-muted mb-4"></i>
-                <h3>Select a Council to Get Started</h3>
-                <p class="text-muted mb-4">
-                    Choose a council from the list below to view representatives and voting records.
-                </p>
-                
-                {% if councils %}
-                <div class="row">
-                    {% for council_id in councils %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ council_id|council_title }}</h5>
-                                <a href="{{ url_for('main.council_overview', council_id=council_id) }}" 
-                                   class="btn btn-primary">
-                                    <i class="fas fa-arrow-right me-2"></i>
-                                    View Council
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    No councils configured. Please check your configuration.
-                </div>
-                {% endif %}
-            </div>
+  <!-- ── No council selected ───────────────────────────────────── -->
+  <div class="cc-card">
+    <div class="cc-card-body text-center py-5">
+      <i class="fas fa-building fa-4x text-muted mb-4" aria-hidden="true"></i>
+      <h3>Select a Council to Get Started</h3>
+      <p class="text-muted mb-4">
+        Choose a council from the list below to view representatives and voting records.
+      </p>
+      {% if councils %}
+      <div class="cc-reps-grid" style="max-width:600px;margin:0 auto;">
+        {% for council_id in councils %}
+        <div class="cc-card">
+          <div class="cc-card-body">
+            <h5 style="font-size:1rem;margin-bottom:.75rem;">{{ council_id|council_title }}</h5>
+            <a href="{{ url_for('main.council_overview', council_id=council_id) }}"
+               class="cc-btn cc-btn-primary cc-btn-sm">
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>View Council
+            </a>
+          </div>
         </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="padding:.75rem 1rem;background:#fef3c7;border-radius:var(--cc-radius-sm);border-left:3px solid var(--cc-warning);display:inline-block;">
+        <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+        No councils configured. Please check your configuration.
+      </div>
+      {% endif %}
     </div>
-</div>
+  </div>
 {% endif %}
+
+</div><!-- /.cc-fade-in -->
 {% endblock %}
 
 {% block extra_js %}
@@ -321,91 +248,81 @@ function loadDataSourcesSection() {
 
 function generateDataSourcesHTML(data) {
     const { data_quality, processing_methods, transparency } = data;
-    
+
     return `
-        <div class="data-sources-section">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-database me-2"></i>
-                        Data Sources & Transparency
-                    </h5>
+        <div class="cc-card mb-4">
+            <div class="cc-card-header">
+                <i class="fas fa-database text-primary"></i>
+                <span>Data Sources &amp; Transparency</span>
+            </div>
+            <div class="cc-card-body">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <h6 style="font-size:.88rem;margin-bottom:.5rem;">
+                            <i class="fas fa-archive me-1 text-primary"></i>Historical Source
+                        </h6>
+                        <p style="font-size:.88rem;margin-bottom:.25rem;"><strong>IQM2 Legacy System</strong></p>
+                        <p style="font-size:.8rem;color:var(--cc-text-muted);margin-bottom:.25rem;">Coverage: January 2018 – March 17, 2025</p>
+                        <p style="font-size:.8rem;color:var(--cc-text-muted);margin-bottom:.5rem;">Status: ✅ Automated collection active</p>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <span class="cc-badge cc-badge-success">${data_quality.documents_processed} documents</span>
+                            <span class="cc-badge cc-badge-info">${data_quality.representatives_tracked} representatives</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 style="font-size:.88rem;margin-bottom:.5rem;">
+                            <i class="fas fa-cloud me-1 text-primary"></i>Current Source
+                        </h6>
+                        <p style="font-size:.88rem;margin-bottom:.25rem;"><strong>CivicClerk Portal (CivicPlus)</strong></p>
+                        <p style="font-size:.8rem;color:var(--cc-text-muted);margin-bottom:.25rem;">Coverage: March 18, 2025 – Present</p>
+                        <p style="font-size:.8rem;color:var(--cc-text-muted);margin-bottom:.5rem;">Status: ⚠️ Requires authentication</p>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <span class="cc-badge cc-badge-warning">Manual collection needed</span>
+                            <span class="cc-badge cc-badge-primary">OAuth integration planned</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-archive me-2"></i>Historical Source</h6>
-                            <p><strong>IQM2 Legacy System</strong></p>
-                            <p><small>Coverage: January 2018 - March 17, 2025</small></p>
-                            <p><small>Status: ✅ Automated collection active</small></p>
-                            <div class="mb-3">
-                                <span class="badge bg-success">${data_quality.documents_processed} documents</span>
-                                <span class="badge bg-info">${data_quality.representatives_tracked} representatives</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-cloud me-2"></i>Current Source</h6>
-                            <p><strong>CivicClerk Portal (CivicPlus)</strong></p>
-                            <p><small>Coverage: March 18, 2025 - Present</small></p>
-                            <p><small>Status: ⚠️ Requires authentication</small></p>
-                            <div class="mb-3">
-                                <span class="badge bg-warning">Manual collection needed</span>
-                                <span class="badge bg-primary">OAuth integration planned</span>
-                            </div>
-                        </div>
+
+                <h6 style="font-size:.88rem;margin-bottom:.75rem;">
+                    <i class="fas fa-shield-alt me-1 text-primary"></i>Data Quality Metrics
+                </h6>
+                <div class="cc-stats-grid mb-4">
+                    <div class="cc-stat">
+                        <span class="cc-stat-number">${data_quality.voting_records}</span>
+                        <span class="cc-stat-label">Voting Records</span>
                     </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h6><i class="fas fa-shield-alt me-2"></i>Data Quality Metrics</h6>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <div class="text-center">
-                                        <div class="h4 text-primary">${data_quality.voting_records}</div>
-                                        <small>Voting Records</small>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="text-center">
-                                        <div class="h4 text-success">${data_quality.success_rate}</div>
-                                        <small>Processing Success</small>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="text-center">
-                                        <div class="h4 text-info">${data_quality.deduplication_effectiveness}</div>
-                                        <small>Duplicate Reduction</small>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="text-center">
-                                        <div class="h4 text-warning">Daily</div>
-                                        <small>Update Frequency</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="cc-stat">
+                        <span class="cc-stat-number" style="color:var(--cc-success);">${data_quality.success_rate}</span>
+                        <span class="cc-stat-label">Processing Success</span>
                     </div>
-                    
-                    <div class="mt-4">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Official Source:</strong> All data originates from 
-                            <a href="https://www.yorkcountygov.com/1175/Agendas-and-Minutes" target="_blank">
-                                York County's official Agendas and Minutes
-                            </a>
-                        </div>
+                    <div class="cc-stat">
+                        <span class="cc-stat-number" style="color:var(--cc-info);">${data_quality.deduplication_effectiveness}</span>
+                        <span class="cc-stat-label">Duplicate Reduction</span>
                     </div>
-                    
-                    ${transparency.limitations.length > 0 ? `
-                        <div class="mt-3">
-                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Current Limitations</h6>
-                            <ul class="list-unstyled">
-                                ${transparency.limitations.map(limit => `<li><i class="fas fa-minus me-2"></i>${limit}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
+                    <div class="cc-stat">
+                        <span class="cc-stat-number" style="color:var(--cc-warning);">Daily</span>
+                        <span class="cc-stat-label">Update Frequency</span>
+                    </div>
                 </div>
+
+                <div style="background:var(--cc-primary-light);border-radius:var(--cc-radius-sm);padding:.75rem 1rem;border-left:3px solid var(--cc-primary);font-size:.88rem;">
+                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                    <strong>Official Source:</strong> All data originates from
+                    <a href="https://www.yorkcountygov.com/1175/Agendas-and-Minutes" target="_blank" rel="noopener" style="color:var(--cc-primary);">
+                        York County's official Agendas and Minutes
+                    </a>
+                </div>
+
+                ${transparency.limitations && transparency.limitations.length > 0 ? `
+                    <div style="margin-top:1rem;">
+                        <h6 style="font-size:.88rem;margin-bottom:.5rem;">
+                            <i class="fas fa-exclamation-triangle me-1 text-warning"></i>Current Limitations
+                        </h6>
+                        <ul class="list-unstyled" style="font-size:.85rem;color:var(--cc-text-muted);">
+                            ${transparency.limitations.map(limit => `<li><i class="fas fa-minus me-2"></i>${limit}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
