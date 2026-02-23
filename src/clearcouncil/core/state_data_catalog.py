@@ -16,7 +16,11 @@ Workarounds for access blockers (all legally permissible):
 - CivicPlus registration: Create a free account with email (no payment required)
 - JavaScript-heavy portals: Use requests+BeautifulSoup or Selenium for scraping
 - Legistar API: Use the public REST API at webapi.legistar.com for structured data
-- PACER-style portals: Submit public records requests (FOIA/NCGS 132) for bulk access
+- Public records requests:
+    SC: Submit FOIA requests under the SC Freedom of Information Act (S.C. Code § 30-4-10)
+    NC: Submit records requests under the NC Public Records Law (N.C. Gen. Stat. § 132-1 et seq.)
+  Both laws require prompt response and prohibit charging more than actual duplication costs
+  for electronic records, making bulk PDF access legally and financially accessible.
 """
 
 from dataclasses import dataclass, field
@@ -150,7 +154,7 @@ SC_DATA_SOURCES: List[DataSourceEntry] = [
         api_available=False,
         access_notes="Minutes and agendas available as PDFs, no auth required.",
         known_blockers=["Older documents may be archived and require records request"],
-        workarounds=["Submit FOIA request to Horry County Clerk for documents > 5 years old"],
+        workarounds=["Submit SC FOIA request (S.C. Code § 30-4-10) to Horry County Clerk for documents > 5 years old"],
         council_identifier="horry_county_sc",
     ),
     DataSourceEntry(
@@ -330,7 +334,7 @@ NC_DATA_SOURCES: List[DataSourceEntry] = [
             "Potential record gaps from Hurricane Helene (Sept 2024) recovery period",
         ],
         workarounds=[
-            "Submit NCGS 132 public records request to Buncombe County Clerk",
+            "Submit NC Public Records Law (N.C.G.S. § 132-1) request to Buncombe County Clerk",
             "Contact Buncombe County Manager's Office for affected records",
         ],
         council_identifier="buncombe_county_nc",

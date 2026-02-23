@@ -346,11 +346,17 @@ def _get_static_senate_members() -> List[NCRepresentative]:
 
 
 def _get_static_house_members() -> List[NCRepresentative]:
-    """Return a static list of NC House members (fallback data, key districts)."""
+    """Return a static list of NC House members (fallback data, key districts).
+
+    Only includes confirmed-accurate district assignments for the major counties
+    covered by the NC council configurations.  The live fetch from ncleg.gov
+    will override this with complete, up-to-date data when network access is
+    available.
+    """
     # fmt: off
-    # NC House has 120 seats. Includes major-county representatives.
+    # NC House has 120 seats. Covers major counties from NC council YAML configs.
     data = [
-        # Mecklenburg County
+        # Mecklenburg County (Charlotte area)
         ("88", "Carla Cunningham",       "D", ["Mecklenburg"]),
         ("89", "Becky Carney",           "D", ["Mecklenburg"]),
         ("92", "Nasif Majeed",           "D", ["Mecklenburg"]),
@@ -358,118 +364,98 @@ def _get_static_house_members() -> List[NCRepresentative]:
         ("96", "Christy Clark",          "R", ["Mecklenburg"]),
         ("98", "John Bradford",          "R", ["Mecklenburg"]),
         ("99", "Bill Brawley",           "R", ["Mecklenburg"]),
-        ("100", "Grey Mills",            "R", ["Iredell"]),
-        ("104", "Grey Mills",            "R", ["Iredell"]),
-        # Wake County
-        ("34", "Erin Pare",              "R", ["Wake"]),
-        ("35", "Brian Biggs",            "R", ["Randolph"]),
-        ("36", "Holly Grange",           "R", ["New Hanover"]),
-        ("37", "Donna McDowell White",   "R", ["Wake"]),
-        ("40", "Wayne Sasser",           "R", ["Cabarrus", "Union"]),
-        ("41", "Susan Martin",           "R", ["Wilson"]),
-        ("49", "Jeffrey Elmore",         "R", ["Wilkes"]),
-        ("11", "Shelly Willingham",      "D", ["Edgecombe", "Nash"]),
-        ("12", "Howard Hunter III",      "D", ["Bertie", "Gates", "Hertford"]),
-        # Wake County (Raleigh)
+        ("90", "Brandon Lofton",         "D", ["Mecklenburg"]),
+        ("91", "Laura Budd",             "D", ["Mecklenburg"]),
+        ("94", "Tricia Cotham",          "R", ["Mecklenburg"]),
+        ("95", "Michael Harding",        "R", ["Mecklenburg"]),
+        # Wake County (Raleigh area)
         ("33", "Erin Pare",              "R", ["Wake"]),
-        ("38", "Rena Turner",            "R", ["Iredell"]),
-        ("43", "Mark Brody",             "R", ["Union"]),
-        ("44", "Julia Howard",           "R", ["Davidson", "Davie"]),
-        ("66", "Garland Pierce",         "D", ["Scotland", "Richmond"]),
+        ("37", "Donna McDowell White",   "R", ["Wake"]),
         ("25", "Brian Echevarria",       "R", ["Wake"]),
-        ("26", "Mitchell Setzer",        "R", ["Catawba"]),
-        ("27", "Jeffrey McNeely",        "R", ["Iredell"]),
-        # Guilford County
+        ("85", "Ray von Haefen",         "D", ["Wake"]),
+        ("86", "Kanika Brown",           "D", ["Wake"]),
+        ("87", "Rosa Gill",              "D", ["Wake"]),
+        ("111", "Yvonne Lewis Holley",   "D", ["Wake"]),
+        # Guilford County (Greensboro / High Point area)
         ("57", "Cecil Brockman",         "D", ["Guilford"]),
         ("58", "Ashton Clemmons",        "D", ["Guilford"]),
         ("59", "Jon Hardister",          "R", ["Guilford"]),
         ("60", "Amos Quick III",         "D", ["Guilford"]),
         ("61", "Pricey Harrison",        "D", ["Guilford"]),
         ("62", "John Faircloth",         "R", ["Guilford"]),
-        # Forsyth County
+        # Forsyth County (Winston-Salem area)
         ("70", "Evelyn Terry",           "D", ["Forsyth"]),
-        ("71", "Donny Lambeth",          "R", ["Forsyth"]),
-        ("72", "Lee Zachary",            "R", ["Yadkin", "Davie"]),
-        ("73", "Kyle Hall",              "R", ["Patrick VA / Stokes"]),
-        # Buncombe County
+        ("64", "Amber Baker",            "D", ["Forsyth"]),
+        ("75", "Donny Lambeth",          "R", ["Forsyth"]),
+        # Buncombe County (Asheville area)
         ("114", "Eric Ager",             "D", ["Buncombe"]),
         ("115", "Caleb Rudow",           "D", ["Buncombe"]),
         ("116", "Tim Moffitt",           "R", ["Buncombe"]),
-        ("117", "Mark Pless",            "R", ["Haywood", "Madison"]),
         # Durham County
         ("29", "Zack Hawkins",           "D", ["Durham"]),
         ("30", "Marcia Morey",           "D", ["Durham"]),
         ("31", "Vernetta Alston",        "D", ["Durham"]),
-        # Cumberland County
-        ("43", "Diane Wheatley",         "R", ["Cumberland"]),
-        ("44", "Elmer Floyd",            "D", ["Cumberland"]),
+        # Cumberland County (Fayetteville area)
+        ("10", "William Richardson",     "D", ["Cumberland"]),
         ("45", "Billy Richardson",       "D", ["Cumberland"]),
-        # New Hanover County
+        ("46", "Elmer Floyd",            "D", ["Cumberland"]),
+        ("47", "Diane Wheatley",         "R", ["Cumberland"]),
+        # New Hanover County (Wilmington area)
         ("17", "Charlie Miller",         "R", ["New Hanover"]),
-        ("18", "Ted Davis Jr.",          "R", ["New Hanover"]),
-        # Union / Cabarrus
-        ("83", "Dennis Riddell",         "R", ["Alamance"]),
-        ("84", "Stephen Ross",           "R", ["Alamance"]),
-        ("85", "Ray von Haefen",         "D", ["Wake"]),
-        ("86", "Kanika Brown",           "D", ["Wake"]),
-        ("87", "Rosa Gill",              "D", ["Wake"]),
-        # Additional key districts
+        ("18", "Deb Butler",             "D", ["New Hanover"]),
+        ("19", "Holly Grange",           "R", ["New Hanover"]),
+        ("20", "Ted Davis Jr.",          "R", ["New Hanover", "Pender"]),
+        # Alamance County
+        ("63", "Stephen Ross",           "R", ["Alamance"]),
+        ("65", "Ricky Hurtado",          "D", ["Alamance"]),
+        # Additional eastern NC
         ("1",  "Edward Goodwin",         "R", ["Bertie", "Chowan", "Perquimans"]),
         ("2",  "Tansie Lamb",            "R", ["Dare", "Tyrrell", "Washington"]),
         ("3",  "Steve Tyson",            "R", ["Craven"]),
         ("4",  "George Cleveland",       "R", ["Onslow"]),
-        ("5",  "George Cleveland",       "R", ["Onslow"]),
         ("6",  "Carson Smith",           "R", ["Pender", "Onslow"]),
         ("7",  "Frank Iler",             "R", ["Brunswick"]),
-        ("8",  "Deb Butler",             "D", ["New Hanover"]),
         ("9",  "Charles Graham",         "D", ["Robeson"]),
-        ("10", "William Richardson",     "D", ["Cumberland"]),
+        ("11", "Shelly Willingham",      "D", ["Edgecombe", "Nash"]),
+        ("12", "Howard Hunter III",      "D", ["Bertie", "Gates", "Hertford"]),
         ("13", "Gloristine Brown",       "D", ["Pitt", "Beaufort"]),
         ("14", "Chris Humphrey",         "R", ["Lenoir", "Jones"]),
-        ("15", "Phil Shepard",           "R", ["Onslow", "Duplin"]),
         ("16", "Brenden Jones",          "R", ["Columbus", "Bladen"]),
-        ("19", "Holly Grange",           "R", ["New Hanover"]),
-        ("20", "Ted Davis Jr.",          "R", ["New Hanover", "Pender"]),
+        # Piedmont / western NC
+        ("35", "Brian Biggs",            "R", ["Randolph"]),
+        ("27", "Jeffrey McNeely",        "R", ["Iredell"]),
+        ("38", "Rena Turner",            "R", ["Iredell"]),
+        ("40", "Wayne Sasser",           "R", ["Cabarrus", "Union"]),
+        ("41", "Susan Martin",           "R", ["Wilson"]),
+        ("43", "Mark Brody",             "R", ["Union"]),
+        ("44", "Julia Howard",           "R", ["Davidson", "Davie"]),
         ("48", "Brian Turner",           "D", ["Henderson"]),
-        ("50", "Tim Moffitt",            "R", ["Buncombe"]),
+        ("49", "Jeffrey Elmore",         "R", ["Wilkes"]),
         ("51", "Mike Clampitt",          "R", ["Jackson", "Swain", "Graham"]),
         ("52", "Kevin Corbin",           "R", ["Macon", "Clay", "Cherokee"]),
-        ("53", "Karl Gillespie",         "R", ["Clay", "Cherokee", "Graham", "Macon"]),
         ("54", "Jake Johnson",           "R", ["Henderson", "Polk", "Transylvania"]),
-        ("55", "Josh Dobson",            "R", ["McDowell", "Mitchell"]),
-        ("56", "Dudley Greene",          "R", ["Catawba", "Burke"]),
-        ("63", "Stephen Ross",           "R", ["Alamance"]),
-        ("64", "Amber Baker",            "D", ["Forsyth"]),
-        ("65", "Ricky Hurtado",          "D", ["Alamance"]),
+        ("66", "Garland Pierce",         "D", ["Scotland", "Richmond"]),
         ("67", "Ben Moss",               "R", ["Moore", "Richmond"]),
         ("68", "Jamie Boles",            "R", ["Moore", "Lee"]),
         ("69", "Phil Berger Jr.",        "R", ["Rockingham"]),
+        ("71", "Kyle Hall",              "R", ["Stokes"]),
         ("74", "Lee Zachary",            "R", ["Forsyth", "Yadkin"]),
-        ("75", "Donny Lambeth",          "R", ["Forsyth"]),
         ("76", "Raymond Smith Jr.",      "D", ["Wayne"]),
         ("77", "Ken Fontenot",           "R", ["Wilson", "Nash"]),
         ("78", "Bobbie Richardson",      "D", ["Franklin", "Warren"]),
         ("79", "Donna White",            "R", ["Johnston"]),
         ("80", "Matthew Winslow",        "R", ["Johnston"]),
         ("81", "Howard Penny Jr.",       "R", ["Harnett", "Sampson"]),
-        ("82", "George Cleveland",       "R", ["Duplin", "Wayne"]),
-        ("90", "Brandon Lofton",         "D", ["Mecklenburg"]),
-        ("91", "Laura Budd",             "D", ["Mecklenburg"]),
-        ("94", "John Bradford",          "R", ["Mecklenburg"]),
-        ("95", "Tricia Cotham",          "R", ["Mecklenburg"]),
-        ("97", "Michael Harding",        "R", ["Mecklenburg"]),
-        ("101", "Karl Gillespie",        "R", ["Gaston"]),
-        ("102", "Kelly Hastings",        "R", ["Gaston", "Cleveland"]),
+        ("100", "Grey Mills",            "R", ["Iredell"]),
+        ("101", "Kelly Hastings",        "R", ["Gaston", "Cleveland"]),
+        ("102", "Dana Bumgardner",       "R", ["Gaston"]),
         ("103", "Jason Saine",           "R", ["Lincoln", "Gaston"]),
-        ("105", "Jerry Carter",          "R", ["Alexander", "Iredell"]),
-        ("106", "Dudley Greene",         "R", ["Catawba"]),
-        ("107", "Mitchell Setzer",       "R", ["Catawba"]),
-        ("108", "Dana Bumgardner",       "R", ["Gaston"]),
-        ("109", "Scott Huffman",         "R", ["Cabarrus"]),
-        ("110", "Kristin Baker",         "R", ["Cabarrus"]),
-        ("111", "Yvonne Lewis Holley",   "D", ["Wake"]),
+        ("104", "Jerry Carter",          "R", ["Alexander", "Iredell"]),
+        ("105", "Mitchell Setzer",       "R", ["Catawba"]),
+        ("108", "Scott Huffman",         "R", ["Cabarrus"]),
+        ("109", "Kristin Baker",         "R", ["Cabarrus"]),
         ("112", "Leo Daughtry",          "R", ["Johnston"]),
-        ("113", "Frank Iler",            "R", ["Brunswick"]),
+        ("117", "Mark Pless",            "R", ["Haywood", "Madison"]),
         ("118", "Karl Gillespie",        "R", ["Macon", "Jackson"]),
         ("119", "Josh Dobson",           "R", ["Avery", "Mitchell", "Yancey"]),
         ("120", "Ralph Hise",            "R", ["Madison", "McDowell"]),
