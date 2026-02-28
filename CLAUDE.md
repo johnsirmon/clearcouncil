@@ -2,6 +2,37 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Self-Improvement Workflow
+
+This project uses the [self-improving-agent](https://clawhub.ai/pskoett/self-improving-agent) pattern to capture learnings and continuously improve agent behavior.
+
+### When to Log
+
+| Situation | File |
+|-----------|------|
+| Command or operation fails unexpectedly | `.learnings/ERRORS.md` |
+| User corrects the agent ("No, that's wrong…", "Actually…") | `.learnings/LEARNINGS.md` (category: `correction`) |
+| User requests a capability that doesn't exist | `.learnings/FEATURE_REQUESTS.md` |
+| External API or tool fails | `.learnings/ERRORS.md` |
+| Knowledge is outdated or incorrect | `.learnings/LEARNINGS.md` (category: `knowledge_gap`) |
+| A better approach is found for a recurring task | `.learnings/LEARNINGS.md` (category: `best_practice`) |
+
+### ID Format
+
+`TYPE-YYYYMMDD-XXX` — e.g. `LRN-20260223-001`, `ERR-20260223-A3F`, `FEAT-20260223-002`
+
+### Promotion
+
+When a learning is broadly applicable, promote it to permanent project memory:
+
+| Learning Type | Promote To |
+|---------------|------------|
+| Project facts, conventions, gotchas | `CLAUDE.md` (this file) |
+| Agent workflows, automation rules | `.github/copilot-instructions.md` |
+| User-facing feature patterns | `README.md` |
+
+After promoting, update the original entry's `**Status**` to `promoted` and add `**Promoted**: CLAUDE.md` (or relevant target).
+
 ## Project Overview
 
 ClearCouncil is a modular local government transparency tool that democratizes access to council information through RAG (Retrieval Augmented Generation). The system processes PDF documents, YouTube transcripts, and extracts structured data to enable natural language querying about local government activities.
