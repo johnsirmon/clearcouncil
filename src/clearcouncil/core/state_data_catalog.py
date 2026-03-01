@@ -451,13 +451,13 @@ SC_MUNICIPAL_DATA_SOURCES: List[DataSourceEntry] = [
         state="SC",
         portal_type="custom_pdf",
         primary_url="https://www.cityofmyrtlebeach.com",
-        minutes_url="https://www.cityofmyrtlebeach.com/government/mayor_and_city_concil/",
+        minutes_url="https://www.cityofmyrtlebeach.com/government/boards_and_committees/city_council_documents.php",
         access_level="public",
         document_formats=["PDF", "Video"],
         api_available=False,
         access_notes=(
             "City council meeting info available online. Meetings can be "
-            "watched online via city website and social media."
+            "watched online via city website and YouTube channel."
         ),
         known_blockers=[],
         workarounds=[],
