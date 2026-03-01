@@ -214,6 +214,269 @@ SC_DATA_SOURCES: List[DataSourceEntry] = [
         workarounds=["Use Legistar REST API for structured data access"],
         council_identifier=None,
     ),
+    # Additional SC counties discovered through research
+    DataSourceEntry(
+        county="Georgetown",
+        state="SC",
+        portal_type="civicplus_civicclerk",
+        primary_url="https://www.gtcounty.org",
+        minutes_url="https://www.gtcounty.org/291/County-Council",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "CivicClerk system for agenda management. Meeting agendas and minutes "
+            "publicly accessible. 7-member council."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="georgetown_county_sc",
+    ),
+    DataSourceEntry(
+        county="Dorchester",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.dorchestercountysc.gov",
+        minutes_url="https://www.dorchestercountysc.gov/government/county-council",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="PDFs on official county website. 7-district council.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="dorchester_county_sc",
+    ),
+    DataSourceEntry(
+        county="Aiken",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.aikencountysc.gov",
+        minutes_url="https://www.aikencountysc.gov/528/County-Council",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "PDFs on official county website. 9-member council (8 districts + "
+            "at-large chairman). Interactive district map available."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="aiken_county_sc",
+    ),
+    DataSourceEntry(
+        county="Florence",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.florenceco.org",
+        minutes_url="https://www.florenceco.org/council/",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="PDFs on official county website. 9-member council.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="florence_county_sc",
+    ),
+    DataSourceEntry(
+        county="Sumter",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.sumtercountysc.gov",
+        minutes_url="https://www.sumtercountysc.gov/our_council/council_members/index.php",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="PDFs on official county website. 7-member council.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="sumter_county_sc",
+    ),
+    DataSourceEntry(
+        county="Orangeburg",
+        state="SC",
+        portal_type="civicplus_public",
+        primary_url="https://www.orangeburgcounty.org",
+        minutes_url="https://www.orangeburgcounty.org/AgendaCenter/County-Council-4",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "CivicEngage Agenda Center for meeting documents. "
+            "PDFs publicly accessible. 7-member council."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="orangeburg_county_sc",
+    ),
+    DataSourceEntry(
+        county="Pickens",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.co.pickens.sc.us",
+        minutes_url="https://www.co.pickens.sc.us/government/county_council/index.php",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="PDFs on official county website. 6-member council.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="pickens_county_sc",
+    ),
+    DataSourceEntry(
+        county="Kershaw",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.kershaw.sc.gov",
+        minutes_url="https://www.kershaw.sc.gov/county-council/council-members",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="PDFs on official county website. 7-member council.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="kershaw_county_sc",
+    ),
+    DataSourceEntry(
+        county="Lancaster",
+        state="SC",
+        portal_type="civicplus_civicclerk",
+        primary_url="https://www.lancastercountysc.gov",
+        minutes_url="https://lancastercosc.portal.civicclerk.com/",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "CivicClerk portal with searchable agendas and minutes. "
+            "Email notifications available for new postings. 7-member council."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="lancaster_county_sc",
+    ),
+    DataSourceEntry(
+        county="Colleton",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.colletoncounty.org",
+        minutes_url="https://www.colletoncounty.org/county-council",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "PDFs on official county website. 5-member council with "
+            "Council-Administrator form of government."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="colleton_county_sc",
+    ),
+]
+
+
+# ---------------------------------------------------------------------------
+# South Carolina Municipal (City) Data Sources
+# ---------------------------------------------------------------------------
+SC_MUNICIPAL_DATA_SOURCES: List[DataSourceEntry] = [
+    DataSourceEntry(
+        county="City of Columbia",
+        state="SC",
+        portal_type="iqm2",
+        primary_url="https://www.columbiasc.gov",
+        minutes_url="https://columbiacitysc.iqm2.com/Citizens/Default.aspx",
+        access_level="public",
+        document_formats=["PDF", "Video"],
+        api_available=False,
+        access_notes=(
+            "IQM2 Meeting Portal with agendas, minutes, packets, and videos. "
+            "Live-streaming available. Public comment registration online. "
+            "State capital city."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="columbia_city_sc",
+    ),
+    DataSourceEntry(
+        county="City of Charleston",
+        state="SC",
+        portal_type="iqm2",
+        primary_url="https://www.charleston-sc.gov",
+        minutes_url="https://charlestonsc.iqm2.com/Citizens/default.aspx",
+        access_level="public",
+        document_formats=["PDF", "Video"],
+        api_available=False,
+        access_notes=(
+            "IQM2 portal for city council meetings. Open Data portal available at "
+            "data-charleston-sc.opendata.arcgis.com for GIS and city datasets."
+        ),
+        known_blockers=[],
+        workarounds=["City Open Data: https://www.charleston-sc.gov/1570/Open-Data"],
+        council_identifier="charleston_city_sc",
+    ),
+    DataSourceEntry(
+        county="City of Greenville",
+        state="SC",
+        portal_type="civicplus_civicclerk",
+        primary_url="https://www.greenvillesc.gov",
+        minutes_url="https://greenvillesc.portal.civicclerk.com/",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "CivicClerk Agenda and Minutes portal. Meeting calendars with "
+            "filterable events. City council and various boards covered."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="greenville_city_sc",
+    ),
+    DataSourceEntry(
+        county="City of North Charleston",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.northcharleston.org",
+        minutes_url="https://www.northcharleston.org/government/city_council/",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes=(
+            "Meeting minutes and schedules on official city website. "
+            "Contact Clerk of Council for detailed records."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="north_charleston_city_sc",
+    ),
+    DataSourceEntry(
+        county="City of Myrtle Beach",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.cityofmyrtlebeach.com",
+        minutes_url="https://www.cityofmyrtlebeach.com/government/mayor_and_city_concil/",
+        access_level="public",
+        document_formats=["PDF", "Video"],
+        api_available=False,
+        access_notes=(
+            "City council meeting info available online. Meetings can be "
+            "watched online via city website and social media."
+        ),
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="myrtle_beach_city_sc",
+    ),
+    DataSourceEntry(
+        county="City of Rock Hill",
+        state="SC",
+        portal_type="custom_pdf",
+        primary_url="https://www.cityofrockhill.com",
+        minutes_url="https://www.cityofrockhill.com/government/city-council",
+        access_level="public",
+        document_formats=["PDF"],
+        api_available=False,
+        access_notes="City council meeting information on official website.",
+        known_blockers=[],
+        workarounds=[],
+        council_identifier="rock_hill_city_sc",
+    ),
 ]
 
 
@@ -408,16 +671,33 @@ ALL_DATA_SOURCES: Dict[str, List[DataSourceEntry]] = {
 }
 
 
-def get_data_sources(state: Optional[str] = None) -> List[DataSourceEntry]:
+def get_data_sources(state: Optional[str] = None, include_municipalities: bool = False) -> List[DataSourceEntry]:
     """
     Return data source entries, optionally filtered by state.
 
     Args:
         state: "SC" or "NC". If None, returns all sources.
+        include_municipalities: If True, includes municipal (city) data sources for SC.
     """
+    sources = []
     if state is None:
-        return SC_DATA_SOURCES + NC_DATA_SOURCES
-    return ALL_DATA_SOURCES.get(state.upper(), [])
+        sources = SC_DATA_SOURCES + NC_DATA_SOURCES
+        if include_municipalities:
+            sources = sources + SC_MUNICIPAL_DATA_SOURCES
+    elif state.upper() == "SC":
+        sources = SC_DATA_SOURCES
+        if include_municipalities:
+            sources = sources + SC_MUNICIPAL_DATA_SOURCES
+    else:
+        sources = ALL_DATA_SOURCES.get(state.upper(), [])
+    return sources
+
+
+def get_municipal_sources(state: Optional[str] = None) -> List[DataSourceEntry]:
+    """Return municipal (city) data sources."""
+    if state is None or state.upper() == "SC":
+        return SC_MUNICIPAL_DATA_SOURCES
+    return []
 
 
 def get_data_source_by_county(county: str, state: Optional[str] = None) -> Optional[DataSourceEntry]:
@@ -448,9 +728,9 @@ def get_legistar_sources(state: Optional[str] = None) -> List[DataSourceEntry]:
     ]
 
 
-def print_catalog_summary(state: Optional[str] = None) -> None:
+def print_catalog_summary(state: Optional[str] = None, include_municipalities: bool = False) -> None:
     """Print a human-readable summary of the data catalog."""
-    sources = get_data_sources(state)
+    sources = get_data_sources(state, include_municipalities=include_municipalities)
     title = f"{state} " if state else "SC + NC "
     print(f"\n📋 {title}Local Government Data Catalog")
     print("=" * 70)
@@ -460,14 +740,25 @@ def print_catalog_summary(state: Optional[str] = None) -> None:
         by_state.setdefault(s.state, []).append(s)
 
     for st, state_sources in sorted(by_state.items()):
-        print(f"\n  {st} Counties ({len(state_sources)} total):")
-        for src in sorted(state_sources, key=lambda x: x.county):
+        # Separate counties from municipalities
+        counties = [s for s in state_sources if not s.county.startswith("City of")]
+        municipalities = [s for s in state_sources if s.county.startswith("City of")]
+        
+        print(f"\n  {st} Counties ({len(counties)} total):")
+        for src in sorted(counties, key=lambda x: x.county):
             blockers = f"  ⚠️  {len(src.known_blockers)} blocker(s)" if src.known_blockers else ""
             api_badge = "  🔌 API" if src.api_available else ""
             print(f"    • {src.county:20s} [{src.portal_type:25s}] {src.access_level:20s}{api_badge}{blockers}")
+        
+        if municipalities:
+            print(f"\n  {st} Municipalities ({len(municipalities)} total):")
+            for src in sorted(municipalities, key=lambda x: x.county):
+                blockers = f"  ⚠️  {len(src.known_blockers)} blocker(s)" if src.known_blockers else ""
+                api_badge = "  🔌 API" if src.api_available else ""
+                print(f"    • {src.county:20s} [{src.portal_type:25s}] {src.access_level:20s}{api_badge}{blockers}")
 
     print(f"\n  📊 Summary:")
-    print(f"    Total counties:       {len(sources)}")
+    print(f"    Total data sources:   {len(sources)}")
     print(f"    With API access:      {len(get_api_sources(state))}")
     print(f"    Legistar portals:     {len(get_legistar_sources(state))}")
     print(f"    With blockers:        {len(get_blocked_sources(state))}")

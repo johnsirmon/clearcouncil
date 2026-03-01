@@ -761,6 +761,556 @@ BEAUFORT_COUNTY_COUNCIL: List[SCRepresentative] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Georgetown County Council
+# ---------------------------------------------------------------------------
+GEORGETOWN_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Clint A. Elliott",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Bob Anderson",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Rev. Ernie L. Cooper",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Ron J. Charlton",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Raymond L. Newton",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Stella Mercado",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+    SCRepresentative(
+        name="Louis R. Morant",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Georgetown",
+        counties=["Georgetown"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Dorchester County Council
+# ---------------------------------------------------------------------------
+DORCHESTER_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Peter S. Smith Jr.",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+    SCRepresentative(
+        name="David Chinnis",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+    SCRepresentative(
+        name="Rita May Ranck",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+    SCRepresentative(
+        name="Todd Friddle",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+    SCRepresentative(
+        name="Eddie Crosby",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+    SCRepresentative(
+        name="Jay Byars",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Dorchester",
+        counties=["Dorchester"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Aiken County Council
+# ---------------------------------------------------------------------------
+AIKEN_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Gary Bunker",
+        district="At-Large (Chair)",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Ron Felder",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Mike Kellems",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Danny Feagin",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Landon Ball",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Sandy Haskell",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="Phil Napier",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="L. Andrew Siders",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+    SCRepresentative(
+        name="P.K. Hightower",
+        district="8",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Aiken",
+        counties=["Aiken"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Florence County Council
+# ---------------------------------------------------------------------------
+FLORENCE_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Jason M. Springs",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Andrew T. Rodgers Jr.",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Alphonso Bradley",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Jerry W. Yarborough Jr.",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Kent C. Caudle",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Stoney C. Moore",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Waymon Mumford",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="C. William Schofield",
+        district="8",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+    SCRepresentative(
+        name="Willard Dorriety Jr.",
+        district="9",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Florence",
+        counties=["Florence"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Sumter County Council
+# ---------------------------------------------------------------------------
+SUMTER_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="James T. McCain Jr.",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="James R. Byrd Jr.",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="Carlton B. Washington",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="Artie Baker",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="Charles T. Edens",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="Vivian Fleming-McGhaney",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+    SCRepresentative(
+        name="Tasha Gardner-Greene",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Sumter",
+        counties=["Sumter"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Orangeburg County Council
+# ---------------------------------------------------------------------------
+ORANGEBURG_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Johnnie Wright",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Johnny Ravenell",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Janie Cooper-Smith",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Deloris Frazier",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Joseph Garvin",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Kenneth McCaster",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+    SCRepresentative(
+        name="Latisha Walker",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Orangeburg",
+        counties=["Orangeburg"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Pickens County Council
+# ---------------------------------------------------------------------------
+PICKENS_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="C. Claiborne Linvill",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+    SCRepresentative(
+        name="Chris Lollis",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+    SCRepresentative(
+        name="Alex Saitta",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+    SCRepresentative(
+        name="Scott Lang",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+    SCRepresentative(
+        name="Chris Bowers",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+    SCRepresentative(
+        name="A.D. Holloway",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Pickens",
+        counties=["Pickens"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Kershaw County Council
+# ---------------------------------------------------------------------------
+KERSHAW_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Ben Connell",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Russell Brazell",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Sammie Tucker Jr.",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Derek Shoemake",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Jimmy Jones",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Brant Tomlinson",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+    SCRepresentative(
+        name="Danny Catoe",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Kershaw",
+        counties=["Kershaw"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Lancaster County Council
+# ---------------------------------------------------------------------------
+LANCASTER_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Stuart Graham",
+        district="1",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Charlene McGriff",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Billy Mosteller",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Jose Luis",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Steve Harper",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Bryant Neal",
+        district="6",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+    SCRepresentative(
+        name="Brian Carnes",
+        district="7",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Lancaster",
+        counties=["Lancaster"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Colleton County Council
+# ---------------------------------------------------------------------------
+COLLETON_COUNTY_COUNCIL: List[SCRepresentative] = [
+    SCRepresentative(
+        name="Scott Biering",
+        district="2",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Colleton",
+        counties=["Colleton"],
+    ),
+    SCRepresentative(
+        name="Bubba Trippe",
+        district="At-Large",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Colleton",
+        counties=["Colleton"],
+    ),
+    SCRepresentative(
+        name="Steven D. Murdaugh",
+        district="4",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Colleton",
+        counties=["Colleton"],
+    ),
+    SCRepresentative(
+        name="Phillip M. Taylor Sr.",
+        district="3",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Colleton",
+        counties=["Colleton"],
+    ),
+    SCRepresentative(
+        name="Johnny Frank",
+        district="5",
+        chamber=Chamber.COUNTY_COUNCIL,
+        county="Colleton",
+        counties=["Colleton"],
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # Registry mapping county name to council list
 # ---------------------------------------------------------------------------
 COUNTY_COUNCILS: Dict[str, List[SCRepresentative]] = {
@@ -774,6 +1324,16 @@ COUNTY_COUNCILS: Dict[str, List[SCRepresentative]] = {
     "Anderson": ANDERSON_COUNTY_COUNCIL,
     "Berkeley": BERKELEY_COUNTY_COUNCIL,
     "Beaufort": BEAUFORT_COUNTY_COUNCIL,
+    "Georgetown": GEORGETOWN_COUNTY_COUNCIL,
+    "Dorchester": DORCHESTER_COUNTY_COUNCIL,
+    "Aiken": AIKEN_COUNTY_COUNCIL,
+    "Florence": FLORENCE_COUNTY_COUNCIL,
+    "Sumter": SUMTER_COUNTY_COUNCIL,
+    "Orangeburg": ORANGEBURG_COUNTY_COUNCIL,
+    "Pickens": PICKENS_COUNTY_COUNCIL,
+    "Kershaw": KERSHAW_COUNTY_COUNCIL,
+    "Lancaster": LANCASTER_COUNTY_COUNCIL,
+    "Colleton": COLLETON_COUNTY_COUNCIL,
 }
 
 # Canonical county name (normalised lowercase → proper name)
