@@ -240,6 +240,11 @@ def add_voting_analysis_commands(subparsers):
         action="store_true",
         help="Show only sources with programmatic API access",
     )
+    catalog_parser.add_argument(
+        "--include-municipalities",
+        action="store_true",
+        help="Include municipal (city) data sources in the catalog",
+    )
     catalog_parser.set_defaults(func=discover_data_sources_command)
 
     # Agentic minutes parser command
@@ -893,6 +898,7 @@ def discover_data_sources_command(args):
     state = args.state if hasattr(args, "state") else None
     blocked_only = getattr(args, "blocked_only", False)
     api_only = getattr(args, "api_only", False)
+    include_municipalities = getattr(args, "include_municipalities", False)
 
     if blocked_only:
         sources = get_blocked_sources(state)
@@ -917,7 +923,7 @@ def discover_data_sources_command(args):
             print(f"  Notes: {src.access_notes}")
         return
 
-    print_catalog_summary(state)
+    print_catalog_summary(state, include_municipalities=include_municipalities)
 
     # Print portal type legend
     print("\n📖 Portal Type Legend:")
