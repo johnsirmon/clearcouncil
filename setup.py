@@ -38,7 +38,11 @@ setup(
     entry_points={
         "console_scripts": [
             "clearcouncil=clearcouncil.cli.main:main",
+            "clearcouncil-mcp=clearcouncil.mcp.server:run",
         ],
+    },
+    extras_require={
+        "mcp": ["mcp>=1.23.0"],
     },
     include_package_data=True,
     package_data={

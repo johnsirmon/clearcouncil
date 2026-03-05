@@ -2,7 +2,11 @@
 
 from .models import Document, DocumentMetadata, ProcessingResult
 from .exceptions import ClearCouncilError, ProcessingError, ConfigurationError
-from .database import VectorDatabase
+
+try:
+    from .database import VectorDatabase
+except ImportError:
+    pass
 
 __all__ = [
     "Document",
@@ -11,5 +15,5 @@ __all__ = [
     "ClearCouncilError",
     "ProcessingError",
     "ConfigurationError",
-    "VectorDatabase"
+    "VectorDatabase",
 ]

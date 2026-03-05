@@ -1,0 +1,7 @@
+# ClearCouncil MCP Server dependencies
+# Install with: pip install -r requirements-mcp.txt
+#
+# These are in addition to requirements.txt
+
+# MCP (Model Context Protocol) SDK — minimum version with security fixes
+mcp>=1.23.0
